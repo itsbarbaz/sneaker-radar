@@ -9,7 +9,7 @@ def main():
 
     request = urllib.request.Request(
         url,
-        headers={"Authorization": api_key}
+        headers={"Authorization": f"Bearer {api_key}"}
     )
 
     with urllib.request.urlopen(request) as response:
