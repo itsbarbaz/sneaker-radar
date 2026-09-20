@@ -7,7 +7,7 @@ import urllib.error
 def main():
     api_key = os.environ["KICKSDB_API_KEY"]
 
-    url = "https://api.kicks.dev/v3/stockx/products?limit=3&category=sneakers"
+    url = "https://api.kicks.dev/v3/stockx/products?limit=1"
 
     request = urllib.request.Request(
         url,
