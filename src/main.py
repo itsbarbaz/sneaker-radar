@@ -12,7 +12,7 @@ def main():
         headers={"Authorization": f"Bearer {api_key}"}
     )
 
-  try:
+try:
     with urllib.request.urlopen(request) as response:
         data = json.loads(response.read().decode())
 except urllib.error.HTTPError as e:
