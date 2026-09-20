@@ -2,6 +2,8 @@ import os
 import json
 import urllib.request
 import urllib.error
+
+
 def main():
     api_key = os.environ["KICKSDB_API_KEY"]
 
@@ -12,13 +14,13 @@ def main():
         headers={"Authorization": f"Bearer {api_key}"}
     )
 
-try:
-    with urllib.request.urlopen(request) as response:
-        data = json.loads(response.read().decode())
-except urllib.error.HTTPError as e:
-    print("KicksDB error:", e.code)
-    print(e.read().decode())
-    raise
+    try:
+        with urllib.request.urlopen(request) as response:
+            data = json.loads(response.read().decode())
+    except urllib.error.HTTPError as e:
+        print("KicksDB error:", e.code)
+        print(e.read().decode())
+        raise
 
     print("🔥 KicksDB connected!")
 
