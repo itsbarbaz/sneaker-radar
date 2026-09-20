@@ -15,8 +15,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-
       - name: Run Sneaker Radar
-      env:
+        env:
           KICKSDB_API_KEY: ${{ secrets.KICKSDB_API_KEY }}
         run: python src/main.py
+      
