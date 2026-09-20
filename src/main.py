@@ -17,11 +17,12 @@ def main():
     try:
         with urllib.request.urlopen(request) as response:
             data = json.loads(response.read().decode())
+
     except urllib.error.HTTPError as e:
-    print("KicksDB error:", e.code)
-    print("Headers:", dict(e.headers))
-    print("Body:", e.read().decode())
-    raise
+        print("KicksDB error:", e.code)
+        print("Headers:", dict(e.headers))
+        print("Body:", e.read().decode())
+        raise
 
     print("🔥 KicksDB connected!")
 
