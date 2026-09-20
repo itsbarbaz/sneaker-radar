@@ -1,7 +1,7 @@
 import os
 import json
 import urllib.request
-
+import urllib.error
 def main():
     api_key = os.environ["KICKSDB_API_KEY"]
 
