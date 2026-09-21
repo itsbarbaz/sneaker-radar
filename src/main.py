@@ -40,9 +40,7 @@ def main():
     search_term = os.environ.get("SEARCH_TERM", "Jordan 4 Retro")
 
     url = (
-        "https://api.kicks.dev/v3/stockx/products"
-        f"?query={urllib.parse.quote(search_term)}"
-        "&limit=1"
+         "https://api.kicks.dev/v3/stockx/products?query=Jordan%204%20Retro&limit=10"
     )
 
     log("🔎 Search term:", search_term)
