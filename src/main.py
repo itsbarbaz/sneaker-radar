@@ -38,6 +38,14 @@ def main():
         print(f"👟 {product.get('title')}")
         print(f"SKU: {product.get('sku')}")
         print(f"Price: {product.get('avg_price')}")
+existing = (
+    supabase.table("products")
+    .select("id")
+    .eq("sku", sku)
+    .execute()
+)
+
+print(f"Found {len(existing.data)} products with this SKU")
         print("---")
 
 
