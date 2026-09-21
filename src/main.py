@@ -51,7 +51,11 @@ def main():
             .execute()
         )
 
-        if not existing.data:
+        if existing.data:
+            product_id = existing.data[0]["id"]
+            print(f"Found existing product with id {product_id}")
+
+        else:
             result = (
                 supabase.table("products")
                 .insert({
@@ -60,12 +64,29 @@ def main():
                     "sku": sku,
                     "source": "kicksdb"
                 })
+                .select("id")
+                .single()
                 .execute()
             )
 
-            print("✅ Product saved to Supabase!")
+            product_id = result.data["id"]
+            print(f"✅ Product saved to Supabase with id {product_id}")
 
-        print(f"Found {len(existing.data)} products with this SKU")
+        if price is not None and price > 0:
+            (
+                supabase.table("price_history")
+                .insert({
+                    "product_id": product_id,
+                    "price": price,
+                    "currency": "USD"
+                })
+                .execute()
+            )
+
+            print("💰 Price saved to price_history!")
+
+        else:
+            print("⚠️ Price is 0 or missing, so it was not saved.")
 
         print("---")
 
