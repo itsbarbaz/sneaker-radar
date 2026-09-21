@@ -34,6 +34,10 @@ def main():
         raise
 
     print("🔥 KicksDB connected!")
+    print("🔥 KicksDB connected!")
+print(f"📦 Products returned: {len(data['data'])}")
+
+for product in data["data"]:
 
     for product in data["data"]:
         title = product.get("title")
