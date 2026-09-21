@@ -13,6 +13,7 @@ def main():
     supabase = create_client(supabase_url, supabase_key)
 
     print("🔥 Supabase connected!")
+
     api_key = os.environ["KICKSDB_API_KEY"]
 
     url = "https://api.kicks.dev/v3/stockx/products?limit=1"
@@ -35,17 +36,23 @@ def main():
     print("🔥 KicksDB connected!")
 
     for product in data["data"]:
-        print(f"👟 {product.get('title')}")
-        print(f"SKU: {product.get('sku')}")
-        print(f"Price: {product.get('avg_price')}")
-existing = (
-    supabase.table("products")
-    .select("id")
-    .eq("sku", sku)
-    .execute()
-)
+        title = product.get("title")
+        sku = product.get("sku")
+        price = product.get("avg_price")
 
-print(f"Found {len(existing.data)} products with this SKU")
+        print(f"👟 {title}")
+        print(f"SKU: {sku}")
+        print(f"Price: {price}")
+
+        existing = (
+            supabase.table("products")
+            .select("id")
+            .eq("sku", sku)
+            .execute()
+        )
+
+        print(f"Found {len(existing.data)} products with this SKU")
+
         print("---")
 
 
