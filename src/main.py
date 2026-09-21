@@ -20,7 +20,9 @@ def main():
 
     request = urllib.request.Request(
         url,
-        headers={"Authorization": f"Bearer {api_key}"}
+        headers={
+            "Authorization": f"Bearer {api_key}"
+        }
     )
 
     try:
@@ -28,15 +30,21 @@ def main():
             data = json.loads(response.read().decode())
 
     except urllib.error.HTTPError as e:
-        print("KicksDB error:", e.code)
+        print("❌ KicksDB error:", e.code)
         print("Headers:", dict(e.headers))
         print("Body:", e.read().decode())
         raise
 
     print("🔥 KicksDB connected!")
-    print(f"📦 Products returned: {len(data['data'])}")
 
-    for product in data["data"]:
+    print("📡 KicksDB response:")
+    print(json.dumps(data, indent=2))
+
+    products = data.get("data", [])
+
+    print(f"📦 Products returned: {len(products)}")
+
+    for product in products:
         title = product.get("title")
         sku = product.get("sku")
         price = product.get("avg_price")
@@ -54,7 +62,7 @@ def main():
 
         if existing.data:
             product_id = existing.data[0]["id"]
-            print(f"Found existing product with id {product_id}")
+            print(f"🔎 Found existing product with id {product_id}")
 
         else:
             result = (
@@ -71,7 +79,10 @@ def main():
             )
 
             product_id = result.data["id"]
-            print(f"✅ Product saved to Supabase with id {product_id}")
+
+            print(
+                f"✅ Product saved to Supabase with id {product_id}"
+            )
 
         if price is not None and price > 0:
             (
