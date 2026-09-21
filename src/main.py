@@ -16,7 +16,7 @@ def main():
 
     api_key = os.environ["KICKSDB_API_KEY"]
 
-    url = "https://api.kicks.dev/v3/stockx/products?limit=1&category=sneakers"
+    url = "https://api.kicks.dev/v3/stockx/products?query=Nike%20Air%20Force%201%20Low&limit=1"
 
     request = urllib.request.Request(
         url,
