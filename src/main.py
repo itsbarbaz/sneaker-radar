@@ -21,7 +21,7 @@ def main():
     request = urllib.request.Request(
         url,
         headers={
-            "Authorization": f"Bearer {api_key}"
+            "Authorization": api_key
         }
     )
 
@@ -62,7 +62,10 @@ def main():
 
         if existing.data:
             product_id = existing.data[0]["id"]
-            print(f"🔎 Found existing product with id {product_id}")
+
+            print(
+                f"🔎 Found existing product with id {product_id}"
+            )
 
         else:
             result = (
@@ -98,7 +101,9 @@ def main():
             print("💰 Price saved to price_history!")
 
         else:
-            print("⚠️ Price is 0 or missing, so it was not saved.")
+            print(
+                "⚠️ Price is 0 or missing, so it was not saved."
+            )
 
         print("---")
 
