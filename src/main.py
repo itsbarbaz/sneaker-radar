@@ -50,19 +50,21 @@ def main():
             .eq("sku", sku)
             .execute()
         )
-if not existing.data:
-    result = (
-        supabase.table("products")
-        .insert({
-            "title": title,
-            "brand": product.get("brand"),
-            "sku": sku,
-            "source": "kicksdb"
-        })
-        .execute()
-    )
 
-    print("✅ Product saved to Supabase!")
+        if not existing.data:
+            result = (
+                supabase.table("products")
+                .insert({
+                    "title": title,
+                    "brand": product.get("brand"),
+                    "sku": sku,
+                    "source": "kicksdb"
+                })
+                .execute()
+            )
+
+            print("✅ Product saved to Supabase!")
+
         print(f"Found {len(existing.data)} products with this SKU")
 
         print("---")
