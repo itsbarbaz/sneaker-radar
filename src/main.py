@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import urllib.parse
 import urllib.request
 import urllib.error
 
@@ -35,8 +36,17 @@ def main():
 
     api_key = os.environ["KICKSDB_API_KEY"]
 
-    # TEST: chiediamo semplicemente 1 prodotto
-    url = "https://api.kicks.dev/v3/stockx/products?limit=1"
+    # Termine di ricerca (puoi cambiarlo qui o con la variabile SEARCH_TERM)
+    search_term = os.environ.get("SEARCH_TERM", "Jordan 4 Retro")
+
+    url = (
+        "https://api.kicks.dev/v3/stockx/products"
+        f"?query={urllib.parse.quote(search_term)}"
+        "&limit=1"
+    )
+
+    log("🔎 Search term:", search_term)
+    log("📋 URL richiesto:", url)
 
     request = urllib.request.Request(
         url,
@@ -63,7 +73,9 @@ def main():
 
     if isinstance(data, dict):
         log("🔑 Top-level keys:", list(data.keys()))
-        products = data.get("data", [])
+        log("📋 meta:", json.dumps(data.get("meta"), indent=2))
+        log("📋 data (raw):", json.dumps(data.get("data"))[:500])
+        products = data.get("data") or []
     elif isinstance(data, list):
         products = data
     else:
@@ -71,8 +83,12 @@ def main():
 
     log(f"📦 Products returned: {len(products)}")
 
-    if products:
-        log("👟 First product keys:", list(products[0].keys()))
+    if not products:
+        log("⚠️ Nessun prodotto restituito. Guarda 'meta' sopra per capire perché.")
+        log("✅ Done.")
+        return
+
+    log("👟 First product keys:", list(products[0].keys()))
 
     # =========================
     # PROCESS PRODUCTS
