@@ -1,9 +1,20 @@
 import os
+import sys
 import json
 import urllib.request
 import urllib.error
 
 from supabase import create_client
+
+# Forza l'output a comparire subito nei log di GitHub Actions
+try:
+    sys.stdout.reconfigure(line_buffering=True)
+except Exception:
+    pass
+
+
+def log(*args):
+    print(*args, flush=True)
 
 
 def main():
@@ -14,12 +25,9 @@ def main():
     supabase_url = os.environ["SUPABASE_URL"]
     supabase_key = os.environ["SUPABASE_SECRET_KEY"]
 
-    supabase = create_client(
-        supabase_url,
-        supabase_key
-    )
+    supabase = create_client(supabase_url, supabase_key)
 
-    print("🔥 Supabase connected!")
+    log("🔥 Supabase connected!")
 
     # =========================
     # KICKSDB
@@ -28,43 +36,43 @@ def main():
     api_key = os.environ["KICKSDB_API_KEY"]
 
     # TEST: chiediamo semplicemente 1 prodotto
-    # senza usare il parametro "query".
-    url = (
-        "https://api.kicks.dev/v3/stockx/products"
-        "?limit=1"
-    )
+    url = "https://api.kicks.dev/v3/stockx/products?limit=1"
 
     request = urllib.request.Request(
         url,
-        headers={
-            "Authorization": api_key
-        }
+        headers={"Authorization": api_key}
     )
 
     try:
         with urllib.request.urlopen(request) as response:
-            data = json.loads(
-                response.read().decode()
-            )
+            data = json.loads(response.read().decode())
 
     except urllib.error.HTTPError as e:
-        print("❌ KicksDB error:", e.code)
-        print("Headers:", dict(e.headers))
-        print("Body:", e.read().decode())
+        log("❌ KicksDB error:", e.code)
+        log("Headers:", dict(e.headers))
+        log("Body:", e.read().decode())
         raise
 
-    print("🔥 KicksDB connected!")
-
-    print("📡 KicksDB response:")
-    print(json.dumps(data, indent=2))
+    log("🔥 KicksDB connected!")
 
     # =========================
-    # PRODUCTS
+    # STRUTTURA RISPOSTA (log corto)
     # =========================
 
-    products = data.get("data", [])
+    log("📡 Response type:", type(data).__name__)
 
-    print(f"📦 Products returned: {len(products)}")
+    if isinstance(data, dict):
+        log("🔑 Top-level keys:", list(data.keys()))
+        products = data.get("data", [])
+    elif isinstance(data, list):
+        products = data
+    else:
+        products = []
+
+    log(f"📦 Products returned: {len(products)}")
+
+    if products:
+        log("👟 First product keys:", list(products[0].keys()))
 
     # =========================
     # PROCESS PRODUCTS
@@ -76,9 +84,14 @@ def main():
         price = product.get("avg_price")
         brand = product.get("brand")
 
-        print(f"👟 {title}")
-        print(f"SKU: {sku}")
-        print(f"Price: {price}")
+        log(f"👟 {title}")
+        log(f"SKU: {sku}")
+        log(f"Price: {price}")
+
+        if not sku:
+            log("⚠️ Product has no SKU, skipping.")
+            log("---")
+            continue
 
         # =========================
         # CHECK PRODUCT
@@ -92,24 +105,13 @@ def main():
             .execute()
         )
 
-        # =========================
-        # EXISTING PRODUCT
-        # =========================
-
         if existing.data:
             product_id = existing.data[0]["id"]
-
-            print(
-                f"🔎 Found existing product with id {product_id}"
-            )
-
-        # =========================
-        # NEW PRODUCT
-        # =========================
+            log(f"🔎 Found existing product with id {product_id}")
 
         else:
-            print("🆕 Product not found in database.")
-            print("💾 Saving product...")
+            log("🆕 Product not found in database.")
+            log("💾 Saving product...")
 
             (
                 supabase
@@ -123,7 +125,6 @@ def main():
                 .execute()
             )
 
-            # Recuperiamo l'ID usando lo SKU
             inserted = (
                 supabase
                 .table("products")
@@ -138,10 +139,7 @@ def main():
                 )
 
             product_id = inserted.data[0]["id"]
-
-            print(
-                f"✅ Product saved to Supabase with id {product_id}"
-            )
+            log(f"✅ Product saved to Supabase with id {product_id}")
 
         # =========================
         # PRICE HISTORY
@@ -159,14 +157,14 @@ def main():
                 .execute()
             )
 
-            print("💰 Price saved to price_history!")
+            log("💰 Price saved to price_history!")
 
         else:
-            print(
-                "⚠️ Price is 0 or missing, so it was not saved."
-            )
+            log("⚠️ Price is 0 or missing, so it was not saved.")
 
-        print("---")
+        log("---")
+
+    log("✅ Done.")
 
 
 if __name__ == "__main__":
