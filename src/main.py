@@ -21,7 +21,6 @@ def main():
 
     print("🔥 Supabase connected!")
 
-
     # =========================
     # KICKSDB
     # =========================
@@ -57,22 +56,19 @@ def main():
     print("📡 KicksDB response:")
     print(json.dumps(data, indent=2))
 
-
     # =========================
-    # PRODUCTS
+    # GET PRODUCTS
     # =========================
 
     products = data.get("data", [])
 
     print(f"📦 Products returned: {len(products)}")
 
-
     # =========================
     # PROCESS PRODUCTS
     # =========================
 
     for product in products:
-
         title = product.get("title")
         sku = product.get("sku")
         price = product.get("avg_price")
@@ -82,9 +78,8 @@ def main():
         print(f"SKU: {sku}")
         print(f"Price: {price}")
 
-
         # =========================
-        # CHECK IF PRODUCT EXISTS
+        # CHECK PRODUCT
         # =========================
 
         existing = (
@@ -95,43 +90,38 @@ def main():
             .execute()
         )
 
-
         # =========================
-        # EXISTING PRODUCT
+        # PRODUCT ALREADY EXISTS
         # =========================
 
         if existing.data:
-
             product_id = existing.data[0]["id"]
 
             print(
                 f"🔎 Found existing product with id {product_id}"
             )
 
-
         # =========================
         # NEW PRODUCT
         # =========================
 
         else:
-
             print("🆕 Product not found in database.")
             print("💾 Saving product...")
 
+            (
+                supabase
+                .table("products")
+                .insert({
+                    "title": title,
+                    "brand": brand,
+                    "sku": sku,
+                    "source": "kicksdb"
+                })
+                .execute()
+            )
 
-            supabase
-            .table("products")
-            .insert({
-                "title": title,
-                "brand": brand,
-                "sku": sku,
-                "source": "kicksdb"
-            })
-            .execute()
-
-
-            # After inserting, retrieve the ID
-            # using the SKU.
+            # Get the ID of the product we just inserted
             inserted = (
                 supabase
                 .table("products")
@@ -140,12 +130,10 @@ def main():
                 .execute()
             )
 
-
             if not inserted.data:
                 raise RuntimeError(
                     "❌ Product was inserted but its ID could not be found."
                 )
-
 
             product_id = inserted.data[0]["id"]
 
@@ -153,13 +141,11 @@ def main():
                 f"✅ Product saved to Supabase with id {product_id}"
             )
 
-
         # =========================
-        # PRICE HISTORY
+        # SAVE PRICE HISTORY
         # =========================
 
         if price is not None and price > 0:
-
             (
                 supabase
                 .table("price_history")
@@ -173,20 +159,13 @@ def main():
 
             print("💰 Price saved to price_history!")
 
-
         else:
-
             print(
                 "⚠️ Price is 0 or missing, so it was not saved."
             )
 
-
         print("---")
 
-
-# =========================
-# START PROGRAM
-# =========================
 
 if __name__ == "__main__":
     main()
