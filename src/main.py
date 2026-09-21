@@ -3,8 +3,16 @@ import json
 import urllib.request
 import urllib.error
 
+from supabase import create_client
+
 
 def main():
+    supabase_url = os.environ["SUPABASE_URL"]
+    supabase_key = os.environ["SUPABASE_SECRET_KEY"]
+
+    supabase = create_client(supabase_url, supabase_key)
+
+    print("🔥 Supabase connected!")
     api_key = os.environ["KICKSDB_API_KEY"]
 
     url = "https://api.kicks.dev/v3/stockx/products?limit=1"
