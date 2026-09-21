@@ -27,9 +27,11 @@ def main():
 
     api_key = os.environ["KICKSDB_API_KEY"]
 
+    # TEST: chiediamo semplicemente 1 prodotto
+    # senza usare il parametro "query".
     url = (
         "https://api.kicks.dev/v3/stockx/products"
-        "?query=Nike%20Air%20Force%201%20Low&limit=1"
+        "?limit=1"
     )
 
     request = urllib.request.Request(
@@ -57,7 +59,7 @@ def main():
     print(json.dumps(data, indent=2))
 
     # =========================
-    # GET PRODUCTS
+    # PRODUCTS
     # =========================
 
     products = data.get("data", [])
@@ -91,7 +93,7 @@ def main():
         )
 
         # =========================
-        # PRODUCT ALREADY EXISTS
+        # EXISTING PRODUCT
         # =========================
 
         if existing.data:
@@ -121,7 +123,7 @@ def main():
                 .execute()
             )
 
-            # Get the ID of the product we just inserted
+            # Recuperiamo l'ID usando lo SKU
             inserted = (
                 supabase
                 .table("products")
@@ -142,7 +144,7 @@ def main():
             )
 
         # =========================
-        # SAVE PRICE HISTORY
+        # PRICE HISTORY
         # =========================
 
         if price is not None and price > 0:
