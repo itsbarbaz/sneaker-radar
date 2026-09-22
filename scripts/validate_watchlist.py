@@ -71,7 +71,7 @@ def normalize(text):
 
 
 def tokenize(text):
-    return set(normalize(text).split())
+    return normalize(text).split()
 
 
 def exact_brand_match(expected_brand, product_brand):
@@ -81,28 +81,47 @@ def exact_brand_match(expected_brand, product_brand):
     return expected == actual
 
 
-def model_matches(model, product):
-    expected_tokens = tokenize(model)
+def sequence_match(expected_model, text):
+    expected_tokens = tokenize(expected_model)
+    actual_tokens = tokenize(text)
 
+    if not expected_tokens:
+        return False
+
+    if len(expected_tokens) > len(actual_tokens):
+        return False
+
+    for index in range(
+        len(actual_tokens) - len(expected_tokens) + 1
+    ):
+        window = actual_tokens[
+            index:index + len(expected_tokens)
+        ]
+
+        if window == expected_tokens:
+            return True
+
+    return False
+
+
+def model_matches(model, product):
     fields = [
         product.get("model"),
         product.get("primary_title"),
         product.get("title"),
     ]
 
-    field_tokens = set()
-
     for field in fields:
-        field_tokens.update(tokenize(field))
+        if sequence_match(model, field):
+            return True
 
-    if not expected_tokens:
-        return False
-
-    return expected_tokens.issubset(field_tokens)
+    return False
 
 
 def product_type_is_sneaker(product):
-    product_type = normalize(product.get("product_type"))
+    product_type = normalize(
+        product.get("product_type")
+    )
 
     categories = product.get("categories") or []
 
@@ -120,6 +139,7 @@ def product_type_is_sneaker(product):
             breadcrumb_values.add(
                 normalize(breadcrumb.get("value"))
             )
+
             breadcrumb_values.add(
                 normalize(breadcrumb.get("alias"))
             )
@@ -145,18 +165,43 @@ def has_valid_price(product):
 
 
 def has_valid_sku(product):
-    sku = str(product.get("sku") or "").strip()
+    sku = str(
+        product.get("sku") or ""
+    ).strip()
 
     return bool(sku)
 
 
-def validate_product(brand, model, search_query, product):
-    title = str(product.get("title") or "")
-    product_brand = str(product.get("brand") or "")
-    product_model = str(product.get("model") or "")
-    sku = str(product.get("sku") or "")
-    product_type = str(product.get("product_type") or "")
-    category = str(product.get("category") or "")
+def validate_product(
+    brand,
+    model,
+    search_query,
+    product
+):
+    title = str(
+        product.get("title") or ""
+    )
+
+    product_brand = str(
+        product.get("brand") or ""
+    )
+
+    product_model = str(
+        product.get("model") or ""
+    )
+
+    sku = str(
+        product.get("sku") or ""
+    )
+
+    product_type = str(
+        product.get("product_type") or ""
+    )
+
+    category = str(
+        product.get("category") or ""
+    )
+
     price = product.get("avg_price")
 
     reasons = []
@@ -221,10 +266,7 @@ def validate_product(brand, model, search_query, product):
         score = 0
 
     else:
-        score = 0
-
-        score += 40
-        score += 30
+        score = 70
 
         if sku_match:
             score += 15
@@ -267,16 +309,24 @@ def search_product(api_key, search_query):
 
     request = urllib.request.Request(
         url,
-        headers={"Authorization": api_key}
+        headers={
+            "Authorization": api_key
+        }
     )
 
     try:
-        with urllib.request.urlopen(request) as response:
+        with urllib.request.urlopen(
+            request
+        ) as response:
+
             data = json.loads(
                 response.read().decode()
             )
 
-        products = data.get("data", [])
+        products = data.get(
+            "data",
+            []
+        )
 
         if not products:
             return None
@@ -288,28 +338,41 @@ def search_product(api_key, search_query):
             f"❌ HTTP {e.code} for "
             f"{search_query}"
         )
+
         return None
 
     except Exception as e:
         print(
-            f"❌ Error for {search_query}: "
-            f"{e}"
+            f"❌ Error for "
+            f"{search_query}: {e}"
         )
+
         return None
 
 
 def main():
-    api_key = os.environ["KICKSDB_API_KEY"]
+    api_key = os.environ[
+        "KICKSDB_API_KEY"
+    ]
 
-    print("🔥 Starting watchlist validation")
+    print(
+        "🔥 Starting watchlist validation"
+    )
+
     print(
         f"📦 Queries: {len(WATCHLIST)}"
     )
+
     print()
 
     results = []
 
-    for brand, model, search_query in WATCHLIST:
+    for (
+        brand,
+        model,
+        search_query
+    ) in WATCHLIST:
+
         print(
             f"🔎 {search_query}"
         )
@@ -320,6 +383,7 @@ def main():
         )
 
         if product is None:
+
             result = {
                 "status": "EMPTY",
                 "score": 0,
@@ -332,6 +396,7 @@ def main():
             }
 
         else:
+
             result = validate_product(
                 brand,
                 model,
@@ -339,7 +404,9 @@ def main():
                 product
             )
 
-        results.append(result)
+        results.append(
+            result
+        )
 
         print(
             f"   {result['status']} "
@@ -348,6 +415,7 @@ def main():
         )
 
         if result.get("reasons"):
+
             print(
                 "   ⚠️ "
                 + ", ".join(
@@ -362,6 +430,7 @@ def main():
         "w",
         encoding="utf-8"
     ) as file:
+
         json.dump(
             results,
             file,
@@ -393,15 +462,42 @@ def main():
         if result["status"] == "EMPTY"
     )
 
-    print("===================================")
-    print("📊 VALIDATION SUMMARY")
-    print("===================================")
-    print(f"Total:   {len(results)}")
-    print(f"VALID:   {valid}")
-    print(f"REVIEW:  {review}")
-    print(f"REJECT:  {reject}")
-    print(f"EMPTY:   {empty}")
-    print("===================================")
+    print(
+        "==================================="
+    )
+
+    print(
+        "📊 VALIDATION SUMMARY"
+    )
+
+    print(
+        "==================================="
+    )
+
+    print(
+        f"Total:   {len(results)}"
+    )
+
+    print(
+        f"VALID:   {valid}"
+    )
+
+    print(
+        f"REVIEW:  {review}"
+    )
+
+    print(
+        f"REJECT:  {reject}"
+    )
+
+    print(
+        f"EMPTY:   {empty}"
+    )
+
+    print(
+        "==================================="
+    )
+
     print(
         "📄 Saved to "
         "watchlist_validation_results.json"
