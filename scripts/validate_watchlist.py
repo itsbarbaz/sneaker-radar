@@ -62,6 +62,9 @@ WATCHLIST = [
 ]
 
 
+CANDIDATE_LIMIT = 10
+
+
 def normalize(text):
     text = str(text or "").lower()
     text = text.replace("-", " ")
@@ -169,13 +172,186 @@ def has_valid_sku(product):
     return bool(sku)
 
 
-def validate_product(
+def score_candidate(
+    brand,
+    validation_model,
+    product
+):
+    brand_match = exact_brand_match(
+        brand,
+        product.get("brand")
+    )
+
+    sneaker_match = product_type_is_sneaker(
+        product
+    )
+
+    model_match = model_matches(
+        validation_model,
+        product
+    )
+
+    sku_match = has_valid_sku(
+        product
+    )
+
+    price_match = has_valid_price(
+        product
+    )
+
+    if not brand_match:
+        return 0, {
+            "brand_match": False,
+            "sneaker_match": sneaker_match,
+            "model_match": model_match,
+            "sku_match": sku_match,
+            "price_match": price_match,
+        }
+
+    if not sneaker_match:
+        return 0, {
+            "brand_match": True,
+            "sneaker_match": False,
+            "model_match": model_match,
+            "sku_match": sku_match,
+            "price_match": price_match,
+        }
+
+    if not model_match:
+        return 0, {
+            "brand_match": True,
+            "sneaker_match": True,
+            "model_match": False,
+            "sku_match": sku_match,
+            "price_match": price_match,
+        }
+
+    score = 70
+
+    if sku_match:
+        score += 15
+
+    if price_match:
+        score += 15
+
+    return score, {
+        "brand_match": True,
+        "sneaker_match": True,
+        "model_match": True,
+        "sku_match": sku_match,
+        "price_match": price_match,
+    }
+
+
+def search_products(api_key, search_query):
+    params = urllib.parse.urlencode({
+        "query": search_query,
+        "limit": CANDIDATE_LIMIT,
+    })
+
+    url = (
+        "https://api.kicks.dev/v3/stockx/products?"
+        + params
+    )
+
+    request = urllib.request.Request(
+        url,
+        headers={
+            "Authorization": api_key
+        }
+    )
+
+    try:
+        with urllib.request.urlopen(
+            request
+        ) as response:
+
+            data = json.loads(
+                response.read().decode()
+            )
+
+        return data.get(
+            "data",
+            []
+        )
+
+    except urllib.error.HTTPError as e:
+        print(
+            f"❌ HTTP {e.code} for "
+            f"{search_query}"
+        )
+
+        return []
+
+    except Exception as e:
+        print(
+            f"❌ Error for "
+            f"{search_query}: {e}"
+        )
+
+        return []
+
+
+def select_best_candidate(
+    brand,
+    validation_model,
+    products
+):
+    evaluated = []
+
+    for product in products:
+
+        score, checks = score_candidate(
+            brand,
+            validation_model,
+            product
+        )
+
+        evaluated.append({
+            "score": score,
+            "checks": checks,
+            "product": product,
+        })
+
+    evaluated.sort(
+        key=lambda item: item["score"],
+        reverse=True
+    )
+
+    if not evaluated:
+        return None, []
+
+    best = evaluated[0]
+
+    return best, evaluated
+
+
+def build_result(
     brand,
     display_model,
     validation_model,
     search_query,
-    product
+    best,
+    evaluated
 ):
+    if best is None:
+        return {
+            "status": "EMPTY",
+            "score": 0,
+            "query": search_query,
+            "brand": brand,
+            "display_model": display_model,
+            "validation_model": validation_model,
+            "reasons": [
+                "no products returned"
+            ],
+            "candidates_checked": 0,
+        }
+
+    product = best["product"]
+    score = best["score"]
+    checks = best["checks"]
+
     title = str(
         product.get("title") or ""
     )
@@ -204,78 +380,45 @@ def validate_product(
 
     reasons = []
 
-    brand_match = exact_brand_match(
-        brand,
-        product_brand
-    )
-
-    sneaker_match = product_type_is_sneaker(
-        product
-    )
-
-    model_match = model_matches(
-        validation_model,
-        product
-    )
-
-    sku_match = has_valid_sku(
-        product
-    )
-
-    price_match = has_valid_price(
-        product
-    )
-
-    if not brand_match:
+    if not checks["brand_match"]:
         reasons.append(
             "brand mismatch"
         )
 
-    if not sneaker_match:
+    if not checks["sneaker_match"]:
         reasons.append(
             "product is not confirmed as a sneaker"
         )
 
-    if not model_match:
+    if not checks["model_match"]:
         reasons.append(
             "model mismatch"
         )
 
-    if not sku_match:
+    if not checks["sku_match"]:
         reasons.append(
             "missing SKU"
         )
 
-    if not price_match:
+    if not checks["price_match"]:
         reasons.append(
             "invalid price"
         )
 
-    if not brand_match:
+    if not checks["brand_match"]:
         status = "REJECT"
-        score = 0
 
-    elif not sneaker_match:
+    elif not checks["sneaker_match"]:
         status = "REJECT"
-        score = 0
 
-    elif not model_match:
+    elif not checks["model_match"]:
         status = "REJECT"
-        score = 0
+
+    elif checks["sku_match"] and checks["price_match"]:
+        status = "VALID"
 
     else:
-        score = 70
-
-        if sku_match:
-            score += 15
-
-        if price_match:
-            score += 15
-
-        if price_match and sku_match:
-            status = "VALID"
-        else:
-            status = "REVIEW"
+        status = "REVIEW"
 
     return {
         "status": status,
@@ -292,61 +435,19 @@ def validate_product(
         "sku": sku,
         "price": price,
         "reasons": reasons,
+        "candidates_checked": len(evaluated),
+        "candidate_scores": [
+            {
+                "score": item["score"],
+                "title": item["product"].get("title"),
+                "brand": item["product"].get("brand"),
+                "model": item["product"].get("model"),
+                "sku": item["product"].get("sku"),
+                "price": item["product"].get("avg_price"),
+            }
+            for item in evaluated
+        ],
     }
-
-
-def search_product(api_key, search_query):
-    params = urllib.parse.urlencode({
-        "query": search_query,
-        "limit": 1,
-    })
-
-    url = (
-        "https://api.kicks.dev/v3/stockx/products?"
-        + params
-    )
-
-    request = urllib.request.Request(
-        url,
-        headers={
-            "Authorization": api_key
-        }
-    )
-
-    try:
-        with urllib.request.urlopen(
-            request
-        ) as response:
-
-            data = json.loads(
-                response.read().decode()
-            )
-
-        products = data.get(
-            "data",
-            []
-        )
-
-        if not products:
-            return None
-
-        return products[0]
-
-    except urllib.error.HTTPError as e:
-        print(
-            f"❌ HTTP {e.code} for "
-            f"{search_query}"
-        )
-
-        return None
-
-    except Exception as e:
-        print(
-            f"❌ Error for "
-            f"{search_query}: {e}"
-        )
-
-        return None
 
 
 def main():
@@ -360,6 +461,11 @@ def main():
 
     print(
         f"📦 Queries: {len(WATCHLIST)}"
+    )
+
+    print(
+        f"🔎 Candidates per query: "
+        f"{CANDIDATE_LIMIT}"
     )
 
     print()
@@ -377,38 +483,27 @@ def main():
             f"🔎 {search_query}"
         )
 
-        product = search_product(
+        products = search_products(
             api_key,
             search_query
         )
 
-        if product is None:
-
-            result = {
-                "status": "EMPTY",
-                "score": 0,
-                "query": search_query,
-                "brand": brand,
-                "display_model": display_model,
-                "validation_model": validation_model,
-                "reasons": [
-                    "no product returned"
-                ],
-            }
-
-        else:
-
-            result = validate_product(
-                brand,
-                display_model,
-                validation_model,
-                search_query,
-                product
-            )
-
-        results.append(
-            result
+        best, evaluated = select_best_candidate(
+            brand,
+            validation_model,
+            products
         )
+
+        result = build_result(
+            brand,
+            display_model,
+            validation_model,
+            search_query,
+            best,
+            evaluated
+        )
+
+        results.append(result)
 
         print(
             f"   {result['status']} "
@@ -416,8 +511,12 @@ def main():
             f"| {result.get('title', '')}"
         )
 
-        if result.get("reasons"):
+        print(
+            f"   📦 Candidates checked: "
+            f"{result['candidates_checked']}"
+        )
 
+        if result.get("reasons"):
             print(
                 "   ⚠️ "
                 + ", ".join(
