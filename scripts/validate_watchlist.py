@@ -105,14 +105,78 @@ def sequence_match(expected_model, text):
 
 
 def model_matches(model, product):
-    fields = [
-        product.get("model"),
+    expected_tokens = tokenize(model)
+
+    product_model = product.get("model")
+    product_model_tokens = tokenize(product_model)
+
+    if product_model:
+        # Il campo "model" strutturato di KicksDB
+        # è la fonte principale per identificare il modello.
+        #
+        # Questo impedisce casi come:
+        #
+        # Jordan 5
+        #      vs
+        # Jordan Luka 5
+        #
+        # dove il titolo contiene "Jordan 5" ma
+        # il vero modello è "Jordan Luka 5".
+
+        expected_has_number = any(
+            token.isdigit()
+            for token in expected_tokens
+        )
+
+        product_model_has_number = any(
+            token.isdigit()
+            for token in product_model_tokens
+        )
+
+        # Match diretto sul campo model.
+        if sequence_match(
+            model,
+            product_model
+        ):
+            return True
+
+        # Se entrambi hanno numeri di modello ma
+        # non c'è un match diretto, NON permettiamo
+        # al titolo di creare un falso positivo.
+        if (
+            expected_has_number
+            and product_model_has_number
+        ):
+            return False
+
+        # Per query di collaborazione/collezione
+        # come "Bad Bunny", il termine potrebbe
+        # non essere presente nel campo model.
+        #
+        # In quel caso titolo e primary_title
+        # possono essere usati come fallback.
+        for field in [
+            product.get("primary_title"),
+            product.get("title"),
+        ]:
+            if sequence_match(
+                model,
+                field
+            ):
+                return True
+
+        return False
+
+    # Se KicksDB non fornisce il campo model,
+    # utilizziamo titolo e primary_title come fallback.
+    for field in [
         product.get("primary_title"),
         product.get("title"),
-    ]
-
-    for field in fields:
-        if sequence_match(model, field):
+    ]:
+        if sequence_match(
+            model,
+            field
+        ):
             return True
 
     return False
@@ -137,11 +201,15 @@ def product_type_is_sneaker(product):
     for breadcrumb in breadcrumbs:
         if isinstance(breadcrumb, dict):
             breadcrumb_values.add(
-                normalize(breadcrumb.get("value"))
+                normalize(
+                    breadcrumb.get("value")
+                )
             )
 
             breadcrumb_values.add(
-                normalize(breadcrumb.get("alias"))
+                normalize(
+                    breadcrumb.get("alias")
+                )
             )
 
     has_sneaker_category = (
@@ -235,7 +303,9 @@ def evaluate_candidate(
     reasons = []
 
     if not brand_match:
-        reasons.append("brand mismatch")
+        reasons.append(
+            "brand mismatch"
+        )
 
     if not sneaker_match:
         reasons.append(
@@ -243,13 +313,19 @@ def evaluate_candidate(
         )
 
     if not model_match:
-        reasons.append("model mismatch")
+        reasons.append(
+            "model mismatch"
+        )
 
     if not sku_match:
-        reasons.append("missing SKU")
+        reasons.append(
+            "missing SKU"
+        )
 
     if not price_match:
-        reasons.append("invalid price")
+        reasons.append(
+            "invalid price"
+        )
 
     return {
         "status": status,
