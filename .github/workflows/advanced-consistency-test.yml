@@ -1,0 +1,20 @@
+name: Advanced Consistency Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-advanced-consistency:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Run Advanced Consistency Test
+        run: python scripts/test_advanced_consistency.py
