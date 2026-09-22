@@ -1,0 +1,28 @@
+name: Validate Sneaker Watchlist
+
+on:
+  workflow_dispatch:
+
+jobs:
+  validate-watchlist:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Validate KicksDB watchlist
+        env:
+          KICKSDB_API_KEY: ${{ secrets.KICKSDB_API_KEY }}
+        run: python scripts/validate_watchlist.py
+
+      - name: Upload validation results
+        uses: actions/upload-artifact@v4
+        with:
+          name: watchlist-validation-results
+          path: watchlist_validation_results.json
