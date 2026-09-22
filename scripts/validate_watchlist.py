@@ -7,6 +7,9 @@ import urllib.request
 
 
 WATCHLIST = [
+    # =========================
+    # JORDAN
+    # =========================
     ("Jordan", "Air Jordan 1", "Jordan 1"),
     ("Jordan", "Air Jordan 3", "Jordan 3"),
     ("Jordan", "Air Jordan 4", "Jordan 4"),
@@ -14,6 +17,9 @@ WATCHLIST = [
     ("Jordan", "Air Jordan 11", "Jordan 11"),
     ("Jordan", "Air Jordan 12", "Jordan 12"),
 
+    # =========================
+    # NIKE
+    # =========================
     ("Nike", "Air Force 1", "Nike Air Force 1"),
     ("Nike", "Dunk", "Nike Dunk"),
     ("Nike", "SB Dunk", "Nike SB Dunk"),
@@ -22,6 +28,9 @@ WATCHLIST = [
     ("Nike", "Kobe", "Nike Kobe"),
     ("Nike", "Air Max", "Nike Air Max"),
 
+    # =========================
+    # ADIDAS
+    # =========================
     ("adidas", "Samba", "adidas Samba"),
     ("adidas", "Gazelle", "adidas Gazelle"),
     ("adidas", "Bad Bunny", "adidas Bad Bunny"),
@@ -29,6 +38,9 @@ WATCHLIST = [
     ("adidas", "Yeezy", "adidas Yeezy"),
     ("adidas", "Adizero", "adidas Adizero"),
 
+    # =========================
+    # NEW BALANCE
+    # =========================
     ("New Balance", "1906R", "New Balance 1906R"),
     ("New Balance", "2002R", "New Balance 2002R"),
     ("New Balance", "9060", "New Balance 9060"),
@@ -37,35 +49,56 @@ WATCHLIST = [
     ("New Balance", "993", "New Balance 993"),
     ("New Balance", "204L", "New Balance 204L"),
 
+    # =========================
+    # ASICS
+    # =========================
     ("ASICS", "Gel-1130", "ASICS Gel 1130"),
     ("ASICS", "Gel-Kayano 14", "ASICS Gel Kayano 14"),
     ("ASICS", "Gel-NYC", "ASICS Gel NYC"),
     ("ASICS", "GT-2160", "ASICS GT-2160"),
     ("ASICS", "Novablast", "ASICS Novablast"),
 
+    # =========================
+    # VANS
+    # =========================
     ("Vans", "Old Skool", "Vans Old Skool"),
     ("Vans", "Knu Skool", "Vans Knu Skool"),
     ("Vans", "Slip-On", "Vans Slip On"),
     ("Vans", "Sk8-Hi", "Vans Sk8 Hi"),
 
+    # =========================
+    # SAUCONY
+    # =========================
     ("Saucony", "ProGrid Omni 9", "Saucony ProGrid Omni 9"),
     ("Saucony", "ProGrid Triumph 4", "Saucony ProGrid Triumph 4"),
     ("Saucony", "Guide 7", "Saucony Guide 7"),
     ("Saucony", "Ride Millennium", "Saucony Ride Millennium"),
 
+    # =========================
+    # SALOMON
+    # =========================
     ("Salomon", "XT-6", "Salomon XT-6"),
     ("Salomon", "XT-4", "Salomon XT-4"),
     ("Salomon", "ACS Pro", "Salomon ACS Pro"),
     ("Salomon", "Speedcross", "Salomon Speedcross"),
 
+    # =========================
+    # MIZUNO
+    # =========================
     ("Mizuno", "MXR", "Mizuno MXR"),
     ("Mizuno", "Wave Prophecy Moc", "Mizuno Wave Prophecy Moc"),
     ("Mizuno", "Wave Rider", "Mizuno Wave Rider"),
 
+    # =========================
+    # HOKA
+    # =========================
     ("HOKA", "Clifton", "HOKA Clifton"),
     ("HOKA", "Bondi", "HOKA Bondi"),
     ("HOKA", "Speedgoat", "HOKA Speedgoat"),
 
+    # =========================
+    # ON
+    # =========================
     ("On", "Cloud", "On Cloud"),
     ("On", "Cloudmonster", "On Cloudmonster"),
     ("On", "Cloudtilt", "On Cloudtilt"),
@@ -76,24 +109,34 @@ def normalize(text):
     """
     Normalizza il testo per rendere il confronto più semplice.
     """
+
     text = str(text or "").lower()
 
     text = text.replace("-", " ")
     text = text.replace("_", " ")
-    text = re.sub(r"[^a-z0-9 ]+", " ", text)
+
+    text = re.sub(
+        r"[^a-z0-9 ]+",
+        " ",
+        text
+    )
 
     return " ".join(text.split())
 
 
 def validate_product(brand, model, search_query, product):
     """
-    Controlla se il prodotto restituito da KicksDB
-    sembra coerente con la nostra ricerca.
+    Valuta quanto il prodotto restituito da KicksDB
+    corrisponde alla ricerca.
+
+    Il sistema è volutamente conservativo:
+    se ci sono dubbi, il prodotto viene mandato in REVIEW
+    invece di essere considerato automaticamente valido.
     """
 
-    title = product.get("title", "")
-    product_brand = product.get("brand", "")
-    sku = product.get("sku", "")
+    title = str(product.get("title") or "")
+    product_brand = str(product.get("brand") or "")
+    sku = str(product.get("sku") or "")
     price = product.get("avg_price")
 
     normalized_title = normalize(title)
@@ -102,17 +145,48 @@ def validate_product(brand, model, search_query, product):
     normalized_model = normalize(model)
 
     reasons = []
-    score = 0
+
+    # =========================
+    # PRODOTTI NON DESIDERATI
+    # =========================
+
+    excluded_terms = [
+        "sock",
+        "socks",
+        "shirt",
+        "t shirt",
+        "tee",
+        "jacket",
+        "pants",
+        "shorts",
+        "hat",
+        "cap",
+        "bag",
+        "backpack",
+        "wallet",
+        "accessory",
+        "accessories",
+        "slides",
+        "sandal",
+    ]
+
+    for term in excluded_terms:
+        if term in normalized_title:
+            reasons.append(
+                f"excluded product type: {term}"
+            )
 
     # =========================
     # BRAND
     # =========================
 
-    if normalized_expected_brand in normalized_brand:
-        score += 30
-    elif normalized_expected_brand in normalized_title:
-        score += 20
-    else:
+    brand_match = (
+        normalized_expected_brand == normalized_brand
+        or normalized_expected_brand in normalized_brand
+        or normalized_expected_brand in normalized_title
+    )
+
+    if not brand_match:
         reasons.append("brand mismatch")
 
     # =========================
@@ -127,11 +201,14 @@ def validate_product(brand, model, search_query, product):
         if word in normalized_title:
             matched_words += 1
 
-    if model_words and matched_words == len(model_words):
-        score += 40
+    if not model_words:
+        reasons.append("missing model")
+
+    elif matched_words == len(model_words):
+        pass
 
     elif matched_words > 0:
-        score += 20
+        reasons.append("partial model match")
 
     else:
         reasons.append("model mismatch")
@@ -140,32 +217,69 @@ def validate_product(brand, model, search_query, product):
     # SKU
     # =========================
 
-    if sku:
-        score += 15
-    else:
+    if not sku:
         reasons.append("missing SKU")
 
     # =========================
     # PRICE
     # =========================
 
-    if isinstance(price, (int, float)) and price > 0:
-        score += 15
-    else:
+    valid_price = (
+        isinstance(price, (int, float))
+        and price > 0
+    )
+
+    if not valid_price:
         reasons.append("invalid price")
 
     # =========================
-    # FINAL DECISION
+    # HARD REJECT
     # =========================
 
-    if score >= 85:
-        status = "VALID"
+    has_excluded_product_type = any(
+        reason.startswith("excluded product type")
+        for reason in reasons
+    )
 
-    elif score >= 60:
-        status = "REVIEW"
+    has_model_mismatch = (
+        "model mismatch" in reasons
+    )
+
+    if has_excluded_product_type:
+        status = "REJECT"
+        score = 0
+
+    elif not brand_match:
+        status = "REJECT"
+        score = 0
+
+    elif has_model_mismatch:
+        status = "REJECT"
+        score = 0
+
+    # =========================
+    # SCORE
+    # =========================
 
     else:
-        status = "REJECT"
+        score = 0
+
+        if brand_match:
+            score += 35
+
+        if matched_words == len(model_words):
+            score += 35
+
+        if sku:
+            score += 15
+
+        if valid_price:
+            score += 15
+
+        if score >= 90:
+            status = "VALID"
+        else:
+            status = "REVIEW"
 
     return {
         "status": status,
@@ -187,7 +301,10 @@ def search_product(api_key, search_query):
         "limit": 1,
     })
 
-    url = "https://api.kicks.dev/v3/stockx/products?" + params
+    url = (
+        "https://api.kicks.dev/v3/stockx/products?"
+        + params
+    )
 
     request = urllib.request.Request(
         url,
@@ -198,7 +315,9 @@ def search_product(api_key, search_query):
 
     try:
         with urllib.request.urlopen(request) as response:
-            data = json.loads(response.read().decode())
+            data = json.loads(
+                response.read().decode()
+            )
 
         products = data.get("data", [])
 
@@ -208,11 +327,15 @@ def search_product(api_key, search_query):
         return products[0]
 
     except urllib.error.HTTPError as e:
-        print(f"❌ HTTP {e.code} for {search_query}")
+        print(
+            f"❌ HTTP {e.code} for {search_query}"
+        )
         return None
 
     except Exception as e:
-        print(f"❌ Error for {search_query}: {e}")
+        print(
+            f"❌ Error for {search_query}: {e}"
+        )
         return None
 
 
@@ -263,7 +386,8 @@ def main():
 
         if result.get("reasons"):
             print(
-                f"   ⚠️ {', '.join(result['reasons'])}"
+                "   ⚠️ "
+                + ", ".join(result["reasons"])
             )
 
         print()
@@ -290,22 +414,26 @@ def main():
     # =========================
 
     valid = sum(
-        1 for result in results
+        1
+        for result in results
         if result["status"] == "VALID"
     )
 
     review = sum(
-        1 for result in results
+        1
+        for result in results
         if result["status"] == "REVIEW"
     )
 
     reject = sum(
-        1 for result in results
+        1
+        for result in results
         if result["status"] == "REJECT"
     )
 
     empty = sum(
-        1 for result in results
+        1
+        for result in results
         if result["status"] == "EMPTY"
     )
 
@@ -318,7 +446,10 @@ def main():
     print(f"REJECT:  {reject}")
     print(f"EMPTY:   {empty}")
     print("===================================")
-    print("📄 Saved to watchlist_validation_results.json")
+    print(
+        "📄 Saved to "
+        "watchlist_validation_results.json"
+    )
 
 
 if __name__ == "__main__":
