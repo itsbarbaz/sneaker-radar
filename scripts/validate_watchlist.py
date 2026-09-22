@@ -172,7 +172,7 @@ def has_valid_sku(product):
     return bool(sku)
 
 
-def score_candidate(
+def evaluate_candidate(
     brand,
     validation_model,
     product
@@ -199,47 +199,79 @@ def score_candidate(
         product
     )
 
+    identity_match = (
+        brand_match
+        and sneaker_match
+        and model_match
+    )
+
+    data_quality_score = 0
+
+    if sku_match:
+        data_quality_score += 15
+
+    if price_match:
+        data_quality_score += 15
+
+    if identity_match:
+        identity_score = 70
+    else:
+        identity_score = 0
+
+    total_score = (
+        identity_score
+        + data_quality_score
+    )
+
+    if not identity_match:
+        status = "REJECT"
+
+    elif sku_match and price_match:
+        status = "VALID"
+
+    else:
+        status = "REVIEW"
+
+    reasons = []
+
     if not brand_match:
-        return 0, {
-            "brand_match": False,
+        reasons.append("brand mismatch")
+
+    if not sneaker_match:
+        reasons.append(
+            "product is not confirmed as a sneaker"
+        )
+
+    if not model_match:
+        reasons.append("model mismatch")
+
+    if not sku_match:
+        reasons.append("missing SKU")
+
+    if not price_match:
+        reasons.append("invalid price")
+
+    return {
+        "status": status,
+        "identity_match": identity_match,
+        "identity_score": identity_score,
+        "data_quality_score": data_quality_score,
+        "score": total_score,
+        "checks": {
+            "brand_match": brand_match,
             "sneaker_match": sneaker_match,
             "model_match": model_match,
             "sku_match": sku_match,
             "price_match": price_match,
-        }
-
-    if not sneaker_match:
-        return 0, {
-            "brand_match": True,
-            "sneaker_match": False,
-            "model_match": model_match,
-            "sku_match": sku_match,
-            "price_match": price_match,
-        }
-
-    if not model_match:
-        return 0, {
-            "brand_match": True,
-            "sneaker_match": True,
-            "model_match": False,
-            "sku_match": sku_match,
-            "price_match": price_match,
-        }
-
-    score = 70
-
-    if sku_match:
-        score += 15
-
-    if price_match:
-        score += 15
-
-    return score, {
-        "brand_match": True,
-        "sneaker_match": True,
-        "model_match": True,
-        "sku_match": sku_match,
-        "price_match": price_match,
+        },
+        "title": product.get("title"),
+        "brand": product.get("brand"),
+        "model": product.get("model"),
+        "product_type": product.get("product_type"),
+        "category": product.get("category"),
+        "sku": product.get("sku"),
+        "price": product.get("avg_price"),
+        "reasons": reasons,
     }
 
 
@@ -292,161 +324,119 @@ def search_products(api_key, search_query):
         return []
 
 
-def select_best_candidate(
-    brand,
-    validation_model,
-    products
-):
-    evaluated = []
-
-    for product in products:
-
-        score, checks = score_candidate(
-            brand,
-            validation_model,
-            product
-        )
-
-        evaluated.append({
-            "score": score,
-            "checks": checks,
-            "product": product,
-        })
-
-    evaluated.sort(
-        key=lambda item: item["score"],
-        reverse=True
-    )
-
-    if not evaluated:
-        return None, []
-
-    best = evaluated[0]
-
-    return best, evaluated
-
-
 def build_result(
     brand,
     display_model,
     validation_model,
     search_query,
-    best,
-    evaluated
+    products
 ):
-    if best is None:
-        return {
-            "status": "EMPTY",
-            "score": 0,
-            "query": search_query,
-            "brand": brand,
-            "display_model": display_model,
-            "validation_model": validation_model,
-            "reasons": [
-                "no products returned"
-            ],
-            "candidates_checked": 0,
-        }
+    evaluated = []
 
-    product = best["product"]
-    score = best["score"]
-    checks = best["checks"]
+    for product in products:
+        evaluation = evaluate_candidate(
+            brand,
+            validation_model,
+            product
+        )
 
-    title = str(
-        product.get("title") or ""
+        evaluated.append(
+            evaluation
+        )
+
+    identity_matches = [
+        item
+        for item in evaluated
+        if item["identity_match"]
+    ]
+
+    valid_matches = [
+        item
+        for item in identity_matches
+        if item["status"] == "VALID"
+    ]
+
+    review_matches = [
+        item
+        for item in identity_matches
+        if item["status"] == "REVIEW"
+    ]
+
+    if valid_matches:
+        status = "VALID"
+
+    elif review_matches:
+        status = "REVIEW"
+
+    elif identity_matches:
+        status = "REVIEW"
+
+    elif products:
+        status = "REJECT"
+
+    else:
+        status = "EMPTY"
+
+    identity_matches.sort(
+        key=lambda item: (
+            item["data_quality_score"],
+            normalize(item["title"]),
+        ),
+        reverse=True
     )
 
-    product_brand = str(
-        product.get("brand") or ""
+    evaluated.sort(
+        key=lambda item: (
+            item["identity_match"],
+            item["data_quality_score"],
+            normalize(item["title"]),
+        ),
+        reverse=True
     )
-
-    product_model = str(
-        product.get("model") or ""
-    )
-
-    sku = str(
-        product.get("sku") or ""
-    )
-
-    product_type = str(
-        product.get("product_type") or ""
-    )
-
-    category = str(
-        product.get("category") or ""
-    )
-
-    price = product.get("avg_price")
 
     reasons = []
 
-    if not checks["brand_match"]:
+    if not products:
         reasons.append(
-            "brand mismatch"
+            "no products returned"
         )
 
-    if not checks["sneaker_match"]:
+    elif not identity_matches:
         reasons.append(
-            "product is not confirmed as a sneaker"
+            "no candidate passed identity filters"
         )
 
-    if not checks["model_match"]:
+    elif not valid_matches:
         reasons.append(
-            "model mismatch"
+            "identity match found, but no candidate has complete data"
         )
-
-    if not checks["sku_match"]:
-        reasons.append(
-            "missing SKU"
-        )
-
-    if not checks["price_match"]:
-        reasons.append(
-            "invalid price"
-        )
-
-    if not checks["brand_match"]:
-        status = "REJECT"
-
-    elif not checks["sneaker_match"]:
-        status = "REJECT"
-
-    elif not checks["model_match"]:
-        status = "REJECT"
-
-    elif checks["sku_match"] and checks["price_match"]:
-        status = "VALID"
-
-    else:
-        status = "REVIEW"
 
     return {
         "status": status,
-        "score": score,
         "query": search_query,
         "brand": brand,
         "display_model": display_model,
         "validation_model": validation_model,
-        "title": title,
-        "product_brand": product_brand,
-        "product_model": product_model,
-        "product_type": product_type,
-        "category": category,
-        "sku": sku,
-        "price": price,
+
+        "products_returned": len(products),
+
+        "identity_matches": len(
+            identity_matches
+        ),
+
+        "valid_matches": len(
+            valid_matches
+        ),
+
+        "review_matches": len(
+            review_matches
+        ),
+
         "reasons": reasons,
-        "candidates_checked": len(evaluated),
-        "candidate_scores": [
-            {
-                "score": item["score"],
-                "title": item["product"].get("title"),
-                "brand": item["product"].get("brand"),
-                "model": item["product"].get("model"),
-                "sku": item["product"].get("sku"),
-                "price": item["product"].get("avg_price"),
-            }
-            for item in evaluated
-        ],
+
+        "matched_candidates": identity_matches,
+
+        "all_candidates": evaluated,
     }
 
 
@@ -488,35 +478,67 @@ def main():
             search_query
         )
 
-        best, evaluated = select_best_candidate(
-            brand,
-            validation_model,
-            products
-        )
-
         result = build_result(
             brand,
             display_model,
             validation_model,
             search_query,
-            best,
-            evaluated
+            products
         )
 
-        results.append(result)
-
-        print(
-            f"   {result['status']} "
-            f"| score={result['score']} "
-            f"| {result.get('title', '')}"
+        results.append(
+            result
         )
 
         print(
-            f"   📦 Candidates checked: "
-            f"{result['candidates_checked']}"
+            f"   {result['status']}"
         )
 
-        if result.get("reasons"):
+        print(
+            f"   📦 Products returned: "
+            f"{result['products_returned']}"
+        )
+
+        print(
+            f"   🎯 Identity matches: "
+            f"{result['identity_matches']}"
+        )
+
+        print(
+            f"   ✅ Complete matches: "
+            f"{result['valid_matches']}"
+        )
+
+        print(
+            f"   ⚠️ Review matches: "
+            f"{result['review_matches']}"
+        )
+
+        if result["matched_candidates"]:
+            print(
+                "   👟 Matching products:"
+            )
+
+            for candidate in result[
+                "matched_candidates"
+            ]:
+
+                print(
+                    "      - "
+                    + str(
+                        candidate["title"]
+                    )
+                    + " | "
+                    + candidate["status"]
+                    + " | data="
+                    + str(
+                        candidate[
+                            "data_quality_score"
+                        ]
+                    )
+                )
+
+        if result["reasons"]:
             print(
                 "   ⚠️ "
                 + ", ".join(
@@ -563,6 +585,16 @@ def main():
         if result["status"] == "EMPTY"
     )
 
+    total_identity_matches = sum(
+        result["identity_matches"]
+        for result in results
+    )
+
+    total_valid_matches = sum(
+        result["valid_matches"]
+        for result in results
+    )
+
     print(
         "==================================="
     )
@@ -576,23 +608,31 @@ def main():
     )
 
     print(
-        f"Total:   {len(results)}"
+        f"Total queries:        {len(results)}"
     )
 
     print(
-        f"VALID:   {valid}"
+        f"VALID queries:        {valid}"
     )
 
     print(
-        f"REVIEW:  {review}"
+        f"REVIEW queries:       {review}"
     )
 
     print(
-        f"REJECT:  {reject}"
+        f"REJECT queries:       {reject}"
     )
 
     print(
-        f"EMPTY:   {empty}"
+        f"EMPTY queries:        {empty}"
+    )
+
+    print(
+        f"Identity matches:     {total_identity_matches}"
+    )
+
+    print(
+        f"Complete matches:     {total_valid_matches}"
     )
 
     print(
