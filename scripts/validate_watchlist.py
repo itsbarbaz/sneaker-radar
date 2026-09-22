@@ -133,11 +133,36 @@ def sequence_match(expected_model, text):
 # JORDAN MODEL INTELLIGENCE
 # ---------------------------------------------------------
 
+# Parole che, se compaiono OVUNQUE nel testo, indicano una
+# sotto-linea completamente separata (non un semplice
+# "Jordan N" retro/colorway).
+# Aggiungi qui altre parole se ne trovi di nuove nei dati.
+JORDAN_STANDALONE_SUBLINES = {
+    "luka",       # Jordan Luka 1, 2, 3...
+    "golf",       # Jordan Golf shoes
+    "spizike",    # Jordan Spizike
+    "westbrook",  # Jordan Westbrook One Take, ecc.
+    "trunner",    # Jordan Trunner
+    "cmft",       # Jordan CMFT
+}
+
+# Parole che, se compaiono SUBITO DOPO il numero
+# (es. "Jordan 4 RM", "Jordan 5 SE"), indicano una variante
+# strutturalmente diversa dal retro classico e NON devono
+# combaciare con la famiglia base "jordan_4".
+# Aggiungi qui altre parole se ne trovi di nuove nei dati.
+JORDAN_POST_NUMBER_SUBLINES = {
+    "rm",     # "Retro Modified" - materiali/costruzione diversi
+    "golf",   # scarpe da golf con lo stesso numero
+    "cmft",   # linea comfort
+}
+
+
 def jordan_family(model):
     """
-    Converts Jordan model names into a canonical family.
+    Converte i nomi dei modelli Jordan in una famiglia canonica.
 
-    Examples:
+    Esempi:
 
     Jordan 1
     Air Jordan 1
@@ -157,41 +182,43 @@ def jordan_family(model):
     Jordan Luka 4
     Jordan Luka 5
 
-        -> different family
+        -> famiglia diversa (None)
     """
 
     text = normalize(model)
+    tokens = text.split()
 
-    # Luka is its own Jordan family.
-    if re.search(r"\bjordan\s+luka\s+\d+", text):
+    # Sotto-linee "standalone": se la parola compare in
+    # qualsiasi punto del testo, non è un retro normale.
+    if JORDAN_STANDALONE_SUBLINES.intersection(tokens):
         return None
 
-    # Jordan 4 RM is not the normal Jordan 4 family.
-    if re.search(r"\bjordan\s+4\s+rm\b", text):
+    match = re.search(r"\bjordan\s+(\d+)\b", text)
+
+    if not match:
         return None
 
-    # Jordan Golf models are separate.
-    if "golf" in text:
+    number = match.group(1)
+
+    # Guarda la prima parola DOPO il numero: se è un marker
+    # di sotto-linea, questo non è il retro classico, a
+    # prescindere da quale numero sia (funziona per Jordan 4,
+    # Jordan 5, Jordan 11 RM, ecc. senza doverli scrivere uno
+    # per uno).
+    remaining_tokens = text[match.end():].split()
+
+    if remaining_tokens and remaining_tokens[0] in JORDAN_POST_NUMBER_SUBLINES:
         return None
 
-    match = re.search(
-        r"\bjordan\s+(\d+)\b",
-        text
-    )
-
-    if match:
-        number = match.group(1)
-
-        return f"jordan_{number}"
-
-    return None
+    return f"jordan_{number}"
 
 
 def jordan_model_matches(expected_model, product):
     """
-    Strict Jordan family matching.
+    Matching rigoroso per famiglia Jordan.
 
-    The important part is that the family number must match.
+    La cosa importante è che il numero di famiglia deve
+    combaciare.
 
     Jordan 4:
         Jordan 4 Retro       -> YES
