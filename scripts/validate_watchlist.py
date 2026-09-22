@@ -155,6 +155,14 @@ JORDAN_POST_NUMBER_SUBLINES = {
     "rm",     # "Retro Modified" - materiali/costruzione diversi
     "golf",   # scarpe da golf con lo stesso numero
     "cmft",   # linea comfort
+    "d",      # es. "Jordan 3 D Black Cement" - sotto-linea/
+              # designazione diversa dal retro standard.
+              # NB: non bloccare in base al nome della
+              # colorway (es. "Black Cement"), perché è una
+              # colorway legittima anche sul retro normale
+              # ("Jordan 3 Retro Black Cement" deve
+              # combaciare). Il segnale affidabile è la "D"
+              # isolata subito dopo il numero, non il colore.
 }
 
 
