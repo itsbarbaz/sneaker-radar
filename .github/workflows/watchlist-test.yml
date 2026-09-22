@@ -1,0 +1,28 @@
+name: Test Sneaker Watchlist
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-watchlist:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Test KicksDB watchlist queries
+        env:
+          KICKSDB_API_KEY: ${{ secrets.KICKSDB_API_KEY }}
+        run: python scripts/test_watchlist.py
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: watchlist-test-results
+          path: watchlist_test_results.json
