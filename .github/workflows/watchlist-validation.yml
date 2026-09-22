@@ -16,15 +16,15 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Inspect KicksDB product
+      - name: Validate watchlist
         env:
           KICKSDB_API_KEY: ${{ secrets.KICKSDB_API_KEY }}
         run: |
-          set -o pipefail
-          python scripts/validate_watchlist.py | tee kicksdb_product_inspection.txt
+          python scripts/validate_watchlist.py
 
-      - name: Upload inspection results
+      - name: Upload validation results
         uses: actions/upload-artifact@v4
         with:
-          name: kicksdb-product-inspection
-          path: kicksdb_product_inspection.txt
+          name: watchlist-validation-results
+          path: watchlist_validation_results.json
+          if-no-files-found: error
