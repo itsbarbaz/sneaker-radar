@@ -225,17 +225,33 @@ def jordan_model_matches(expected_model, product):
     """
     Matching rigoroso per famiglia Jordan.
 
-    La cosa importante è che il numero di famiglia deve
-    combaciare.
+    La famiglia deve combaciare, ma controlliamo anche
+    TUTTI i campi disponibili del prodotto prima di accettare
+    il match.
 
-    Jordan 4:
-        Jordan 4 Retro       -> YES
-        Jordan 4 Low         -> YES
-        Jordan 4 OG          -> YES
+    Questo evita il caso in cui KicksDB abbia, per esempio:
 
-        Jordan 4 RM          -> NO
-        Jordan Luka 4        -> NO
-        Jordan 5             -> NO
+        model = "Jordan 3"
+        title = "Jordan 3 D Black Cement"
+
+    In quel caso il solo campo "model" sembrerebbe corretto,
+    ma il titolo rivela che si tratta della sotto-linea
+    "Jordan 3 D", che non deve essere inclusa nella famiglia
+    standard "Jordan 3".
+
+    Esempi:
+
+        Jordan 3                 -> YES
+        Jordan 3 Retro           -> YES
+        Jordan 3 Retro Low       -> YES
+        Jordan 3 OG              -> YES
+        Jordan 3 Retro Black Cement -> YES
+
+        Jordan 3 D               -> NO
+        Jordan 3 D Black Cement  -> NO
+        Jordan 4 RM              -> NO
+        Jordan Luka 4            -> NO
+        Jordan Golf              -> NO
     """
 
     expected_family = jordan_family(
@@ -251,7 +267,53 @@ def jordan_model_matches(expected_model, product):
         product.get("title"),
     ]
 
+    # -----------------------------------------------------
+    # PRIMA: cerchiamo eventuali sotto-linee escluse
+    # in QUALSIASI campo del prodotto.
+    #
+    # Questo è fondamentale perché il campo "model" di
+    # KicksDB può essere normalizzato/semplificato mentre
+    # il titolo contiene la designazione completa.
+    # -----------------------------------------------------
+
     for field in fields:
+        if not field:
+            continue
+
+        field_text = normalize(field)
+
+        match = re.search(
+            r"\bjordan\s+(\d+)\b",
+            field_text
+        )
+
+        if not match:
+            continue
+
+        field_family = f"jordan_{match.group(1)}"
+
+        # Controlliamo solo la stessa famiglia numerica.
+        if field_family != expected_family:
+            continue
+
+        remaining_tokens = field_text[
+            match.end():
+        ].split()
+
+        if (
+            remaining_tokens
+            and remaining_tokens[0]
+            in JORDAN_POST_NUMBER_SUBLINES
+        ):
+            return False
+
+    # -----------------------------------------------------
+    # DOPO: verifichiamo che almeno un campo identifichi
+    # effettivamente la famiglia attesa.
+    # -----------------------------------------------------
+
+    for field in fields:
+
         actual_family = jordan_family(
             field
         )
