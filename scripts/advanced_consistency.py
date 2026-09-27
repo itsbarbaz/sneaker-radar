@@ -95,23 +95,16 @@ def tokenize_colorway(value):
 def check_colorway(product, expected_colorway=None):
     """
     Controlla che la colorway richiesta sia compatibile
-    con quella dichiarata/rilevata nel prodotto.
+    con quella dichiarata nel prodotto.
 
-    Se expected_colorway non viene fornita, il controllo
-    passa senza inventare informazioni.
+    Se expected_colorway non viene fornita,
+    il controllo passa senza inventare informazioni.
     """
 
     detected = product.get("colorway")
 
     if detected is None:
-        text = extract_product_text(product)
-
-        # Se non abbiamo un campo colorway separato,
-        # non facciamo un'inferenza aggressiva.
         detected = ""
-
-        if text:
-            detected = product.get("colorway") or ""
 
     detected = normalize_text(detected)
 
@@ -147,9 +140,13 @@ def check_colorway(product, expected_colorway=None):
             "reason": "missing_colorway",
         }
 
-    matched = expected_tokens.intersection(detected_tokens)
+    matched = expected_tokens.intersection(
+        detected_tokens
+    )
 
-    match_ratio = len(matched) / len(expected_tokens)
+    match_ratio = (
+        len(matched) / len(expected_tokens)
+    )
 
     if match_ratio >= 0.5:
         return {
@@ -245,8 +242,6 @@ def detect_condition(product):
 def check_condition(product, expected_condition=None):
     """
     Confronta la condizione rilevata con quella richiesta.
-
-    Se la condizione non è specificata, non viene inventata.
     """
 
     detected = detect_condition(product)
@@ -562,7 +557,10 @@ def check_brand_model_consistency(product):
             "reason": None,
         }
 
-    if any(token in combined for token in expected_tokens):
+    if any(
+        token in combined
+        for token in expected_tokens
+    ):
         return {
             "passed": True,
             "brand": brand,
@@ -583,8 +581,13 @@ def check_brand_model_consistency(product):
 # ============================================================
 
 def check_category_product_type(product):
-    category = normalize_text(product.get("category"))
-    product_type = normalize_text(product.get("product_type"))
+    category = normalize_text(
+        product.get("category")
+    )
+
+    product_type = normalize_text(
+        product.get("product_type")
+    )
 
     if not category or not product_type:
         return {
@@ -633,14 +636,24 @@ def check_category_product_type(product):
 # ============================================================
 
 def build_product_identity(product):
-    sku = normalize_text(product.get("sku"))
+    sku = normalize_text(
+        product.get("sku")
+    )
 
     if sku:
         return f"sku:{sku}"
 
-    brand = normalize_text(product.get("brand"))
-    model = normalize_text(product.get("model"))
-    title = normalize_text(product.get("title"))
+    brand = normalize_text(
+        product.get("brand")
+    )
+
+    model = normalize_text(
+        product.get("model")
+    )
+
+    title = normalize_text(
+        product.get("title")
+    )
 
     return f"{brand}|{model}|{title}"
 
@@ -741,7 +754,10 @@ def check_data_completeness(product):
 
     return {
         "passed": passed,
-        "completeness": round(completeness, 4),
+        "completeness": round(
+            completeness,
+            4
+        ),
         "missing_fields": missing,
         "reason": (
             None
@@ -756,8 +772,22 @@ def check_data_completeness(product):
 # ============================================================
 
 def check_title_model_consistency(product):
-    model = normalize_text(product.get("model"))
-    title = normalize_text(product.get("title"))
+    """
+    Controlla la coerenza tra model e title senza richiedere
+    che ogni parola descrittiva del model compaia nel titolo.
+
+    Termini come Retro, High, Low, Mid, OG, SE ecc.
+    possono essere omessi dal titolo senza creare
+    automaticamente un mismatch.
+    """
+
+    model = normalize_text(
+        product.get("model")
+    )
+
+    title = normalize_text(
+        product.get("title")
+    )
 
     if not model or not title:
         return {
@@ -768,10 +798,43 @@ def check_title_model_consistency(product):
             "reason": None,
         }
 
+    # --------------------------------------------------------
+    # Termini descrittivi opzionali
+    # --------------------------------------------------------
+
+    OPTIONAL_MODEL_TERMS = {
+        "retro",
+        "high",
+        "low",
+        "mid",
+        "og",
+        "se",
+        "ls",
+        "pe",
+        "pf",
+        "flyease",
+        "premium",
+        "remastered",
+        "classic",
+        "original",
+        "edition",
+        "men",
+        "mens",
+        "women",
+        "womens",
+        "gs",
+        "grade",
+        "school",
+        "junior",
+        "toddler",
+        "infant",
+    }
+
     model_tokens = [
         token
         for token in model.split()
         if len(token) >= 2
+        and token not in OPTIONAL_MODEL_TERMS
     ]
 
     if not model_tokens:
@@ -783,13 +846,54 @@ def check_title_model_consistency(product):
             "reason": None,
         }
 
+    # --------------------------------------------------------
+    # Controllo Jordan specifico
+    # --------------------------------------------------------
+
+    if model.startswith("jordan "):
+
+        jordan_number_match = re.search(
+            r"\bjordan\s+(\d+)\b",
+            model,
+        )
+
+        if jordan_number_match:
+
+            jordan_number = (
+                jordan_number_match.group(1)
+            )
+
+            jordan_family_present = (
+                re.search(
+                    rf"\bjordan\s+{re.escape(jordan_number)}\b",
+                    title,
+                )
+                is not None
+            )
+
+            if jordan_family_present:
+                return {
+                    "passed": True,
+                    "model": model,
+                    "title": title,
+                    "match_ratio": 1.0,
+                    "reason": None,
+                }
+
+    # --------------------------------------------------------
+    # Matching generale
+    # --------------------------------------------------------
+
     matched_tokens = sum(
         1
         for token in model_tokens
         if token in title
     )
 
-    match_ratio = matched_tokens / len(model_tokens)
+    match_ratio = (
+        matched_tokens /
+        len(model_tokens)
+    )
 
     if match_ratio >= 0.5:
         return {
@@ -823,7 +927,9 @@ def run_advanced_consistency(
     expected_condition=None,
 ):
 
-    collaboration = check_collaboration(product)
+    collaboration = check_collaboration(
+        product
+    )
 
     gender = check_gender(
         product,
@@ -842,10 +948,12 @@ def run_advanced_consistency(
 
     sku = check_sku(product)
 
-    brand_model = check_brand_model_consistency(product)
+    brand_model = (
+        check_brand_model_consistency(product)
+    )
 
-    category_product_type = check_category_product_type(
-        product
+    category_product_type = (
+        check_category_product_type(product)
     )
 
     duplicate = check_duplicate(
@@ -853,11 +961,17 @@ def run_advanced_consistency(
         seen_identities=seen_identities,
     )
 
-    price_validity = check_price_validity(product)
+    price_validity = check_price_validity(
+        product
+    )
 
-    completeness = check_data_completeness(product)
+    completeness = check_data_completeness(
+        product
+    )
 
-    title_model = check_title_model_consistency(product)
+    title_model = (
+        check_title_model_consistency(product)
+    )
 
     colorway = check_colorway(
         product,
@@ -885,7 +999,9 @@ def run_advanced_consistency(
         ),
         "duplicate": duplicate["passed"],
         "price_validity": price_validity["passed"],
-        "data_completeness": completeness["passed"],
+        "data_completeness": (
+            completeness["passed"]
+        ),
         "title_model": title_model["passed"],
         "colorway": colorway["passed"],
         "condition": condition["passed"],
