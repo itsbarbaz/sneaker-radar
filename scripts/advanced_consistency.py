@@ -26,33 +26,25 @@ GENDER_KEYWORDS = {
     "womens": "WOMEN",
     "women's": "WOMEN",
     "w": "WOMEN",
-
     "men": "MEN",
     "man": "MEN",
     "mens": "MEN",
     "men's": "MEN",
-
     "gs": "GS",
     "grade school": "GS",
     "junior": "GS",
-
     "toddler": "TODDLER",
     "td": "TODDLER",
-
     "infant": "INFANT",
-
     "unisex": "UNISEX",
 }
 
 
 # ============================================================
-# NORMALIZZAZIONE
+# COLORWAY
 # ============================================================
 
 def normalize_text(value):
-    """
-    Normalizza il testo per i controlli di coerenza.
-    """
     if not value:
         return ""
 
@@ -64,15 +56,13 @@ def normalize_text(value):
 
 
 def extract_product_text(product):
-    """
-    Unisce i principali campi testuali del prodotto.
-    """
     fields = [
         product.get("title"),
         product.get("model"),
         product.get("primary_title"),
         product.get("secondary_title"),
         product.get("description"),
+        product.get("colorway"),
     ]
 
     return normalize_text(
@@ -84,15 +74,218 @@ def extract_product_text(product):
     )
 
 
+def tokenize_colorway(value):
+    """
+    Trasforma una colorway in token confrontabili.
+    """
+    text = normalize_text(value)
+
+    if not text:
+        return set()
+
+    text = re.sub(r"[^a-z0-9\s]", " ", text)
+
+    return {
+        token
+        for token in text.split()
+        if len(token) >= 2
+    }
+
+
+def check_colorway(product, expected_colorway=None):
+    """
+    Controlla che la colorway richiesta sia compatibile
+    con quella dichiarata/rilevata nel prodotto.
+
+    Se expected_colorway non viene fornita, il controllo
+    passa senza inventare informazioni.
+    """
+
+    detected = product.get("colorway")
+
+    if detected is None:
+        text = extract_product_text(product)
+
+        # Se non abbiamo un campo colorway separato,
+        # non facciamo un'inferenza aggressiva.
+        detected = ""
+
+        if text:
+            detected = product.get("colorway") or ""
+
+    detected = normalize_text(detected)
+
+    if not expected_colorway:
+        return {
+            "passed": True,
+            "detected": detected or None,
+            "expected": None,
+            "match_ratio": None,
+            "reason": None,
+        }
+
+    expected = normalize_text(expected_colorway)
+
+    expected_tokens = tokenize_colorway(expected)
+    detected_tokens = tokenize_colorway(detected)
+
+    if not expected_tokens:
+        return {
+            "passed": True,
+            "detected": detected or None,
+            "expected": expected,
+            "match_ratio": None,
+            "reason": None,
+        }
+
+    if not detected_tokens:
+        return {
+            "passed": False,
+            "detected": None,
+            "expected": expected,
+            "match_ratio": 0.0,
+            "reason": "missing_colorway",
+        }
+
+    matched = expected_tokens.intersection(detected_tokens)
+
+    match_ratio = len(matched) / len(expected_tokens)
+
+    if match_ratio >= 0.5:
+        return {
+            "passed": True,
+            "detected": detected,
+            "expected": expected,
+            "match_ratio": match_ratio,
+            "reason": None,
+        }
+
+    return {
+        "passed": False,
+        "detected": detected,
+        "expected": expected,
+        "match_ratio": match_ratio,
+        "reason": "colorway_mismatch",
+    }
+
+
 # ============================================================
-# 1. COLLABORATION
+# CONDITION
+# ============================================================
+
+CONDITION_KEYWORDS = {
+    "deadstock": "NEW",
+    "ds": "NEW",
+    "brand new": "NEW",
+    "new": "NEW",
+    "unworn": "NEW",
+    "unused": "NEW",
+
+    "used": "USED",
+    "pre-owned": "USED",
+    "preowned": "USED",
+    "worn": "USED",
+
+    "very good": "USED",
+    "good condition": "USED",
+
+    "damaged": "DAMAGED",
+    "damage": "DAMAGED",
+    "defect": "DAMAGED",
+    "defective": "DAMAGED",
+}
+
+
+def detect_condition(product):
+    """
+    Determina la condizione dichiarata del prodotto.
+    """
+
+    explicit_condition = normalize_text(
+        product.get("condition")
+    )
+
+    if explicit_condition:
+        for keyword, condition in sorted(
+            CONDITION_KEYWORDS.items(),
+            key=lambda item: len(item[0]),
+            reverse=True,
+        ):
+            if keyword in explicit_condition:
+                return condition
+
+        return "UNKNOWN"
+
+    text = normalize_text(
+        " ".join(
+            str(product.get(field))
+            for field in [
+                "title",
+                "primary_title",
+                "secondary_title",
+                "description",
+            ]
+            if product.get(field)
+        )
+    )
+
+    for keyword, condition in sorted(
+        CONDITION_KEYWORDS.items(),
+        key=lambda item: len(item[0]),
+        reverse=True,
+    ):
+        pattern = rf"\b{re.escape(keyword)}\b"
+
+        if re.search(pattern, text):
+            return condition
+
+    return "UNKNOWN"
+
+
+def check_condition(product, expected_condition=None):
+    """
+    Confronta la condizione rilevata con quella richiesta.
+
+    Se la condizione non è specificata, non viene inventata.
+    """
+
+    detected = detect_condition(product)
+
+    if not expected_condition:
+        return {
+            "passed": True,
+            "detected": detected,
+            "expected": None,
+            "reason": None,
+        }
+
+    expected = normalize_text(
+        expected_condition
+    ).upper()
+
+    return {
+        "passed": (
+            detected == expected
+            or detected == "UNKNOWN"
+        ),
+        "detected": detected,
+        "expected": expected,
+        "reason": (
+            None
+            if (
+                detected == expected
+                or detected == "UNKNOWN"
+            )
+            else "condition_mismatch"
+        ),
+    }
+
+
+# ============================================================
+# COLLABORATION
 # ============================================================
 
 def check_collaboration(product):
-    """
-    Cerca collaborazioni note nel prodotto.
-    """
-
     text = extract_product_text(product)
 
     for keyword in COLLAB_KEYWORDS:
@@ -109,14 +302,10 @@ def check_collaboration(product):
 
 
 # ============================================================
-# 2. GENDER / SIZING
+# GENDER / SIZING
 # ============================================================
 
 def detect_gender(product):
-    """
-    Determina il target più probabile del prodotto.
-    """
-
     text = extract_product_text(product)
 
     ordered_keywords = sorted(
@@ -135,10 +324,6 @@ def detect_gender(product):
 
 
 def check_gender(product, expected_gender=None):
-    """
-    Confronta il target rilevato con quello atteso.
-    """
-
     detected_gender = detect_gender(product)
 
     if not expected_gender:
@@ -150,7 +335,6 @@ def check_gender(product, expected_gender=None):
 
     expected_gender = expected_gender.upper()
 
-    # UNKNOWN non viene considerato automaticamente un errore.
     if detected_gender == "UNKNOWN":
         return {
             "passed": True,
@@ -166,15 +350,10 @@ def check_gender(product, expected_gender=None):
 
 
 # ============================================================
-# 3. RELEASE YEAR
+# RELEASE YEAR
 # ============================================================
 
 def check_release_year(product, model_history=None):
-    """
-    Controlla che l'anno di release non sia precedente
-    all'origine conosciuta del modello.
-    """
-
     if not model_history:
         return {
             "passed": True,
@@ -218,18 +397,10 @@ def check_release_year(product, model_history=None):
 
 
 # ============================================================
-# 4. PRICE ANOMALY
+# PRICE ANOMALY
 # ============================================================
 
 def check_price_anomaly(product, reference_price=None):
-    """
-    Controlla deviazioni estreme rispetto al prezzo di riferimento.
-
-    Soglie:
-        > 5x reference = anomalia
-        < 0.2x reference = anomalia
-    """
-
     price = product.get("avg_price")
 
     if price is None or reference_price is None:
@@ -279,16 +450,10 @@ def check_price_anomaly(product, reference_price=None):
 
 
 # ============================================================
-# 5. SKU CONSISTENCY
+# SKU
 # ============================================================
 
 def check_sku(product):
-    """
-    Controlla che lo SKU esista e abbia una struttura minima plausibile.
-
-    Non tenta di verificare se lo SKU sia quello ufficiale.
-    """
-
     sku = product.get("sku")
 
     if sku is None or str(sku).strip() == "":
@@ -315,17 +480,10 @@ def check_sku(product):
 
 
 # ============================================================
-# 6. BRAND ↔ MODEL
+# BRAND ↔ MODEL
 # ============================================================
 
 def check_brand_model_consistency(product):
-    """
-    Controllo conservativo tra brand e modello.
-
-    Se non ci sono abbastanza informazioni, non genera
-    artificialmente un errore.
-    """
-
     brand = normalize_text(product.get("brand"))
     model = normalize_text(product.get("model"))
     title = normalize_text(product.get("title"))
@@ -396,8 +554,6 @@ def check_brand_model_consistency(product):
 
     expected_tokens = known_brand_tokens.get(brand)
 
-    # Brand non presente nella nostra knowledge base:
-    # non giudichiamo.
     if expected_tokens is None:
         return {
             "passed": True,
@@ -423,14 +579,10 @@ def check_brand_model_consistency(product):
 
 
 # ============================================================
-# 7. CATEGORY ↔ PRODUCT TYPE
+# CATEGORY ↔ PRODUCT TYPE
 # ============================================================
 
 def check_category_product_type(product):
-    """
-    Controlla la coerenza generale tra categoria e product type.
-    """
-
     category = normalize_text(product.get("category"))
     product_type = normalize_text(product.get("product_type"))
 
@@ -477,18 +629,10 @@ def check_category_product_type(product):
 
 
 # ============================================================
-# 8. DUPLICATE / QUASI-DUPLICATE
+# DUPLICATE
 # ============================================================
 
 def build_product_identity(product):
-    """
-    Costruisce un'identità semplice del prodotto.
-
-    Priorità:
-        1. SKU
-        2. brand + model + title
-    """
-
     sku = normalize_text(product.get("sku"))
 
     if sku:
@@ -502,10 +646,6 @@ def build_product_identity(product):
 
 
 def check_duplicate(product, seen_identities=None):
-    """
-    Controlla se l'identità del prodotto è già stata vista.
-    """
-
     if seen_identities is None:
         return {
             "passed": True,
@@ -533,16 +673,10 @@ def check_duplicate(product, seen_identities=None):
 
 
 # ============================================================
-# 9. PRICE VALIDITY
+# PRICE VALIDITY
 # ============================================================
 
 def check_price_validity(product):
-    """
-    Controlla che il prezzo sia numericamente utilizzabile.
-
-    Questo è diverso da price_anomaly.
-    """
-
     price = product.get("avg_price")
 
     if price is None:
@@ -577,16 +711,10 @@ def check_price_validity(product):
 
 
 # ============================================================
-# 10. DATA COMPLETENESS
+# DATA COMPLETENESS
 # ============================================================
 
 def check_data_completeness(product):
-    """
-    Misura la completezza dei principali campi.
-
-    Non richiede necessariamente che tutti siano presenti.
-    """
-
     required_fields = [
         "title",
         "brand",
@@ -609,7 +737,6 @@ def check_data_completeness(product):
 
     completeness = present / len(required_fields)
 
-    # Soglia conservativa.
     passed = completeness >= 0.5
 
     return {
@@ -625,15 +752,10 @@ def check_data_completeness(product):
 
 
 # ============================================================
-# 11. TITLE ↔ MODEL
+# TITLE ↔ MODEL
 # ============================================================
 
 def check_title_model_consistency(product):
-    """
-    Controlla se il modello strutturato è ragionevolmente
-    rappresentato nel titolo.
-    """
-
     model = normalize_text(product.get("model"))
     title = normalize_text(product.get("title"))
 
@@ -688,7 +810,7 @@ def check_title_model_consistency(product):
 
 
 # ============================================================
-# MAIN ADVANCED CONSISTENCY ENGINE
+# MAIN ENGINE
 # ============================================================
 
 def run_advanced_consistency(
@@ -697,23 +819,9 @@ def run_advanced_consistency(
     model_history=None,
     reference_price=None,
     seen_identities=None,
+    expected_colorway=None,
+    expected_condition=None,
 ):
-    """
-    Esegue tutti gli 11 controlli Advanced Consistency.
-
-    IMPORTANTE:
-    questa funzione NON modifica direttamente lo status
-    del validator principale.
-
-    Restituisce:
-        checks
-        review_reasons
-        details
-    """
-
-    # --------------------------------------------------------
-    # ESECUZIONE CONTROLLI
-    # --------------------------------------------------------
 
     collaboration = check_collaboration(product)
 
@@ -751,9 +859,19 @@ def run_advanced_consistency(
 
     title_model = check_title_model_consistency(product)
 
-    # --------------------------------------------------------
-    # CHECKS SINTETICI
-    # --------------------------------------------------------
+    colorway = check_colorway(
+        product,
+        expected_colorway=expected_colorway,
+    )
+
+    condition = check_condition(
+        product,
+        expected_condition=expected_condition,
+    )
+
+    # ========================================================
+    # CHECKS
+    # ========================================================
 
     checks = {
         "release_year": release_year["passed"],
@@ -769,11 +887,13 @@ def run_advanced_consistency(
         "price_validity": price_validity["passed"],
         "data_completeness": completeness["passed"],
         "title_model": title_model["passed"],
+        "colorway": colorway["passed"],
+        "condition": condition["passed"],
     }
 
-    # --------------------------------------------------------
+    # ========================================================
     # REVIEW REASONS
-    # --------------------------------------------------------
+    # ========================================================
 
     review_reasons = []
 
@@ -832,9 +952,19 @@ def run_advanced_consistency(
             title_model["reason"]
         )
 
-    # --------------------------------------------------------
-    # RISULTATO FINALE
-    # --------------------------------------------------------
+    if not colorway["passed"]:
+        review_reasons.append(
+            colorway["reason"]
+        )
+
+    if not condition["passed"]:
+        review_reasons.append(
+            condition["reason"]
+        )
+
+    # ========================================================
+    # RESULT
+    # ========================================================
 
     return {
         "checks": checks,
@@ -859,5 +989,7 @@ def run_advanced_consistency(
             "price_validity": price_validity,
             "data_completeness": completeness,
             "title_model": title_model,
+            "colorway": colorway,
+            "condition": condition,
         },
     }
