@@ -1,8 +1,10 @@
+```python
 import os
 import sys
 import json
 import urllib.request
 import urllib.error
+import urllib.parse
 import re
 
 from supabase import create_client
@@ -85,16 +87,12 @@ def check_category_product_type(product):
     """
     Controllo compatibilità tra category e product_type.
 
-    IMPORTANTE:
     KicksDB può restituire:
 
         category = "air jordan"
         product_type = "sneakers"
 
     Questo è un abbinamento valido per Sneaker Radar.
-
-    Non consideriamo quindi "air jordan" incompatibile
-    con "sneakers".
     """
 
     category = normalize(product.get("category"))
@@ -172,6 +170,7 @@ def run_consistency_checks(
     Advanced Consistency Layer.
 
     Restituisce:
+
         {
             "status": "PASS" / "REVIEW",
             "checks": {...},
@@ -247,7 +246,11 @@ def run_consistency_checks(
         except (ValueError, TypeError):
             reference_price = None
 
-    if price_value is not None and reference_price and reference_price > 0:
+    if (
+        price_value is not None
+        and reference_price
+        and reference_price > 0
+    ):
         ratio = price_value / reference_price
 
     # Manteniamo il controllo permissivo:
@@ -280,7 +283,9 @@ def run_consistency_checks(
     product_brand = normalize(product.get("brand"))
     product_model = normalize(product.get("model"))
 
-    brand_model_passed = bool(product_brand and product_model)
+    brand_model_passed = bool(
+        product_brand and product_model
+    )
 
     brand_model_check = {
         "passed": brand_model_passed,
@@ -320,7 +325,8 @@ def run_consistency_checks(
     # --------------------------------------------------------
 
     price_validity_passed = (
-        price_value is not None and price_value >= 0
+        price_value is not None
+        and price_value >= 0
     )
 
     price_validity_check = {
@@ -559,18 +565,22 @@ def main():
     log("=" * 60)
     log("🛡️ ADVANCED CONSISTENCY LAYER")
     log("=" * 60)
+
     log(
         "Expected gender:",
         expected_gender or "NONE"
     )
+
     log(
         "Expected colorway:",
         expected_colorway or "NONE"
     )
+
     log(
         "Expected condition:",
         expected_condition or "NONE"
     )
+
     log("=" * 60)
 
     # ========================================================
@@ -612,10 +622,12 @@ def main():
     except urllib.error.HTTPError as e:
 
         log("❌ KicksDB error:", e.code)
+
         log(
             "Headers:",
             dict(e.headers)
         )
+
         log(
             "Body:",
             e.read().decode()
@@ -626,6 +638,7 @@ def main():
     except urllib.error.URLError as e:
 
         log("❌ KicksDB connection error:", e)
+
         raise
 
     log("🔥 KicksDB connected!")
@@ -701,9 +714,11 @@ def main():
 
         log("")
         log("=" * 60)
+
         log(
             f"👟 PRODUCT {index}/{len(products)}"
         )
+
         log("=" * 60)
 
         title = product.get("title")
@@ -986,3 +1001,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+```
