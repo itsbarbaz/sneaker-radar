@@ -1,4 +1,3 @@
-```python
 import os
 import sys
 import json
@@ -85,14 +84,14 @@ def detect_gender(product):
 
 def check_category_product_type(product):
     """
-    Controllo compatibilità tra category e product_type.
+    Controllo compatibilita tra category e product_type.
 
-    KicksDB può restituire:
+    KicksDB puo restituire:
 
         category = "air jordan"
         product_type = "sneakers"
 
-    Questo è un abbinamento valido per Sneaker Radar.
+    Questo e un abbinamento valido per Sneaker Radar.
     """
 
     category = normalize(product.get("category"))
@@ -180,8 +179,6 @@ def run_consistency_checks(
     """
 
     title = normalize(product.get("title"))
-    brand = normalize(product.get("brand"))
-    model = normalize(product.get("model"))
     sku = product.get("sku")
     price = product.get("avg_price")
 
@@ -214,7 +211,8 @@ def run_consistency_checks(
 
     if expected_gender:
         gender_passed = (
-            normalize(detected_gender) == normalize(expected_gender)
+            normalize(detected_gender)
+            == normalize(expected_gender)
         )
     else:
         gender_passed = True
@@ -248,13 +246,12 @@ def run_consistency_checks(
 
     if (
         price_value is not None
-        and reference_price
+        and reference_price is not None
         and reference_price > 0
     ):
         ratio = price_value / reference_price
 
-    # Manteniamo il controllo permissivo:
-    # il prezzo viene considerato valido se non è palesemente anomalo.
+    # Manteniamo il controllo permissivo.
     price_anomaly_passed = True
 
     price_anomaly_check = {
@@ -302,7 +299,9 @@ def run_consistency_checks(
     # CATEGORY / PRODUCT TYPE
     # --------------------------------------------------------
 
-    category_product_type_check = check_category_product_type(product)
+    category_product_type_check = (
+        check_category_product_type(product)
+    )
 
     # --------------------------------------------------------
     # DUPLICATE
@@ -457,10 +456,14 @@ def run_consistency_checks(
         "price_anomaly": price_anomaly_check["passed"],
         "sku": sku_check["passed"],
         "brand_model": brand_model_check["passed"],
-        "category_product_type": category_product_type_check["passed"],
+        "category_product_type": (
+            category_product_type_check["passed"]
+        ),
         "duplicate": duplicate_check["passed"],
         "price_validity": price_validity_check["passed"],
-        "data_completeness": data_completeness_check["passed"],
+        "data_completeness": (
+            data_completeness_check["passed"]
+        ),
         "title_model": title_model_check["passed"],
         "colorway": colorway_check["passed"],
         "condition": condition_check["passed"]
@@ -473,7 +476,9 @@ def run_consistency_checks(
             detail = None
 
             if name == "category_product_type":
-                detail = category_product_type_check.get("reason")
+                detail = category_product_type_check.get(
+                    "reason"
+                )
 
             elif name == "gender":
                 detail = "gender_mismatch"
@@ -496,9 +501,7 @@ def run_consistency_checks(
             elif name == "condition":
                 detail = condition_check.get("reason")
 
-            reasons.append(
-                detail or name
-            )
+            reasons.append(detail or name)
 
     status = "PASS" if not reasons else "REVIEW"
 
@@ -637,7 +640,10 @@ def main():
 
     except urllib.error.URLError as e:
 
-        log("❌ KicksDB connection error:", e)
+        log(
+            "❌ KicksDB connection error:",
+            e
+        )
 
         raise
 
@@ -753,6 +759,8 @@ def main():
             .execute()
         )
 
+        historical_price = None
+
         if existing.data:
 
             product_id = existing.data[0]["id"]
@@ -777,8 +785,6 @@ def main():
                 .limit(10)
                 .execute()
             )
-
-            historical_price = None
 
             if historical.data:
 
@@ -845,8 +851,6 @@ def main():
                 insert_result.data[0]["id"]
             )
 
-            historical_price = None
-
             log(
                 f"✅ Product saved to Supabase with id {product_id}"
             )
@@ -874,7 +878,10 @@ def main():
 
         log("CHECKS:")
 
-        for check_name, passed in consistency["checks"].items():
+        for (
+            check_name,
+            passed
+        ) in consistency["checks"].items():
 
             symbol = "✅" if passed else "❌"
 
@@ -909,11 +916,17 @@ def main():
         # SAVE PRICE
         # ====================================================
 
-        log(
-            "💾 Product already exists."
-            if existing.data
-            else "💾 Product created."
-        )
+        if existing.data:
+
+            log(
+                "💾 Product already exists."
+            )
+
+        else:
+
+            log(
+                "💾 Product created."
+            )
 
         if price is not None:
 
@@ -1001,4 +1014,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-```
