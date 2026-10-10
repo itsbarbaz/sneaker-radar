@@ -1,6 +1,5 @@
 import re
 
-
 # ============================================================
 # ADVANCED CONSISTENCY LAYER
 # ============================================================
@@ -18,7 +17,6 @@ COLLAB_KEYWORDS = {
     "stussy",
     "kaws",
 }
-
 
 GENDER_KEYWORDS = {
     "women": "WOMEN",
@@ -39,20 +37,14 @@ GENDER_KEYWORDS = {
     "unisex": "UNISEX",
 }
 
-
 # ============================================================
-# COLORWAY
+# UTILS & NORMALIZATION
 # ============================================================
 
 def normalize_text(value):
     if not value:
         return ""
-
-    return re.sub(
-        r"\s+",
-        " ",
-        str(value).strip().lower()
-    )
+    return re.sub(r"\s+", " ", str(value).strip().lower())
 
 
 def extract_product_text(product):
@@ -64,48 +56,33 @@ def extract_product_text(product):
         product.get("description"),
         product.get("colorway"),
     ]
+    return normalize_text(" ".join(str(field) for field in fields if field))
 
-    return normalize_text(
-        " ".join(
-            str(field)
-            for field in fields
-            if field
-        )
-    )
 
+# ============================================================
+# COLORWAY
+# ============================================================
 
 def tokenize_colorway(value):
     """
     Trasforma una colorway in token confrontabili.
     """
     text = normalize_text(value)
-
     if not text:
         return set()
 
     text = re.sub(r"[^a-z0-9\s]", " ", text)
-
-    return {
-        token
-        for token in text.split()
-        if len(token) >= 2
-    }
+    return {token for token in text.split() if len(token) >= 2}
 
 
 def check_colorway(product, expected_colorway=None):
     """
     Controlla che la colorway richiesta sia compatibile
-    con quella dichiarata nel prodotto.
-
-    Se expected_colorway non viene fornita,
-    il controllo passa senza inventare informazioni.
+    con quella dichiarata nel prodotto. Soglia affinata a 0.6.
     """
-
     detected = product.get("colorway")
-
     if detected is None:
         detected = ""
-
     detected = normalize_text(detected)
 
     if not expected_colorway:
@@ -118,7 +95,6 @@ def check_colorway(product, expected_colorway=None):
         }
 
     expected = normalize_text(expected_colorway)
-
     expected_tokens = tokenize_colorway(expected)
     detected_tokens = tokenize_colorway(detected)
 
@@ -140,15 +116,11 @@ def check_colorway(product, expected_colorway=None):
             "reason": "missing_colorway",
         }
 
-    matched = expected_tokens.intersection(
-        detected_tokens
-    )
+    matched = expected_tokens.intersection(detected_tokens)
+    match_ratio = len(matched) / len(expected_tokens)
 
-    match_ratio = (
-        len(matched) / len(expected_tokens)
-    )
-
-    if match_ratio >= 0.5:
+    # Soglia alzata a 0.6 per maggiore precisione sui colori
+    if match_ratio >= 0.6:
         return {
             "passed": True,
             "detected": detected,
@@ -177,15 +149,12 @@ CONDITION_KEYWORDS = {
     "new": "NEW",
     "unworn": "NEW",
     "unused": "NEW",
-
     "used": "USED",
     "pre-owned": "USED",
     "preowned": "USED",
     "worn": "USED",
-
     "very good": "USED",
     "good condition": "USED",
-
     "damaged": "DAMAGED",
     "damage": "DAMAGED",
     "defect": "DAMAGED",
@@ -197,10 +166,7 @@ def detect_condition(product):
     """
     Determina la condizione dichiarata del prodotto.
     """
-
-    explicit_condition = normalize_text(
-        product.get("condition")
-    )
+    explicit_condition = normalize_text(product.get("condition"))
 
     if explicit_condition:
         for keyword, condition in sorted(
@@ -210,7 +176,6 @@ def detect_condition(product):
         ):
             if keyword in explicit_condition:
                 return condition
-
         return "UNKNOWN"
 
     text = normalize_text(
@@ -232,7 +197,6 @@ def detect_condition(product):
         reverse=True,
     ):
         pattern = rf"\b{re.escape(keyword)}\b"
-
         if re.search(pattern, text):
             return condition
 
@@ -243,7 +207,6 @@ def check_condition(product, expected_condition=None):
     """
     Confronta la condizione rilevata con quella richiesta.
     """
-
     detected = detect_condition(product)
 
     if not expected_condition:
@@ -254,25 +217,14 @@ def check_condition(product, expected_condition=None):
             "reason": None,
         }
 
-    expected = normalize_text(
-        expected_condition
-    ).upper()
+    expected = normalize_text(expected_condition).upper()
 
+    passed = (detected == expected or detected == "UNKNOWN")
     return {
-        "passed": (
-            detected == expected
-            or detected == "UNKNOWN"
-        ),
+        "passed": passed,
         "detected": detected,
         "expected": expected,
-        "reason": (
-            None
-            if (
-                detected == expected
-                or detected == "UNKNOWN"
-            )
-            else "condition_mismatch"
-        ),
+        "reason": None if passed else "condition_mismatch",
     }
 
 
@@ -311,7 +263,6 @@ def detect_gender(product):
 
     for keyword, gender in ordered_keywords:
         pattern = rf"\b{re.escape(keyword)}\b"
-
         if re.search(pattern, text):
             return gender
 
@@ -367,7 +318,6 @@ def check_release_year(product, model_history=None):
 
     try:
         release_year = int(release_year)
-
     except (TypeError, ValueError):
         return {
             "passed": False,
@@ -392,7 +342,7 @@ def check_release_year(product, model_history=None):
 
 
 # ============================================================
-# PRICE ANOMALY
+# PRICE ANOMALY (DINAMICA CON COLLABORATIVE TOLERANCE)
 # ============================================================
 
 def check_price_anomaly(product, reference_price=None):
@@ -404,18 +354,19 @@ def check_price_anomaly(product, reference_price=None):
             "price": price,
             "reference_price": reference_price,
             "ratio": None,
+            "reason": None,
         }
 
     try:
         price = float(price)
         reference_price = float(reference_price)
-
     except (TypeError, ValueError):
         return {
             "passed": True,
             "price": price,
             "reference_price": reference_price,
             "ratio": None,
+            "reason": None,
         }
 
     if price <= 0 or reference_price <= 0:
@@ -424,16 +375,23 @@ def check_price_anomaly(product, reference_price=None):
             "price": price,
             "reference_price": reference_price,
             "ratio": None,
+            "reason": None,
         }
 
     ratio = price / reference_price
 
-    if ratio > 5 or ratio < 0.2:
+    # Se è una collaborazione rilevata, allarghiamo la tolleranza fino a 6x
+    is_collab = not check_collaboration(product)["passed"]
+    max_ratio = 6.0 if is_collab else 3.0
+    min_ratio = 0.25
+
+    if ratio > max_ratio or ratio < min_ratio:
         return {
             "passed": False,
             "price": price,
             "reference_price": reference_price,
             "ratio": ratio,
+            "reason": "price_anomaly",
         }
 
     return {
@@ -441,6 +399,7 @@ def check_price_anomaly(product, reference_price=None):
         "price": price,
         "reference_price": reference_price,
         "ratio": ratio,
+        "reason": None,
     }
 
 
@@ -501,7 +460,6 @@ def check_brand_model_consistency(product):
             "air max",
             "dunk",
         },
-
         "adidas": {
             "adidas",
             "yeezy",
@@ -509,37 +467,31 @@ def check_brand_model_consistency(product):
             "gazelle",
             "campus",
         },
-
         "new balance": {
             "new balance",
             "nb",
             "990",
             "550",
         },
-
         "asics": {
             "asics",
             "gel",
         },
-
         "puma": {
             "puma",
             "suede",
             "palermo",
         },
-
         "reebok": {
             "reebok",
             "club c",
         },
-
         "hoka": {
             "hoka",
             "clifton",
             "bondi",
             "speedgoat",
         },
-
         "salomon": {
             "salomon",
             "xt-6",
@@ -557,10 +509,7 @@ def check_brand_model_consistency(product):
             "reason": None,
         }
 
-    if any(
-        token in combined
-        for token in expected_tokens
-    ):
+    if any(token in combined for token in expected_tokens):
         return {
             "passed": True,
             "brand": brand,
@@ -581,13 +530,8 @@ def check_brand_model_consistency(product):
 # ============================================================
 
 def check_category_product_type(product):
-    category = normalize_text(
-        product.get("category")
-    )
-
-    product_type = normalize_text(
-        product.get("product_type")
-    )
+    category = normalize_text(product.get("category"))
+    product_type = normalize_text(product.get("product_type"))
 
     if not category or not product_type:
         return {
@@ -605,15 +549,8 @@ def check_category_product_type(product):
         "footwear",
     }
 
-    category_is_footwear = any(
-        term in category
-        for term in footwear_terms
-    )
-
-    type_is_footwear = any(
-        term in product_type
-        for term in footwear_terms
-    )
+    category_is_footwear = any(term in category for term in footwear_terms)
+    type_is_footwear = any(term in product_type for term in footwear_terms)
 
     if category_is_footwear == type_is_footwear:
         return {
@@ -636,24 +573,13 @@ def check_category_product_type(product):
 # ============================================================
 
 def build_product_identity(product):
-    sku = normalize_text(
-        product.get("sku")
-    )
-
+    sku = normalize_text(product.get("sku"))
     if sku:
         return f"sku:{sku}"
 
-    brand = normalize_text(
-        product.get("brand")
-    )
-
-    model = normalize_text(
-        product.get("model")
-    )
-
-    title = normalize_text(
-        product.get("title")
-    )
+    brand = normalize_text(product.get("brand"))
+    model = normalize_text(product.get("model"))
+    title = normalize_text(product.get("title"))
 
     return f"{brand}|{model}|{title}"
 
@@ -701,7 +627,6 @@ def check_price_validity(product):
 
     try:
         price = float(price)
-
     except (TypeError, ValueError):
         return {
             "passed": False,
@@ -727,7 +652,7 @@ def check_price_validity(product):
 # DATA COMPLETENESS
 # ============================================================
 
-def check_data_completeness(product):
+def check_data_completeness(product, strict_mode=False):
     required_fields = [
         "title",
         "brand",
@@ -742,7 +667,6 @@ def check_data_completeness(product):
 
     for field in required_fields:
         value = product.get(field)
-
         if value is not None and str(value).strip() != "":
             present += 1
         else:
@@ -750,14 +674,13 @@ def check_data_completeness(product):
 
     completeness = present / len(required_fields)
 
-    passed = completeness >= 0.5
+    # In strict_mode richiediamo una completezza dell'80% invece del 50%
+    required_threshold = 0.8 if strict_mode else 0.5
+    passed = completeness >= required_threshold
 
     return {
         "passed": passed,
-        "completeness": round(
-            completeness,
-            4
-        ),
+        "completeness": round(completeness, 4),
         "missing_fields": missing,
         "reason": (
             None
@@ -772,22 +695,8 @@ def check_data_completeness(product):
 # ============================================================
 
 def check_title_model_consistency(product):
-    """
-    Controlla la coerenza tra model e title senza richiedere
-    che ogni parola descrittiva del model compaia nel titolo.
-
-    Termini come Retro, High, Low, Mid, OG, SE ecc.
-    possono essere omessi dal titolo senza creare
-    automaticamente un mismatch.
-    """
-
-    model = normalize_text(
-        product.get("model")
-    )
-
-    title = normalize_text(
-        product.get("title")
-    )
+    model = normalize_text(product.get("model"))
+    title = normalize_text(product.get("title"))
 
     if not model or not title:
         return {
@@ -797,10 +706,6 @@ def check_title_model_consistency(product):
             "match_ratio": None,
             "reason": None,
         }
-
-    # --------------------------------------------------------
-    # Termini descrittivi opzionali
-    # --------------------------------------------------------
 
     OPTIONAL_MODEL_TERMS = {
         "retro",
@@ -833,8 +738,7 @@ def check_title_model_consistency(product):
     model_tokens = [
         token
         for token in model.split()
-        if len(token) >= 2
-        and token not in OPTIONAL_MODEL_TERMS
+        if len(token) >= 2 and token not in OPTIONAL_MODEL_TERMS
     ]
 
     if not model_tokens:
@@ -846,31 +750,14 @@ def check_title_model_consistency(product):
             "reason": None,
         }
 
-    # --------------------------------------------------------
-    # Controllo Jordan specifico
-    # --------------------------------------------------------
-
     if model.startswith("jordan "):
-
-        jordan_number_match = re.search(
-            r"\bjordan\s+(\d+)\b",
-            model,
-        )
-
+        jordan_number_match = re.search(r"\bjordan\s+(\d+)\b", model)
         if jordan_number_match:
-
-            jordan_number = (
-                jordan_number_match.group(1)
-            )
-
+            jordan_number = jordan_number_match.group(1)
             jordan_family_present = (
-                re.search(
-                    rf"\bjordan\s+{re.escape(jordan_number)}\b",
-                    title,
-                )
+                re.search(rf"\bjordan\s+{re.escape(jordan_number)}\b", title)
                 is not None
             )
-
             if jordan_family_present:
                 return {
                     "passed": True,
@@ -880,20 +767,8 @@ def check_title_model_consistency(product):
                     "reason": None,
                 }
 
-    # --------------------------------------------------------
-    # Matching generale
-    # --------------------------------------------------------
-
-    matched_tokens = sum(
-        1
-        for token in model_tokens
-        if token in title
-    )
-
-    match_ratio = (
-        matched_tokens /
-        len(model_tokens)
-    )
+    matched_tokens = sum(1 for token in model_tokens if token in title)
+    match_ratio = matched_tokens / len(model_tokens)
 
     if match_ratio >= 0.5:
         return {
@@ -925,66 +800,25 @@ def run_advanced_consistency(
     seen_identities=None,
     expected_colorway=None,
     expected_condition=None,
+    strict_mode=False,
 ):
 
-    collaboration = check_collaboration(
-        product
-    )
-
-    gender = check_gender(
-        product,
-        expected_gender=expected_gender,
-    )
-
-    release_year = check_release_year(
-        product,
-        model_history=model_history,
-    )
-
-    price_anomaly = check_price_anomaly(
-        product,
-        reference_price=reference_price,
-    )
-
+    collaboration = check_collaboration(product)
+    gender = check_gender(product, expected_gender=expected_gender)
+    release_year = check_release_year(product, model_history=model_history)
+    price_anomaly = check_price_anomaly(product, reference_price=reference_price)
     sku = check_sku(product)
-
-    brand_model = (
-        check_brand_model_consistency(product)
-    )
-
-    category_product_type = (
-        check_category_product_type(product)
-    )
-
-    duplicate = check_duplicate(
-        product,
-        seen_identities=seen_identities,
-    )
-
-    price_validity = check_price_validity(
-        product
-    )
-
-    completeness = check_data_completeness(
-        product
-    )
-
-    title_model = (
-        check_title_model_consistency(product)
-    )
-
-    colorway = check_colorway(
-        product,
-        expected_colorway=expected_colorway,
-    )
-
-    condition = check_condition(
-        product,
-        expected_condition=expected_condition,
-    )
+    brand_model = check_brand_model_consistency(product)
+    category_product_type = check_category_product_type(product)
+    duplicate = check_duplicate(product, seen_identities=seen_identities)
+    price_validity = check_price_validity(product)
+    completeness = check_data_completeness(product, strict_mode=strict_mode)
+    title_model = check_title_model_consistency(product)
+    colorway = check_colorway(product, expected_colorway=expected_colorway)
+    condition = check_condition(product, expected_condition=expected_condition)
 
     # ========================================================
-    # CHECKS
+    # CHECKS MAP
     # ========================================================
 
     checks = {
@@ -994,14 +828,10 @@ def run_advanced_consistency(
         "price_anomaly": price_anomaly["passed"],
         "sku": sku["passed"],
         "brand_model": brand_model["passed"],
-        "category_product_type": (
-            category_product_type["passed"]
-        ),
+        "category_product_type": category_product_type["passed"],
         "duplicate": duplicate["passed"],
         "price_validity": price_validity["passed"],
-        "data_completeness": (
-            completeness["passed"]
-        ),
+        "data_completeness": completeness["passed"],
         "title_model": title_model["passed"],
         "colorway": colorway["passed"],
         "condition": condition["passed"],
@@ -1014,83 +844,56 @@ def run_advanced_consistency(
     review_reasons = []
 
     if not collaboration["passed"]:
-        review_reasons.append(
-            "collaboration_detected"
-        )
+        review_reasons.append("collaboration_detected")
 
     if not gender["passed"]:
-        review_reasons.append(
-            "gender_mismatch"
-        )
+        review_reasons.append("gender_mismatch")
 
     if not release_year["passed"]:
-        review_reasons.append(
-            release_year["reason"]
-        )
+        review_reasons.append(release_year["reason"])
 
     if not price_anomaly["passed"]:
-        review_reasons.append(
-            "price_anomaly"
-        )
+        review_reasons.append(price_anomaly["reason"])
 
     if not sku["passed"]:
-        review_reasons.append(
-            sku["reason"]
-        )
+        review_reasons.append(sku["reason"])
 
     if not brand_model["passed"]:
-        review_reasons.append(
-            brand_model["reason"]
-        )
+        review_reasons.append(brand_model["reason"])
 
     if not category_product_type["passed"]:
-        review_reasons.append(
-            category_product_type["reason"]
-        )
+        review_reasons.append(category_product_type["reason"])
 
     if not duplicate["passed"]:
-        review_reasons.append(
-            duplicate["reason"]
-        )
+        review_reasons.append(duplicate["reason"])
 
     if not price_validity["passed"]:
-        review_reasons.append(
-            price_validity["reason"]
-        )
+        review_reasons.append(price_validity["reason"])
 
     if not completeness["passed"]:
-        review_reasons.append(
-            completeness["reason"]
-        )
+        review_reasons.append(completeness["reason"])
 
     if not title_model["passed"]:
-        review_reasons.append(
-            title_model["reason"]
-        )
+        review_reasons.append(title_model["reason"])
 
     if not colorway["passed"]:
-        review_reasons.append(
-            colorway["reason"]
-        )
+        review_reasons.append(colorway["reason"])
 
     if not condition["passed"]:
-        review_reasons.append(
-            condition["reason"]
-        )
+        review_reasons.append(condition["reason"])
+
+    clean_reasons = [reason for reason in review_reasons if reason]
+    approved = len(clean_reasons) == 0
 
     # ========================================================
     # RESULT
     # ========================================================
 
     return {
+        "approved": approved,
+        "strict_mode": strict_mode,
         "checks": checks,
-
-        "review_reasons": [
-            reason
-            for reason in review_reasons
-            if reason
-        ],
-
+        "review_reasons": clean_reasons,
         "details": {
             "collaboration": collaboration,
             "gender": gender,
@@ -1098,9 +901,7 @@ def run_advanced_consistency(
             "price_anomaly": price_anomaly,
             "sku": sku,
             "brand_model": brand_model,
-            "category_product_type": (
-                category_product_type
-            ),
+            "category_product_type": category_product_type,
             "duplicate": duplicate,
             "price_validity": price_validity,
             "data_completeness": completeness,
