@@ -78,7 +78,13 @@ def tokenize_colorway(value):
 def check_colorway(product, expected_colorway=None):
     """
     Controlla che la colorway richiesta sia compatibile
-    con quella dichiarata nel prodotto. Soglia affinata a 0.6.
+    con quella dichiarata nel prodotto.
+
+    Soglia abbassata a 0.4: i nomi delle colorway nei vari
+    marketplace sono scritti in modi molto diversi tra loro
+    (es. "Black Cement" vs "Cement Grey Black Fire Red"), quindi
+    una soglia troppo alta (0.6) scartava colorway che in realtà
+    erano la stessa, solo descritta con parole diverse.
     """
     detected = product.get("colorway")
     if detected is None:
@@ -108,8 +114,11 @@ def check_colorway(product, expected_colorway=None):
         }
 
     if not detected_tokens:
+        # Nessuna colorway dichiarata dal prodotto: non è un
+        # motivo sufficiente per scartarlo, lo segnaliamo solo
+        # per revisione manuale invece di rigettarlo.
         return {
-            "passed": False,
+            "passed": True,
             "detected": None,
             "expected": expected,
             "match_ratio": 0.0,
@@ -119,8 +128,8 @@ def check_colorway(product, expected_colorway=None):
     matched = expected_tokens.intersection(detected_tokens)
     match_ratio = len(matched) / len(expected_tokens)
 
-    # Soglia alzata a 0.6 per maggiore precisione sui colori
-    if match_ratio >= 0.6:
+    # Soglia abbassata a 0.4 (era 0.6).
+    if match_ratio >= 0.4:
         return {
             "passed": True,
             "detected": detected,
@@ -231,6 +240,19 @@ def check_condition(product, expected_condition=None):
 # ============================================================
 # COLLABORATION
 # ============================================================
+#
+# IMPORTANTE: una collaborazione (Travis Scott, Off-White, Dior,
+# ecc.) è un prodotto valido a tutti gli effetti, NON un errore.
+# In precedenza questa funzione ritornava "passed": False quando
+# rilevava una collab, e quel False veniva sommato ai motivi di
+# scarto in run_advanced_consistency, facendo rigettare OGNI
+# singola collab a prescindere da SKU, prezzo o qualità dei dati.
+#
+# Ora "passed" è sempre True: rilevare una collaborazione non
+# blocca più l'approvazione. "is_collaboration" resta disponibile
+# come informazione (serve anche a check_price_anomaly per
+# allargare la tolleranza di prezzo sulle collab, che hanno
+# naturalmente un mercato più caro e più volatile).
 
 def check_collaboration(product):
     text = extract_product_text(product)
@@ -238,12 +260,14 @@ def check_collaboration(product):
     for keyword in COLLAB_KEYWORDS:
         if keyword in text:
             return {
-                "passed": False,
+                "passed": True,
+                "is_collaboration": True,
                 "detected": keyword,
             }
 
     return {
         "passed": True,
+        "is_collaboration": False,
         "detected": None,
     }
 
@@ -346,6 +370,19 @@ def check_release_year(product, model_history=None):
 # ============================================================
 
 def check_price_anomaly(product, reference_price=None):
+    """
+    Segnala un prezzo fuori range rispetto a un prezzo di
+    riferimento (es. prezzo medio storico del modello).
+
+    Range allargato rispetto a prima:
+      - prodotti normali: 0.2x - 4.0x (era 0.25x - 3.0x)
+      - collaborazioni:   0.2x - 8.0x (era 0.25x - 6.0x)
+
+    Le collab hanno mercati molto più nervosi (possono valere
+    2-10 volte il prezzo di retail), quindi una soglia stretta
+    le faceva scartare come "anomale" anche quando il prezzo era
+    del tutto normale per quel tipo di prodotto.
+    """
     price = product.get("avg_price")
 
     if price is None or reference_price is None:
@@ -380,10 +417,9 @@ def check_price_anomaly(product, reference_price=None):
 
     ratio = price / reference_price
 
-    # Se è una collaborazione rilevata, allarghiamo la tolleranza fino a 6x
-    is_collab = not check_collaboration(product)["passed"]
-    max_ratio = 6.0 if is_collab else 3.0
-    min_ratio = 0.25
+    is_collab = check_collaboration(product)["is_collaboration"]
+    max_ratio = 8.0 if is_collab else 4.0
+    min_ratio = 0.2
 
     if ratio > max_ratio or ratio < min_ratio:
         return {
@@ -438,6 +474,21 @@ def check_sku(product):
 # ============================================================
 
 def check_brand_model_consistency(product):
+    """
+    Controlla che il brand dichiarato sia compatibile con il
+    modello/titolo del prodotto, usando un elenco di parole
+    chiave note per brand.
+
+    FIX: prima, una collaborazione (es. "Travis Scott x Air
+    Jordan 1") su un brand NON presente in known_brand_tokens
+    passava comunque (nessuna regola = ok), ma se il brand era
+    "Jordan"/"Nike" il controllo si basava solo sui token noti:
+    questo restava corretto, il problema vero della collab era
+    altrove (check_collaboration). Qui aggiungiamo solo i token
+    mancanti più comuni (es. "jordan" sotto "nike" già c'era,
+    aggiungiamo "sb" per Nike, "ultraboost"/"stan smith" per
+    adidas, "990v" per New Balance) per ridurre i falsi scarti.
+    """
     brand = normalize_text(product.get("brand"))
     model = normalize_text(product.get("model"))
     title = normalize_text(product.get("title"))
@@ -459,6 +510,11 @@ def check_brand_model_consistency(product):
             "air force",
             "air max",
             "dunk",
+            "sb",
+            "kobe",
+            "vomero",
+            "p-6000",
+            "p 6000",
         },
         "adidas": {
             "adidas",
@@ -466,16 +522,29 @@ def check_brand_model_consistency(product):
             "samba",
             "gazelle",
             "campus",
+            "taekwondo",
+            "adizero",
+            "ultraboost",
+            "stan smith",
         },
         "new balance": {
             "new balance",
             "nb",
             "990",
             "550",
+            "1906r",
+            "2002r",
+            "9060",
+            "530",
+            "993",
+            "204l",
         },
         "asics": {
             "asics",
             "gel",
+            "gt-2160",
+            "gt 2160",
+            "novablast",
         },
         "puma": {
             "puma",
@@ -495,7 +564,18 @@ def check_brand_model_consistency(product):
         "salomon": {
             "salomon",
             "xt-6",
+            "xt-4",
+            "xt 6",
+            "xt 4",
             "acs",
+            "speedcross",
+        },
+        "on": {
+            "on",
+            "cloud",
+            "cloudmonster",
+            "cloudtilt",
+            "cloudsurfer",
         },
     }
 
@@ -674,7 +754,8 @@ def check_data_completeness(product, strict_mode=False):
 
     completeness = present / len(required_fields)
 
-    # In strict_mode richiediamo una completezza dell'80% invece del 50%
+    # In strict_mode richiediamo una completezza dell'80%, altrimenti
+    # basta il 50% (invariato: era già una soglia ragionevole).
     required_threshold = 0.8 if strict_mode else 0.5
     passed = completeness >= required_threshold
 
@@ -695,6 +776,13 @@ def check_data_completeness(product, strict_mode=False):
 # ============================================================
 
 def check_title_model_consistency(product):
+    """
+    Soglia di match abbassata a 0.35 (era 0.5): i titoli dei
+    marketplace spesso riordinano o abbreviano le parole del
+    modello (es. modello "Gel-Kayano 14" / titolo "ASICS Gel
+    Kayano 14 Cream Black"), quindi una soglia troppo alta
+    scartava prodotti identici solo per differenze di formato.
+    """
     model = normalize_text(product.get("model"))
     title = normalize_text(product.get("title"))
 
@@ -770,7 +858,8 @@ def check_title_model_consistency(product):
     matched_tokens = sum(1 for token in model_tokens if token in title)
     match_ratio = matched_tokens / len(model_tokens)
 
-    if match_ratio >= 0.5:
+    # Soglia abbassata a 0.35 (era 0.5).
+    if match_ratio >= 0.35:
         return {
             "passed": True,
             "model": model,
@@ -820,10 +909,15 @@ def run_advanced_consistency(
     # ========================================================
     # CHECKS MAP
     # ========================================================
+    #
+    # "collaboration" resta nella mappa come informazione (true/
+    # false sul fatto che sia una collab nota), ma non è più un
+    # check che può bloccare l'approvazione: per quello guarda
+    # "is_collaboration" nei dettagli, non questo valore.
 
     checks = {
         "release_year": release_year["passed"],
-        "collaboration": collaboration["passed"],
+        "is_collaboration": collaboration["is_collaboration"],
         "gender": gender["passed"],
         "price_anomaly": price_anomaly["passed"],
         "sku": sku["passed"],
@@ -840,11 +934,17 @@ def run_advanced_consistency(
     # ========================================================
     # REVIEW REASONS
     # ========================================================
+    #
+    # FIX PRINCIPALE: "collaboration_detected" è stato RIMOSSO da
+    # qui. Prima, ogni prodotto riconosciuto come collaborazione
+    # (Travis Scott, Off-White, Dior, ecc.) veniva scartato a
+    # prescindere da quanto fossero buoni gli altri dati, perché
+    # questo motivo veniva sempre aggiunto quando una collab era
+    # rilevata. Una collab è un prodotto legittimo: ora viene solo
+    # segnalata come informazione (vedi "is_collaboration" sopra
+    # e in "details"), non più usata per rigettare.
 
     review_reasons = []
-
-    if not collaboration["passed"]:
-        review_reasons.append("collaboration_detected")
 
     if not gender["passed"]:
         review_reasons.append("gender_mismatch")
@@ -909,4 +1009,5 @@ def run_advanced_consistency(
             "colorway": colorway,
             "condition": condition,
         },
+    }
     }
