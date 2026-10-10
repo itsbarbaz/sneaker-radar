@@ -1,3 +1,4 @@
+import datetime
 import re
 
 # ============================================================
@@ -16,6 +17,34 @@ COLLAB_KEYWORDS = {
     "fear of god",
     "stussy",
     "kaws",
+}
+
+# Parole/frasi tipiche del mercato delle repliche (UA, PK,
+# batch, ecc.). A differenza di COLLAB_KEYWORDS, qui usiamo un
+# match a PAROLA INTERA (non sottostringa), perche' molte di
+# queste parole sono corte e ambigue (es. "ua", "pk", "aaa") e
+# un match a sottostringa darebbe troppi falsi positivi su
+# parole che le contengono per caso.
+#
+# Aggiungi qui altre parole se ne trovi di nuove nei dati.
+REPLICA_KEYWORDS = {
+    "replica",
+    "replicas",
+    "rep",
+    "reps",
+    "fake",
+    "fakes",
+    "counterfeit",
+    "bootleg",
+    "knockoff",
+    "knock-off",
+    "unauthorized",
+    "ua batch",
+    "pk batch",
+    "pk god",
+    "god batch",
+    "aaa quality",
+    "1:1",
 }
 
 GENDER_KEYWORDS = {
@@ -825,6 +854,340 @@ def check_currency(product, expected_currency="USD"):
 
 
 # ============================================================
+# COUNTERFEIT / REPLICA RISK
+# ============================================================
+
+def check_counterfeit_risk(product):
+    """
+    Cerca nel testo del prodotto (titolo, modello, descrizione,
+    colorway) parole tipiche del mercato delle repliche (UA, PK,
+    batch, AAA, ecc. - vedi REPLICA_KEYWORDS).
+
+    Match a PAROLA INTERA, non a sottostringa: "ua" deve
+    comparire come parola separata, non dentro un'altra parola
+    (es. non si attiva per sbaglio su un ipotetico testo che
+    contenga "...ua..." come parte di un'altra parola).
+
+    Se trova una corrispondenza, segnala per revisione manuale
+    (non scarta in automatico): un match su parola chiave non e'
+    prova certa di contraffazione, puo' anche essere un falso
+    positivo (es. una descrizione che dice esplicitamente "NOT a
+    replica"), quindi serve sempre un occhio umano prima di
+    scartare il prodotto.
+    """
+    text = extract_product_text(product)
+
+    if not text:
+        return {
+            "passed": True,
+            "detected": None,
+            "reason": None,
+        }
+
+    for keyword in REPLICA_KEYWORDS:
+        pattern = r"\b" + re.escape(keyword) + r"\b"
+
+        if re.search(pattern, text):
+            return {
+                "passed": False,
+                "detected": keyword,
+                "reason": "counterfeit_risk_keyword_detected",
+            }
+
+    return {
+        "passed": True,
+        "detected": None,
+        "reason": None,
+    }
+
+
+# ============================================================
+# DATA FRESHNESS
+# ============================================================
+#
+# KicksDB non ha mai esposto, nei dati osservati finora, un
+# campo data/timestamp esplicito tra quelli che leggiamo oggi.
+# Questo controllo e' quindi scritto in modo completamente
+# difensivo: se non trova nessuno dei campi noti, PASSA sempre
+# (comportamento identico a oggi, nessuna rottura). Si attiva
+# solo se trova un campo data/timestamp e riesce a interpretarlo.
+#
+# Se scopri il nome esatto del campo che usa KicksDB per la
+# data dell'ultima vendita/aggiornamento, aggiungilo qui.
+
+DATE_FIELD_CANDIDATES = (
+    "updated_at",
+    "last_updated",
+    "last_sale_date",
+    "last_sale_at",
+    "price_updated_at",
+)
+
+
+def _parse_date_value(value):
+    """
+    Prova a interpretare un valore data in diversi formati
+    plausibili (timestamp unix in secondi o millisecondi,
+    stringa ISO 8601). Ritorna un datetime (UTC) o None se il
+    formato non e' riconosciuto.
+    """
+    if value is None or value == "":
+        return None
+
+    # Timestamp numerico (secondi o millisecondi dall'epoch).
+    if isinstance(value, (int, float)):
+        try:
+            # Se il numero e' troppo grande per essere in
+            # secondi (es. > anno ~5138), assumiamo millisecondi.
+            if value > 10**11:
+                value = value / 1000.0
+
+            return datetime.datetime.fromtimestamp(
+                value, tz=datetime.timezone.utc
+            )
+        except (ValueError, OverflowError, OSError):
+            return None
+
+    # Stringa ISO 8601 (es. "2026-10-01" o
+    # "2026-10-01T12:00:00Z").
+    if isinstance(value, str):
+        text = value.strip()
+
+        if text.endswith("Z"):
+            text = text[:-1] + "+00:00"
+
+        try:
+            parsed = datetime.datetime.fromisoformat(text)
+
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=datetime.timezone.utc)
+
+            return parsed
+        except ValueError:
+            return None
+
+    return None
+
+
+def check_data_freshness(product, max_age_days=90):
+    """
+    Se trova un campo data/timestamp riconoscibile e questo e'
+    piu' vecchio di max_age_days, segnala per revisione (non
+    scarta): un prezzo calcolato su un dato vecchio puo' essere
+    fuorviante ma non e' automaticamente sbagliato.
+
+    Nessun campo trovato, o max_age_days=None -> passa sempre.
+    """
+    if max_age_days is None:
+        return {
+            "passed": True,
+            "detected_date": None,
+            "age_days": None,
+            "reason": None,
+        }
+
+    raw_value = None
+
+    for field in DATE_FIELD_CANDIDATES:
+        value = product.get(field)
+
+        if value is not None and value != "":
+            raw_value = value
+            break
+
+    if raw_value is None:
+        return {
+            "passed": True,
+            "detected_date": None,
+            "age_days": None,
+            "reason": None,
+        }
+
+    parsed = _parse_date_value(raw_value)
+
+    if parsed is None:
+        # Campo presente ma formato non riconosciuto: non
+        # penalizziamo il prodotto per un problema nostro di
+        # parsing, passa comunque.
+        return {
+            "passed": True,
+            "detected_date": raw_value,
+            "age_days": None,
+            "reason": None,
+        }
+
+    now = datetime.datetime.now(tz=datetime.timezone.utc)
+    age_days = (now - parsed).total_seconds() / 86400.0
+
+    if age_days > max_age_days:
+        return {
+            "passed": False,
+            "detected_date": parsed.isoformat(),
+            "age_days": round(age_days, 1),
+            "reason": "stale_data",
+        }
+
+    return {
+        "passed": True,
+        "detected_date": parsed.isoformat(),
+        "age_days": round(age_days, 1),
+        "reason": None,
+    }
+
+
+# ============================================================
+# LIQUIDITY (VOLUME DI MERCATO)
+# ============================================================
+#
+# Stesso approccio difensivo del controllo data: se KicksDB non
+# espone un campo volume/numero vendite tra quelli noti, il
+# controllo passa sempre (nessuna rottura rispetto a oggi).
+
+SALES_COUNT_FIELD_CANDIDATES = (
+    "sales_count",
+    "sale_count",
+    "number_of_sales",
+    "trade_count",
+    "volume",
+)
+
+
+def check_liquidity(product, min_sales=1):
+    """
+    Se trova un campo numero-vendite/volume riconoscibile e il
+    valore e' sotto min_sales, segnala per revisione: un prezzo
+    medio calcolato su pochissime vendite e' meno affidabile.
+
+    Nessun campo trovato, o min_sales=None -> passa sempre.
+    """
+    if min_sales is None:
+        return {
+            "passed": True,
+            "sales_count": None,
+            "reason": None,
+        }
+
+    raw_value = None
+
+    for field in SALES_COUNT_FIELD_CANDIDATES:
+        value = product.get(field)
+
+        if value is not None and value != "":
+            raw_value = value
+            break
+
+    if raw_value is None:
+        return {
+            "passed": True,
+            "sales_count": None,
+            "reason": None,
+        }
+
+    try:
+        sales_count = float(raw_value)
+    except (TypeError, ValueError):
+        # Valore non numerico: non penalizziamo per un
+        # problema di formato, passa comunque.
+        return {
+            "passed": True,
+            "sales_count": raw_value,
+            "reason": None,
+        }
+
+    if sales_count < min_sales:
+        return {
+            "passed": False,
+            "sales_count": sales_count,
+            "reason": "low_liquidity",
+        }
+
+    return {
+        "passed": True,
+        "sales_count": sales_count,
+        "reason": None,
+    }
+
+
+# ============================================================
+# SIZE PLAUSIBILITY
+# ============================================================
+#
+# Controllo volutamente permissivo: non verifichiamo che la
+# taglia sia in un range "giusto" per US/UK/EU (non sappiamo
+# con certezza quale sistema usi KicksDB), solo che sia un
+# numero plausibile per UNA scarpa in un senso generico (copre
+# bambino/adulto in qualunque sistema di taglie comune).
+# Serve solo a intercettare errori di parsing a monte
+# (es. "3XL" finito per sbaglio nel campo size, o un valore
+# chiaramente impazzito tipo 999).
+
+SIZE_FIELD_CANDIDATES = (
+    "size",
+    "us_size",
+    "eu_size",
+    "uk_size",
+)
+
+
+def check_size_plausibility(product, min_size=0, max_size=60):
+    """
+    Se trova un campo taglia riconoscibile e il valore numerico
+    e' fuori da [min_size, max_size], segnala per revisione.
+
+    Nessun campo trovato, valore non numerico (es. "M", "One
+    Size"), o min_size/max_size=None -> passa sempre: non e'
+    compito di questo controllo capire la taglia, solo
+    intercettare numeri palesemente impazziti.
+    """
+    if min_size is None or max_size is None:
+        return {
+            "passed": True,
+            "size": None,
+            "reason": None,
+        }
+
+    raw_value = None
+
+    for field in SIZE_FIELD_CANDIDATES:
+        value = product.get(field)
+
+        if value is not None and value != "":
+            raw_value = value
+            break
+
+    if raw_value is None:
+        return {
+            "passed": True,
+            "size": None,
+            "reason": None,
+        }
+
+    try:
+        size_value = float(raw_value)
+    except (TypeError, ValueError):
+        # Non numerico (es. "M", "One Size"): non e' compito
+        # di questo controllo, passa comunque.
+        return {
+            "passed": True,
+            "size": raw_value,
+            "reason": None,
+        }
+
+    if size_value < min_size or size_value > max_size:
+        return {
+            "passed": False,
+            "size": size_value,
+            "reason": "implausible_size",
+        }
+
+    return {
+        "passed": True,
+        "size": size_value,
+        "reason": None,
+    }
+
+
+# ============================================================
 # DATA COMPLETENESS
 # ============================================================
 
@@ -986,6 +1349,10 @@ def run_advanced_consistency(
     expected_colorway=None,
     expected_condition=None,
     expected_currency="USD",
+    max_age_days=90,
+    min_sales=None,
+    min_size=0,
+    max_size=60,
     strict_mode=False,
 ):
 
@@ -999,6 +1366,12 @@ def run_advanced_consistency(
     duplicate = check_duplicate(product, seen_identities=seen_identities)
     price_validity = check_price_validity(product)
     currency = check_currency(product, expected_currency=expected_currency)
+    counterfeit_risk = check_counterfeit_risk(product)
+    data_freshness = check_data_freshness(product, max_age_days=max_age_days)
+    liquidity = check_liquidity(product, min_sales=min_sales)
+    size_plausibility = check_size_plausibility(
+        product, min_size=min_size, max_size=max_size
+    )
     completeness = check_data_completeness(product, strict_mode=strict_mode)
     title_model = check_title_model_consistency(product)
     colorway = check_colorway(product, expected_colorway=expected_colorway)
@@ -1024,6 +1397,10 @@ def run_advanced_consistency(
         "duplicate": duplicate["passed"],
         "price_validity": price_validity["passed"],
         "currency": currency["passed"],
+        "counterfeit_risk": counterfeit_risk["passed"],
+        "data_freshness": data_freshness["passed"],
+        "liquidity": liquidity["passed"],
+        "size_plausibility": size_plausibility["passed"],
         "data_completeness": completeness["passed"],
         "title_model": title_model["passed"],
         "colorway": colorway["passed"],
@@ -1072,6 +1449,18 @@ def run_advanced_consistency(
     if not currency["passed"]:
         review_reasons.append(currency["reason"])
 
+    if not counterfeit_risk["passed"]:
+        review_reasons.append(counterfeit_risk["reason"])
+
+    if not data_freshness["passed"]:
+        review_reasons.append(data_freshness["reason"])
+
+    if not liquidity["passed"]:
+        review_reasons.append(liquidity["reason"])
+
+    if not size_plausibility["passed"]:
+        review_reasons.append(size_plausibility["reason"])
+
     if not completeness["passed"]:
         review_reasons.append(completeness["reason"])
 
@@ -1107,6 +1496,10 @@ def run_advanced_consistency(
             "duplicate": duplicate,
             "price_validity": price_validity,
             "currency": currency,
+            "counterfeit_risk": counterfeit_risk,
+            "data_freshness": data_freshness,
+            "liquidity": liquidity,
+            "size_plausibility": size_plausibility,
             "data_completeness": completeness,
             "title_model": title_model,
             "colorway": colorway,

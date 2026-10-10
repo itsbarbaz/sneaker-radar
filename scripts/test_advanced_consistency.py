@@ -612,6 +612,222 @@ print_test_result(
 
 
 # ============================================================
+# TEST 21 — COUNTERFEIT KEYWORD (UA BATCH)
+# ============================================================
+
+product_21 = {
+    "id": "test-021",
+    "brand": "Jordan",
+    "model": "Jordan 1 Retro High",
+    "title": "Air Jordan 1 Retro High UA Batch",
+    "sku": "555088-161",
+    "product_type": "sneakers",
+    "category": "sneakers",
+    "avg_price": 120,
+}
+
+result_21 = run_advanced_consistency(
+    product_21,
+    reference_price=180,
+)
+
+print_test_result(
+    "TEST 21 — Counterfeit keyword (UA Batch)",
+    result_21,
+)
+
+
+# ============================================================
+# TEST 22 — CLEAN PRODUCT, NO COUNTERFEIT RISK
+# ============================================================
+
+product_22 = {
+    "id": "test-022",
+    "brand": "Jordan",
+    "model": "Jordan 1 Retro High",
+    "title": "Air Jordan 1 Retro High Guava Ice",
+    "sku": "555088-161",
+    "product_type": "sneakers",
+    "category": "sneakers",
+    "avg_price": 180,
+}
+
+result_22 = run_advanced_consistency(
+    product_22,
+    reference_price=180,
+)
+
+print_test_result(
+    "TEST 22 — Clean product, no counterfeit risk "
+    "(regression: 'Guava' must not false-positive on 'UA')",
+    result_22,
+)
+
+
+# ============================================================
+# TEST 23 — STALE DATA (OLD UPDATED_AT)
+# ============================================================
+
+product_23 = {
+    "id": "test-023",
+    "brand": "Jordan",
+    "model": "Jordan 4",
+    "title": "Air Jordan 4 Retro",
+    "sku": "555088-161",
+    "product_type": "sneakers",
+    "category": "sneakers",
+    "avg_price": 250,
+    "updated_at": "2025-01-01T00:00:00Z",
+}
+
+result_23 = run_advanced_consistency(
+    product_23,
+    reference_price=250,
+)
+
+print_test_result(
+    "TEST 23 — Stale data (old updated_at)",
+    result_23,
+)
+
+
+# ============================================================
+# TEST 24 — FRESH DATA (RECENT UPDATED_AT)
+# ============================================================
+
+product_24 = {
+    "id": "test-024",
+    "brand": "Jordan",
+    "model": "Jordan 4",
+    "title": "Air Jordan 4 Retro",
+    "sku": "555088-161",
+    "product_type": "sneakers",
+    "category": "sneakers",
+    "avg_price": 250,
+    "updated_at": "2026-10-09T00:00:00Z",
+}
+
+result_24 = run_advanced_consistency(
+    product_24,
+    reference_price=250,
+)
+
+print_test_result(
+    "TEST 24 — Fresh data (recent updated_at)",
+    result_24,
+)
+
+
+# ============================================================
+# TEST 25 — LOW LIQUIDITY (min_sales ENABLED EXPLICITLY)
+# ============================================================
+
+product_25 = {
+    "id": "test-025",
+    "brand": "Jordan",
+    "model": "Jordan 4",
+    "title": "Air Jordan 4 Retro",
+    "sku": "555088-161",
+    "product_type": "sneakers",
+    "category": "sneakers",
+    "avg_price": 250,
+    "sales_count": 0,
+}
+
+result_25 = run_advanced_consistency(
+    product_25,
+    reference_price=250,
+    min_sales=1,
+)
+
+print_test_result(
+    "TEST 25 — Low liquidity (min_sales=1 enabled explicitly)",
+    result_25,
+)
+
+
+# ============================================================
+# TEST 26 — LIQUIDITY FIELD ABSENT (DEFAULT: DISABLED)
+# ============================================================
+
+product_26 = {
+    "id": "test-026",
+    "brand": "Jordan",
+    "model": "Jordan 4",
+    "title": "Air Jordan 4 Retro",
+    "sku": "555088-161",
+    "product_type": "sneakers",
+    "category": "sneakers",
+    "avg_price": 250,
+}
+
+result_26 = run_advanced_consistency(
+    product_26,
+    reference_price=250,
+)
+
+print_test_result(
+    "TEST 26 — No sales_count field "
+    "(liquidity check disabled by default: must pass)",
+    result_26,
+)
+
+
+# ============================================================
+# TEST 27 — IMPLAUSIBLE SIZE
+# ============================================================
+
+product_27 = {
+    "id": "test-027",
+    "brand": "Jordan",
+    "model": "Jordan 4",
+    "title": "Air Jordan 4 Retro",
+    "sku": "555088-161",
+    "product_type": "sneakers",
+    "category": "sneakers",
+    "avg_price": 250,
+    "size": 999,
+}
+
+result_27 = run_advanced_consistency(
+    product_27,
+    reference_price=250,
+)
+
+print_test_result(
+    "TEST 27 — Implausible size (999)",
+    result_27,
+)
+
+
+# ============================================================
+# TEST 28 — PLAUSIBLE SIZE
+# ============================================================
+
+product_28 = {
+    "id": "test-028",
+    "brand": "Jordan",
+    "model": "Jordan 4",
+    "title": "Air Jordan 4 Retro",
+    "sku": "555088-161",
+    "product_type": "sneakers",
+    "category": "sneakers",
+    "avg_price": 250,
+    "size": 9.5,
+}
+
+result_28 = run_advanced_consistency(
+    product_28,
+    reference_price=250,
+)
+
+print_test_result(
+    "TEST 28 — Plausible size (9.5)",
+    result_28,
+)
+
+
+# ============================================================
 # SUMMARY
 # ============================================================
 
@@ -620,7 +836,7 @@ print("=" * 70)
 print("ADVANCED CONSISTENCY TEST SUITE COMPLETED")
 print("=" * 70)
 
-print("\n20 test case eseguiti.")
+print("\n28 test case eseguiti.")
 
 print("\nCONTROLLI VERIFICATI:")
 
@@ -648,5 +864,17 @@ print("  17. Used")
 print("  18. Condition mismatch")
 print("  19. Colorway + Condition combined")
 print("  20. Wrong colorway + wrong condition")
+
+print("\nFILTRI AGGIUNTIVI (currency, counterfeit, freshness, "
+      "liquidity, size):")
+
+print("  21. Counterfeit keyword (UA Batch)")
+print("  22. Clean product, no counterfeit risk")
+print("  23. Stale data")
+print("  24. Fresh data")
+print("  25. Low liquidity (enabled explicitly)")
+print("  26. No sales_count field (liquidity disabled by default)")
+print("  27. Implausible size")
+print("  28. Plausible size")
 
 print("\n")
