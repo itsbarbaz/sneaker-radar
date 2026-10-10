@@ -108,15 +108,48 @@ def normalize_brand(brand):
         Hoka One
         Hoka One One
     vengono trattati come lo stesso brand.
+
+    Ogni brand del WATCHLIST ha un gruppo di alias noti, cosi'
+    che se KicksDB cambia la dicitura (es. "On" -> "On Running",
+    "New Balance" -> "NB") il matching non si rompe in
+    silenzio come successo con HOKA prima di questo fix.
+    Aggiungi qui nuovi alias appena li trovi nei dati reali.
     """
     normalized = normalize(brand)
 
-    if normalized in {
-        "hoka one one",
-        "hoka one",
-        "hoka",
-    }:
-        return "hoka"
+    brand_aliases = {
+        "hoka": {
+            "hoka one one",
+            "hoka one",
+            "hoka",
+        },
+        "on": {
+            "on",
+            "on running",
+        },
+        "new balance": {
+            "new balance",
+            "nb",
+            "new balance athletics",
+        },
+        "asics": {
+            "asics",
+            "asics tiger",
+        },
+        "vans": {
+            "vans",
+            "vans off the wall",
+            "vans off-the-wall",
+        },
+        "salomon": {
+            "salomon",
+            "salomon sportstyle",
+        },
+    }
+
+    for canonical, aliases in brand_aliases.items():
+        if normalized in aliases:
+            return canonical
 
     return normalized
 
@@ -406,17 +439,31 @@ def product_type_is_sneaker(product):
 # ---------------------------------------------------------
 
 def has_valid_price(product):
+    """
+    Accetta sia numeri (int/float) sia stringhe numeriche
+    (es. "120.50"), cosi' se KicksDB restituisce il prezzo
+    come stringa invece che come numero il prodotto non
+    viene scartato a torto per "invalid price".
+    """
     price = product.get(
         "avg_price"
     )
 
-    return (
-        isinstance(
-            price,
-            (int, float)
-        )
-        and price > 0
-    )
+    if isinstance(price, bool):
+        # bool e' sottoclasse di int in Python: lo escludiamo
+        # esplicitamente per non accettare True/False come prezzo.
+        return False
+
+    if isinstance(price, (int, float)):
+        return price > 0
+
+    if isinstance(price, str):
+        try:
+            return float(price.strip()) > 0
+        except ValueError:
+            return False
+
+    return False
 
 
 def has_valid_sku(product):
