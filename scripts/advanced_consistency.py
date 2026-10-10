@@ -729,6 +729,102 @@ def check_price_validity(product):
 
 
 # ============================================================
+# CURRENCY
+# ============================================================
+#
+# Il progetto lavora in USD in via prioritaria. KicksDB, nei
+# dati osservati finora, non espone mai un campo valuta
+# esplicito nella risposta: assumiamo quindi che il prezzo sia
+# gia' in USD quando nessuno dei campi noti e' presente, per
+# non rompere nulla di quello che funziona oggi.
+#
+# Se in futuro KicksDB (o un'altra fonte, se mai se ne
+# aggiungeranno) iniziasse a restituire un campo valuta e
+# questo non fosse USD, il prodotto viene segnalato per
+# revisione (non scartato), cosi' il dato resta visibile ma
+# marcato come da verificare prima di trattarlo come se fosse
+# in USD.
+#
+# Si controllano piu' nomi di campo possibili perche' non
+# conosciamo con certezza quale userebbe una fonte diversa da
+# KicksDB: se scopri il nome esatto che usa KicksDB (o altre
+# fonti), aggiungilo qui.
+
+CURRENCY_FIELD_CANDIDATES = (
+    "currency",
+    "currency_code",
+    "price_currency",
+    "avg_price_currency",
+)
+
+
+def detect_currency(product):
+    """
+    Cerca un campo valuta esplicito nel prodotto. Ritorna None
+    se nessun campo e' presente (caso osservato finora con
+    KicksDB), altrimenti la valuta normalizzata in maiuscolo.
+    """
+    for field in CURRENCY_FIELD_CANDIDATES:
+        value = product.get(field)
+
+        if value is not None and str(value).strip() != "":
+            return str(value).strip().upper()
+
+    return None
+
+
+def check_currency(product, expected_currency="USD"):
+    """
+    Verifica che la valuta del prezzo sia quella attesa
+    (USD di default).
+
+    Nessun campo valuta trovato -> passa (si assume USD,
+    coerente con tutti i dati KicksDB visti finora).
+
+    Campo valuta trovato e combacia -> passa.
+
+    Campo valuta trovato e NON combacia -> non passa, ma solo
+    per revisione manuale: il dato potrebbe comunque essere
+    utile (es. se in futuro si decide di supportare anche EUR),
+    quindi non va scartato a priori come fosse un errore.
+    """
+    detected = detect_currency(product)
+
+    if not expected_currency:
+        return {
+            "passed": True,
+            "detected": detected,
+            "expected": None,
+            "reason": None,
+        }
+
+    expected = str(expected_currency).strip().upper()
+
+    if detected is None:
+        return {
+            "passed": True,
+            "detected": None,
+            "expected": expected,
+            "reason": None,
+        }
+
+    if detected == expected:
+        return {
+            "passed": True,
+            "detected": detected,
+            "expected": expected,
+            "reason": None,
+        }
+
+    return {
+        "passed": False,
+        "detected": detected,
+        "expected": expected,
+        "reason": "currency_mismatch",
+    }
+
+
+# ============================================================
 # DATA COMPLETENESS
 # ============================================================
 
@@ -889,6 +985,7 @@ def run_advanced_consistency(
     seen_identities=None,
     expected_colorway=None,
     expected_condition=None,
+    expected_currency="USD",
     strict_mode=False,
 ):
 
@@ -901,6 +998,7 @@ def run_advanced_consistency(
     category_product_type = check_category_product_type(product)
     duplicate = check_duplicate(product, seen_identities=seen_identities)
     price_validity = check_price_validity(product)
+    currency = check_currency(product, expected_currency=expected_currency)
     completeness = check_data_completeness(product, strict_mode=strict_mode)
     title_model = check_title_model_consistency(product)
     colorway = check_colorway(product, expected_colorway=expected_colorway)
@@ -925,6 +1023,7 @@ def run_advanced_consistency(
         "category_product_type": category_product_type["passed"],
         "duplicate": duplicate["passed"],
         "price_validity": price_validity["passed"],
+        "currency": currency["passed"],
         "data_completeness": completeness["passed"],
         "title_model": title_model["passed"],
         "colorway": colorway["passed"],
@@ -970,6 +1069,9 @@ def run_advanced_consistency(
     if not price_validity["passed"]:
         review_reasons.append(price_validity["reason"])
 
+    if not currency["passed"]:
+        review_reasons.append(currency["reason"])
+
     if not completeness["passed"]:
         review_reasons.append(completeness["reason"])
 
@@ -1004,6 +1106,7 @@ def run_advanced_consistency(
             "category_product_type": category_product_type,
             "duplicate": duplicate,
             "price_validity": price_validity,
+            "currency": currency,
             "data_completeness": completeness,
             "title_model": title_model,
             "colorway": colorway,
