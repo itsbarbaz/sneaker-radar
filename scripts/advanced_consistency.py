@@ -1010,4 +1010,3 @@ def run_advanced_consistency(
             "condition": condition,
         },
     }
-    }
