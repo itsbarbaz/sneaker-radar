@@ -1,0 +1,1558 @@
+[
+  {
+    "brand": "Nike",
+    "name": "SB Dunk",
+    "query": "Nike SB Dunk",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 13.0,
+    "max_weekly_orders": 45,
+    "sample_titles": [
+      "Nike SB Dunk Low Nardwuar",
+      "Nike SB Dunk Low Pro Filbert Light Chocolate",
+      "Nike SB Dunk Low Pro Som Tum"
+    ],
+    "score": 100,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Nike",
+    "name": "P-6000",
+    "query": "Nike P-6000",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 5.0,
+    "max_weekly_orders": 34,
+    "sample_titles": [
+      "Nike P-6000 Black",
+      "Nike P-6000 Triple White",
+      "Nike P-6000 Metallic Silver"
+    ],
+    "score": 100,
+    "source": "watchlist"
+  },
+  {
+    "brand": "adidas",
+    "name": "Samba",
+    "query": "adidas Samba",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 2.0,
+    "max_weekly_orders": 16,
+    "sample_titles": [
+      "adidas Samba Bape World Cup Pack White Forest",
+      "adidas Samba OG Patent Snakeskin Black Off White (Women's)",
+      "adidas Samba OG Patent Snakeskin Silver Metallic (Women's)"
+    ],
+    "score": 100,
+    "source": "watchlist"
+  },
+  {
+    "brand": "adidas",
+    "name": "Yeezy",
+    "query": "adidas Yeezy",
+    "returned": 20,
+    "identity_matched": 13,
+    "full_data_pct": 100,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 30,
+    "max_weekly_orders": 60,
+    "sample_titles": [
+      "adidas Yeezy Boost 350 V2 Cream",
+      "adidas Yeezy Boost 350 V2 Bone",
+      "adidas Yeezy Boost 350 V2 Black Red"
+    ],
+    "score": 100,
+    "source": "watchlist"
+  },
+  {
+    "brand": "New Balance",
+    "name": "1906R",
+    "query": "New Balance 1906R",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 2.5,
+    "max_weekly_orders": 43,
+    "sample_titles": [
+      "New Balance 1906R Silver Black",
+      "New Balance 1906R Black Silver",
+      "New Balance 1906R Black Multi"
+    ],
+    "score": 100,
+    "source": "watchlist"
+  },
+  {
+    "brand": "New Balance",
+    "name": "2002R",
+    "query": "New Balance 2002R",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 4.0,
+    "max_weekly_orders": 69,
+    "sample_titles": [
+      "New Balance 2002R Protection Pack Rain Cloud",
+      "New Balance 2002R Steel Grey Orca",
+      "New Balance 2002R Protection Pack Sea Salt"
+    ],
+    "score": 100,
+    "source": "watchlist"
+  },
+  {
+    "brand": "New Balance",
+    "name": "9060",
+    "query": "New Balance 9060",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 11.5,
+    "max_weekly_orders": 44,
+    "sample_titles": [
+      "New Balance 9060 Reflection White",
+      "New Balance 9060 Black Castlerock",
+      "New Balance 9060 Triple Black"
+    ],
+    "score": 100,
+    "source": "watchlist"
+  },
+  {
+    "brand": "New Balance",
+    "name": "530",
+    "query": "New Balance 530",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 2.5,
+    "max_weekly_orders": 82,
+    "sample_titles": [
+      "New Balance 530 White Silver Navy",
+      "New Balance 530 Silver Metallic Polka Dots",
+      "New Balance 530 Brown Tan"
+    ],
+    "score": 100,
+    "source": "watchlist"
+  },
+  {
+    "brand": "ASICS",
+    "name": "Gel-1130",
+    "query": "ASICS Gel 1130",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 10.0,
+    "max_weekly_orders": 95,
+    "sample_titles": [
+      "ASICS Gel-1130 White Pure Silver",
+      "ASICS Gel-1130 Black Graphite Grey",
+      "ASICS Gel-1130 Black Cream"
+    ],
+    "score": 100,
+    "source": "watchlist"
+  },
+  {
+    "brand": "ASICS",
+    "name": "Gel-Kayano 14",
+    "query": "ASICS Gel Kayano 14",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 8.0,
+    "max_weekly_orders": 311,
+    "sample_titles": [
+      "ASICS Gel-Kayano 14 White Graphite Grey",
+      "ASICS GEL-Kayano 14 Cream Sweet Pink",
+      "ASICS Gel-Kayano 14 Birch Pure Silver"
+    ],
+    "score": 100,
+    "source": "watchlist"
+  },
+  {
+    "brand": "ASICS",
+    "name": "Gel-NYC",
+    "query": "ASICS Gel NYC",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 5.5,
+    "max_weekly_orders": 77,
+    "sample_titles": [
+      "ASICS Gel-NYC Graphite Grey Black",
+      "ASICS Gel-NYC Mineral Beige",
+      "ASICS Gel-NYC Cream Cloud Grey"
+    ],
+    "score": 100,
+    "source": "watchlist"
+  },
+  {
+    "brand": "ASICS",
+    "name": "GT-2160",
+    "query": "ASICS GT-2160",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 1.0,
+    "max_weekly_orders": 3,
+    "sample_titles": [
+      "ASICS GT-2160 White Black Silver",
+      "ASICS GT-2160 White Oxblood",
+      "ASICS GT-2160 Black Driftwood"
+    ],
+    "score": 100,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Salomon",
+    "name": "XT-6",
+    "query": "Salomon XT-6",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 12.5,
+    "max_weekly_orders": 181,
+    "sample_titles": [
+      "Salomon XT-6 Black Coffee Burro Bitter Chocolate",
+      "Salomon XT-6 Vanilla Ice Black Silver Cloud",
+      "Salomon XT-6 Coffee French Roast"
+    ],
+    "score": 100,
+    "source": "watchlist"
+  },
+  {
+    "brand": "On",
+    "name": "Cloud",
+    "query": "On Cloud",
+    "returned": 20,
+    "identity_matched": 17,
+    "full_data_pct": 100,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 2,
+    "max_weekly_orders": 17,
+    "sample_titles": [
+      "On Running Cloud 6 All White",
+      "On Running Cloud 6 Midnight White",
+      "On Running Cloud X 4 Black Eclipse"
+    ],
+    "score": 100,
+    "source": "watchlist"
+  },
+  {
+    "brand": "On",
+    "name": "Cloudtilt",
+    "query": "On Cloudtilt",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 1.5,
+    "max_weekly_orders": 8,
+    "sample_titles": [
+      "On Running Cloudtilt Black Ivory",
+      "On Running Cloudtilt Black Eclipse",
+      "On Running Cloudtilt Heron Dew (Women's)"
+    ],
+    "score": 100,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Nike",
+    "name": "Air Max 95",
+    "query": "Nike Air Max 95",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 6.5,
+    "max_weekly_orders": 34,
+    "sample_titles": [
+      "Nike Air Max 95 Big Bubble Aya Brown",
+      "Nike Air Max 95 Big Bubble Scorpion",
+      "Nike Air Max 95 Big Bubble Black Anthracite University Red"
+    ],
+    "score": 100,
+    "source": "candidate"
+  },
+  {
+    "brand": "Nike",
+    "name": "Air Max 1",
+    "query": "Nike Air Max 1",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 2.0,
+    "max_weekly_orders": 14,
+    "sample_titles": [
+      "Nike Air Max 1 Atlanta Braves City Connect (2026)",
+      "Nike Air Max 1 Patta Waves White Hyper Crimson (With Bracelet)",
+      "Nike Air Max 1 Chili 2.0"
+    ],
+    "score": 100,
+    "source": "candidate"
+  },
+  {
+    "brand": "adidas",
+    "name": "Handball Spezial",
+    "query": "adidas Handball Spezial",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 4.5,
+    "max_weekly_orders": 33,
+    "sample_titles": [
+      "adidas Handball Spezial Earth Strata Gum (Women's)",
+      "adidas Handball Spezial Black Gum",
+      "adidas Handball Spezial Earth Strata Wonder White"
+    ],
+    "score": 100,
+    "source": "candidate"
+  },
+  {
+    "brand": "adidas",
+    "name": "Campus 00s",
+    "query": "adidas Campus 00s",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 1.0,
+    "max_weekly_orders": 20,
+    "sample_titles": [
+      "adidas Campus 00s Core Black",
+      "adidas Campus 00s Camp Core Black",
+      "adidas Campus 00s Core Black White"
+    ],
+    "score": 100,
+    "source": "candidate"
+  },
+  {
+    "brand": "adidas",
+    "name": "Superstar",
+    "query": "adidas Superstar",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 3.0,
+    "max_weekly_orders": 18,
+    "sample_titles": [
+      "adidas Superstar Pokémon Charmander",
+      "adidas Superstar Pokémon Pikachu Yellow",
+      "adidas Superstar SpongeBob SquarePants Patrick Star"
+    ],
+    "score": 100,
+    "source": "candidate"
+  },
+  {
+    "brand": "New Balance",
+    "name": "550",
+    "query": "New Balance 550",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 2.0,
+    "max_weekly_orders": 44,
+    "sample_titles": [
+      "New Balance 550 White Grey",
+      "New Balance 550 White Green",
+      "New Balance 550 White Black"
+    ],
+    "score": 100,
+    "source": "candidate"
+  },
+  {
+    "brand": "ASICS",
+    "name": "Gel-Kayano 14",
+    "query": "ASICS Kayano 14",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 8.0,
+    "max_weekly_orders": 311,
+    "sample_titles": [
+      "ASICS Gel-Kayano 14 White Graphite Grey",
+      "ASICS GEL-Kayano 14 Cream Sweet Pink",
+      "ASICS Gel-Kayano 14 Birch Pure Silver"
+    ],
+    "score": 100,
+    "source": "candidate"
+  },
+  {
+    "brand": "Nike",
+    "name": "Kobe",
+    "query": "Nike Kobe",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 95,
+    "fresh_pct": 100,
+    "median_weekly_orders": 46.5,
+    "max_weekly_orders": 275,
+    "sample_titles": [
+      "Nike Kobe Aston Martin Pack V/Hyperdunk",
+      "Nike Kobe 5 Protro Dodgers",
+      "Nike Kobe 8 Protro Mambacurial (2026)"
+    ],
+    "score": 98,
+    "source": "watchlist"
+  },
+  {
+    "brand": "New Balance",
+    "name": "1000",
+    "query": "New Balance 1000",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 95,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 1.5,
+    "max_weekly_orders": 9,
+    "sample_titles": [
+      "New Balance 1000 Black Cement",
+      "New Balance 1000 Incense Black",
+      "New Balance 1000 Lunar New Year Black"
+    ],
+    "score": 98,
+    "source": "candidate"
+  },
+  {
+    "brand": "Nike",
+    "name": "Dunk",
+    "query": "Nike Dunk",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 95,
+    "active_pct": 95,
+    "fresh_pct": 100,
+    "median_weekly_orders": 15.5,
+    "max_weekly_orders": 63,
+    "sample_titles": [
+      "Nike Dunk Flyknit Chlorine Blue",
+      "Nike Dunk Low Retro Khaki Team Red Pearl White (Women's)",
+      "Nike Dunk Low Retro White Black Panda"
+    ],
+    "score": 97,
+    "source": "watchlist"
+  },
+  {
+    "brand": "New Balance",
+    "name": "993",
+    "query": "New Balance 993",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 90,
+    "fresh_pct": 100,
+    "median_weekly_orders": 1.0,
+    "max_weekly_orders": 4,
+    "sample_titles": [
+      "New Balance 993 MiUSA JJJJound Military Urban Grey Angora",
+      "New Balance 993 MiUSA Kith Madison Square Garden Ancient Scroll",
+      "New Balance 993 MiUSA Reflection Medium Gray"
+    ],
+    "score": 97,
+    "source": "watchlist"
+  },
+  {
+    "brand": "HOKA",
+    "name": "Bondi",
+    "query": "HOKA Bondi",
+    "returned": 20,
+    "identity_matched": 19,
+    "full_data_pct": 95,
+    "active_pct": 95,
+    "fresh_pct": 100,
+    "median_weekly_orders": 1,
+    "max_weekly_orders": 5,
+    "sample_titles": [
+      "HOKA Bondi B3LS panelled sneakers",
+      "Hoka One One Bondi 7 BEAMS Turtledove",
+      "Hoka One One Bondi 7 BEAMS Chestnut"
+    ],
+    "score": 97,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Nike",
+    "name": "Ja 3",
+    "query": "Nike Ja 3",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 90,
+    "fresh_pct": 100,
+    "median_weekly_orders": 24.0,
+    "max_weekly_orders": 179,
+    "sample_titles": [
+      "Nike Ja 3 Twelve Time",
+      "Nike Ja 3 Jurassic Park Explorer",
+      "Nike Ja 3 Jurassic Park Explorer (GS)"
+    ],
+    "score": 97,
+    "source": "candidate"
+  },
+  {
+    "brand": "Saucony",
+    "name": "ProGrid Omni 9",
+    "query": "Saucony ProGrid Omni 9",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 85,
+    "fresh_pct": 100,
+    "median_weekly_orders": 3.5,
+    "max_weekly_orders": 16,
+    "sample_titles": [
+      "Saucony ProGrid Omni 9 Tomorrow, Meet Yesterday Pack Brown Navy",
+      "Saucony ProGrid Omni 9 Navy Grey",
+      "Saucony ProGrid Omni 9 Silver Gold"
+    ],
+    "score": 96,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Converse",
+    "name": "Shai 001",
+    "query": "Converse Shai 001",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 85,
+    "fresh_pct": 100,
+    "median_weekly_orders": 6.5,
+    "max_weekly_orders": 53,
+    "sample_titles": [
+      "Converse SHAI 001 Charm Black",
+      "Converse SHAI 001 Ares Gray",
+      "Converse SHAI 001 Blush"
+    ],
+    "score": 96,
+    "source": "candidate"
+  },
+  {
+    "brand": "New Balance",
+    "name": "740",
+    "query": "New Balance 740",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 95,
+    "active_pct": 85,
+    "fresh_pct": 100,
+    "median_weekly_orders": 1.0,
+    "max_weekly_orders": 5,
+    "sample_titles": [
+      "New Balance 740 White Silver Metallic Navy",
+      "New Balance 740 Triple Black",
+      "New Balance 740 Linen Timberwolf"
+    ],
+    "score": 94,
+    "source": "candidate"
+  },
+  {
+    "brand": "Jordan",
+    "name": "Air Jordan 4",
+    "query": "Jordan 4",
+    "returned": 20,
+    "identity_matched": 18,
+    "full_data_pct": 89,
+    "active_pct": 83,
+    "fresh_pct": 100,
+    "median_weekly_orders": 2.5,
+    "max_weekly_orders": 54,
+    "sample_titles": [
+      "Jordan 4 Retro Rare Air Tour Yellow (GS) (2026)",
+      "Jordan 4 Retro Thunder (2023) (GS)",
+      "Jordan 4 Retro Travis Scott Cactus Jack"
+    ],
+    "score": 92,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Jordan",
+    "name": "Air Jordan 12",
+    "query": "Jordan 12",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 75,
+    "fresh_pct": 100,
+    "median_weekly_orders": 10.0,
+    "max_weekly_orders": 82,
+    "sample_titles": [
+      "Jordan 12 Retro Taxi (2013)",
+      "Jordan 12 Retro Taxi (2013) (GS)",
+      "Jordan 12 Retro University Blue (PS)"
+    ],
+    "score": 92,
+    "source": "watchlist"
+  },
+  {
+    "brand": "adidas",
+    "name": "Adizero",
+    "query": "adidas Adizero",
+    "returned": 20,
+    "identity_matched": 18,
+    "full_data_pct": 94,
+    "active_pct": 78,
+    "fresh_pct": 100,
+    "median_weekly_orders": 9.0,
+    "max_weekly_orders": 71,
+    "sample_titles": [
+      "adidas Adizero Cloud White",
+      "adidas Adizero Core Black",
+      "adidas Adizero Parley Black Pulse Blue"
+    ],
+    "score": 92,
+    "source": "watchlist"
+  },
+  {
+    "brand": "On",
+    "name": "Cloudmonster",
+    "query": "On Cloudmonster",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 75,
+    "fresh_pct": 100,
+    "median_weekly_orders": 1.0,
+    "max_weekly_orders": 3,
+    "sample_titles": [
+      "On Running Cloudmonster 2 Nimbus Arctic (Women's)",
+      "On Cloudmonster 2 POST ARCHIVE FACTION Moondust",
+      "On Cloudmonster 2 POST ARCHIVE FACTION Black (Women's)"
+    ],
+    "score": 92,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Salomon",
+    "name": "XT-Whisper",
+    "query": "Salomon XT Whisper",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 75,
+    "fresh_pct": 100,
+    "median_weekly_orders": 1.0,
+    "max_weekly_orders": 3,
+    "sample_titles": [
+      "Salomon XT-Whisper Oxford Tan Sage",
+      "Salomon XT-Whisper Almond Milk Lava Falls",
+      "Salomon XT-Whisper Walnut Bitter Chocolate Vanilla"
+    ],
+    "score": 92,
+    "source": "candidate"
+  },
+  {
+    "brand": "Jordan",
+    "name": "Air Jordan 1",
+    "query": "Jordan 1",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 90,
+    "active_pct": 80,
+    "fresh_pct": 100,
+    "median_weekly_orders": 22.5,
+    "max_weekly_orders": 91,
+    "sample_titles": [
+      "Jordan 1 Birch (GS)",
+      "Jordan 1 Grape (GS)",
+      "Jordan 1 OG Metallic Blue (1986)"
+    ],
+    "score": 91,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Nike",
+    "name": "Air Max",
+    "query": "Nike Air Max",
+    "returned": 20,
+    "identity_matched": 17,
+    "full_data_pct": 88,
+    "active_pct": 82,
+    "fresh_pct": 100,
+    "median_weekly_orders": 34,
+    "max_weekly_orders": 65,
+    "sample_titles": [
+      "Nike Air Max White Neo",
+      "Nike Air Max Orlando",
+      "Nike Air Max 97 Plus New Blue"
+    ],
+    "score": 91,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Nike",
+    "name": "Air Max 90",
+    "query": "Nike Air Max 90",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 95,
+    "active_pct": 75,
+    "fresh_pct": 100,
+    "median_weekly_orders": 10.5,
+    "max_weekly_orders": 65,
+    "sample_titles": [
+      "Nike Air Max 90 Familia (PS)",
+      "Nike Air Max 90 Familia",
+      "Nike Air Max 90 Denim Light Wash"
+    ],
+    "score": 91,
+    "source": "candidate"
+  },
+  {
+    "brand": "Saucony",
+    "name": "ProGrid Omni 9",
+    "query": "Saucony Omni 9",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 65,
+    "fresh_pct": 100,
+    "median_weekly_orders": 4.0,
+    "max_weekly_orders": 24,
+    "sample_titles": [
+      "Saucony Omni 9 Silver Gold White (TD)",
+      "Saucony Omni 9 Fuchsia Pink (TD)",
+      "Saucony Omni 9 Fuchsia Pink (GS)"
+    ],
+    "score": 90,
+    "source": "candidate"
+  },
+  {
+    "brand": "adidas",
+    "name": "Gazelle",
+    "query": "adidas Gazelle",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 60,
+    "fresh_pct": 100,
+    "median_weekly_orders": 1.0,
+    "max_weekly_orders": 5,
+    "sample_titles": [
+      "adidas Gazelle Core Black Cloud White Gold",
+      "adidas Gazelle Cream White Core Black Sand Strata (Women's)",
+      "adidas Gazelle Clear Pink Court Green Bliss Pink (PS)"
+    ],
+    "score": 88,
+    "source": "watchlist"
+  },
+  {
+    "brand": "adidas",
+    "name": "Tokyo",
+    "query": "adidas Tokyo",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 60,
+    "fresh_pct": 100,
+    "median_weekly_orders": 1.0,
+    "max_weekly_orders": 4,
+    "sample_titles": [
+      "adidas Tokyo Black White (Women's)",
+      "adidas Tokyo Off White Black (Women's)",
+      "adidas Tokyo Earth Strata Off White (Women's)"
+    ],
+    "score": 88,
+    "source": "candidate"
+  },
+  {
+    "brand": "Saucony",
+    "name": "Triumph 4",
+    "query": "Saucony Triumph 4",
+    "returned": 20,
+    "identity_matched": 15,
+    "full_data_pct": 100,
+    "active_pct": 60,
+    "fresh_pct": 100,
+    "median_weekly_orders": 1,
+    "max_weekly_orders": 8,
+    "sample_titles": [
+      "Saucony ProGrid Triumph 4 Jae Tips Flowers Grow Uptown Sugar Maple",
+      "Saucony ProGrid Triumph 4 Gorpcore White Sand",
+      "Saucony ProGrid Triumph 4 CS Agave Peach"
+    ],
+    "score": 88,
+    "source": "candidate"
+  },
+  {
+    "brand": "HOKA",
+    "name": "Clifton",
+    "query": "HOKA Clifton",
+    "returned": 20,
+    "identity_matched": 18,
+    "full_data_pct": 89,
+    "active_pct": 67,
+    "fresh_pct": 100,
+    "median_weekly_orders": 1.0,
+    "max_weekly_orders": 3,
+    "sample_titles": [
+      "Hoka Clifton 9 Eggnog Fiery Red",
+      "Hoka One One Clifton 10 Rose Cream Dried Rose (GS)",
+      "Hoka One One Clifton 10 Black"
+    ],
+    "score": 87,
+    "source": "watchlist"
+  },
+  {
+    "brand": "New Balance",
+    "name": "204L",
+    "query": "New Balance 204L",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 55,
+    "fresh_pct": 100,
+    "median_weekly_orders": 1.0,
+    "max_weekly_orders": 21,
+    "sample_titles": [
+      "New Balance 204L Mushroom Arid Stone",
+      "New Balance 204L size? Exclusive Green Gingham Dark Brown",
+      "New Balance 204L Pastel Pink"
+    ],
+    "score": 86,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Jordan",
+    "name": "Air Jordan 5",
+    "query": "Jordan 5",
+    "returned": 20,
+    "identity_matched": 17,
+    "full_data_pct": 88,
+    "active_pct": 59,
+    "fresh_pct": 100,
+    "median_weekly_orders": 8,
+    "max_weekly_orders": 163,
+    "sample_titles": [
+      "Jordan 5 Retro Alternate Grape",
+      "Jordan 5 Retro 3Lab5",
+      "Jordan 5 Retro Low Indigo Haze (Women's)"
+    ],
+    "score": 84,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Vans",
+    "name": "Knu Skool",
+    "query": "Vans Knu",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 95,
+    "active_pct": 50,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.5,
+    "max_weekly_orders": 13,
+    "sample_titles": [
+      "Vans Knu Skool Bape Camo Green",
+      "Vans Knu Skool Bape Camo Black",
+      "Vans Knu Stack Black White"
+    ],
+    "score": 84,
+    "source": "candidate"
+  },
+  {
+    "brand": "Jordan",
+    "name": "Air Jordan 11",
+    "query": "Jordan 11",
+    "returned": 20,
+    "identity_matched": 14,
+    "full_data_pct": 93,
+    "active_pct": 50,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.5,
+    "max_weekly_orders": 6,
+    "sample_titles": [
+      "Jordan 11 Retro Cherry (2022) (GS)",
+      "Jordan 11 Retro Cherry (2022)",
+      "Jordan 11 Retro Low Legend Blue (GS)"
+    ],
+    "score": 83,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Vans",
+    "name": "Knu Skool",
+    "query": "Vans Knu Skool",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 95,
+    "active_pct": 45,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 13,
+    "sample_titles": [
+      "Vans Knu Skool Bape Camo Green",
+      "Vans Knu Skool Bape Camo Black",
+      "Vans Knu Skool Black White"
+    ],
+    "score": 82,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Saucony",
+    "name": "ProGrid Triumph 4",
+    "query": "Saucony ProGrid Triumph 4",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 40,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 8,
+    "sample_titles": [
+      "Saucony ProGrid Triumph 4 Jae Tips Flowers Grow Uptown Sugar Maple",
+      "Saucony ProGrid Triumph 4 Gorpcore White Sand",
+      "Saucony ProGrid Triumph 4 White Teal Orange"
+    ],
+    "score": 82,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Salomon",
+    "name": "XT-4",
+    "query": "Salomon XT-4",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 95,
+    "active_pct": 45,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 7,
+    "sample_titles": [
+      "Salomon XT-4 The Broken Arm",
+      "Salomon XT-4 Bungee Cord",
+      "Salomon XT-4 Bitter Chocolate Mocha Mousse Fiery Red"
+    ],
+    "score": 82,
+    "source": "watchlist"
+  },
+  {
+    "brand": "HOKA",
+    "name": "Mafate",
+    "query": "HOKA Mafate",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 40,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 1,
+    "sample_titles": [
+      "Hoka One One Mafate Three2 Wordmark Fern",
+      "Hoka One One Mafate Speed 4 Lite Light Roast Oatmilk",
+      "Hoka One One Mafate Speed 2 Grout Carbon Black"
+    ],
+    "score": 82,
+    "source": "candidate"
+  },
+  {
+    "brand": "adidas",
+    "name": "Bad Bunny",
+    "query": "adidas Bad Bunny",
+    "returned": 20,
+    "identity_matched": 2,
+    "full_data_pct": 100,
+    "active_pct": 100,
+    "fresh_pct": 100,
+    "median_weekly_orders": 13.0,
+    "max_weekly_orders": 25,
+    "sample_titles": [
+      "adidas Ballerina Bad Bunny Flamboyan",
+      "adidas Campus Light Bad Bunny Cream"
+    ],
+    "score": 80,
+    "source": "watchlist"
+  },
+  {
+    "brand": "ASICS",
+    "name": "Gel-Nimbus 10.1",
+    "query": "ASICS Gel Nimbus 10.1",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 35,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 3,
+    "sample_titles": [
+      "ASICS Gel-Nimbus 10.1 Kelp Lemon Spark",
+      "ASICS Gel-Nimbus 10.1 Black Rose Gold",
+      "ASICS Gel-Nimbus 10.1 Black Midnight"
+    ],
+    "score": 80,
+    "source": "candidate"
+  },
+  {
+    "brand": "Vans",
+    "name": "Old Skool",
+    "query": "Vans Old Skool",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 75,
+    "active_pct": 55,
+    "fresh_pct": 100,
+    "median_weekly_orders": 1.0,
+    "max_weekly_orders": 11,
+    "sample_titles": [
+      "Vans Old Skool Black White",
+      "Vans Old Skool Triple Black",
+      "Vans Old Skool Travis Barker Dues Paid White"
+    ],
+    "score": 79,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Salomon",
+    "name": "ACS Pro",
+    "query": "Salomon ACS Pro",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 25,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 8,
+    "sample_titles": [
+      "Salomon ACS Pro Vanilla Ice Lunar Rock",
+      "Salomon ACS Pro Black",
+      "Salomon ACS Pro Red Ashes"
+    ],
+    "score": 78,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Salomon",
+    "name": "Speedcross",
+    "query": "Salomon Speedcross",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 25,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 2,
+    "sample_titles": [
+      "Salomon Speedcross 3 Black Coffee Vanilla Ice Bog",
+      "Salomon Speedcross 3 Vanilla Ice Icy Pink Black",
+      "Salomon Speedcross 3 Gore-Tex Black Phantom Coffee"
+    ],
+    "score": 78,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Jordan",
+    "name": "Air Jordan 6",
+    "query": "Jordan 6",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 90,
+    "active_pct": 35,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 66,
+    "sample_titles": [
+      "Jordan 6 Infrared Pack (2010)",
+      "Jordan 6 Retro Awake NY Playful Pink",
+      "Jordan 6 Rings Gym Red"
+    ],
+    "score": 78,
+    "source": "candidate"
+  },
+  {
+    "brand": "Nike",
+    "name": "Total 90",
+    "query": "Nike Total 90",
+    "returned": 20,
+    "identity_matched": 19,
+    "full_data_pct": 100,
+    "active_pct": 26,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0,
+    "max_weekly_orders": 7,
+    "sample_titles": [
+      "Nike Total 90 3 Black Anthracite (Women's)",
+      "Nike Total 90 Midnight Navy Black (Women's)",
+      "Nike Total 90 Pine Green (Women's)"
+    ],
+    "score": 78,
+    "source": "candidate"
+  },
+  {
+    "brand": "Saucony",
+    "name": "Guide 7",
+    "query": "Saucony Guide 7",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 100,
+    "active_pct": 20,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 13,
+    "sample_titles": [
+      "Saucony Guide 7 Black Multi",
+      "Saucony ProGrid Guide 7 Stan Birch",
+      "Saucony ProGrid Guide 7 Grey Multi"
+    ],
+    "score": 76,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Vans",
+    "name": "Authentic",
+    "query": "Vans Authentic",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 75,
+    "active_pct": 45,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 8,
+    "sample_titles": [
+      "Vans Authentic Imran Potato",
+      "Vans Authentic Black Canvas",
+      "Vans Authentic Checkerboard Black White"
+    ],
+    "score": 76,
+    "source": "candidate"
+  },
+  {
+    "brand": "Mizuno",
+    "name": "Wave Prophecy Moc",
+    "query": "Mizuno Wave Prophecy Moc",
+    "returned": 20,
+    "identity_matched": 6,
+    "full_data_pct": 100,
+    "active_pct": 50,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.5,
+    "max_weekly_orders": 2,
+    "sample_titles": [
+      "Mizuno Wave Prophecy Moc Black",
+      "Mizuno Wave Prophecy Moc Taupe",
+      "Mizuno Wave Prophecy Moc Triple Black"
+    ],
+    "score": 75,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Mizuno",
+    "name": "Wave Rider",
+    "query": "Mizuno Wave Rider",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 95,
+    "active_pct": 15,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 1,
+    "sample_titles": [
+      "Mizuno Wave Rider BAIT Deadpool",
+      "Mizuno Wave Rider White Silver Surf The Web",
+      "Mizuno Wave Rider White Blue Yellow"
+    ],
+    "score": 73,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Mizuno",
+    "name": "Wave Prophecy",
+    "query": "Mizuno Wave Prophecy",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 85,
+    "active_pct": 25,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 2,
+    "sample_titles": [
+      "Mizuno Wave Prophecy Hajime Sorayama Champagne Gold",
+      "Mizuno Wave Prophecy Hajime Sorayama Dark Metalic",
+      "Mizuno Wave Prophecy Hajime Sorayama"
+    ],
+    "score": 73,
+    "source": "candidate"
+  },
+  {
+    "brand": "Nike",
+    "name": "Vomero 5",
+    "query": "Nike Vomero 5",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 90,
+    "active_pct": 15,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 1,
+    "sample_titles": [
+      "Nike Vomero 5 Sail Metallic Gold (PS)",
+      "Nike Vomero 5 Black (PS)",
+      "Nike Vomero 5 Black (GS)"
+    ],
+    "score": 72,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Mizuno",
+    "name": "MXR",
+    "query": "Mizuno MXR",
+    "returned": 20,
+    "identity_matched": 19,
+    "full_data_pct": 100,
+    "active_pct": 5,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0,
+    "max_weekly_orders": 1,
+    "sample_titles": [
+      "Mizuno MXR Space Pack Black Valerian",
+      "Mizuno MXR AFEW Fog Tigers Eye",
+      "Mizuno MXR Nimbus Cloud Silver"
+    ],
+    "score": 72,
+    "source": "watchlist"
+  },
+  {
+    "brand": "HOKA",
+    "name": "Speedgoat",
+    "query": "HOKA Speedgoat",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 95,
+    "active_pct": 10,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 1,
+    "sample_titles": [
+      "Hoka Speedgoat 7 Wide",
+      "Hoka One One Speedgoat 2 TS Black Stardust",
+      "Hoka One One Speedgoat 6 Stormy Skies Aqua Breeze"
+    ],
+    "score": 72,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Puma",
+    "name": "Speedcat",
+    "query": "Puma Speedcat",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 80,
+    "active_pct": 25,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 11,
+    "sample_titles": [
+      "Puma Speedcat Zebra (Women's)",
+      "Puma Speedcat Fast & Furious LA",
+      "Puma Speedcat Leopard Black Warm White (Women's)"
+    ],
+    "score": 72,
+    "source": "candidate"
+  },
+  {
+    "brand": "adidas",
+    "name": "Taekwondo",
+    "query": "adidas Taekwondo",
+    "returned": 20,
+    "identity_matched": 17,
+    "full_data_pct": 76,
+    "active_pct": 24,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0,
+    "max_weekly_orders": 2,
+    "sample_titles": [
+      "adidas Taekwondo Cloud White Core Black Gum (Women's)",
+      "adidas Taekwondo Alumina Collegiate Navy Gum (Women's)",
+      "adidas Taekwondo Brain Dead Black"
+    ],
+    "score": 70,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Vans",
+    "name": "Sk8-Hi",
+    "query": "Vans Sk8 Hi",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 65,
+    "active_pct": 35,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 6,
+    "sample_titles": [
+      "Vans Sk8-Hi Navy Blue",
+      "Vans Sk8-Hi Black White",
+      "Vans Sk8-Hi Los Angeles Dodgers"
+    ],
+    "score": 70,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Jordan",
+    "name": "Air Jordan 13",
+    "query": "Jordan 13",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 70,
+    "active_pct": 30,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 132,
+    "sample_titles": [
+      "Jordan 13 Christopher Wallace",
+      "Jordan 13 OG Bred (1998)",
+      "Jordan 13 Retro Bright Cactus"
+    ],
+    "score": 70,
+    "source": "candidate"
+  },
+  {
+    "brand": "Jordan",
+    "name": "Air Jordan 3",
+    "query": "Jordan 3",
+    "returned": 20,
+    "identity_matched": 18,
+    "full_data_pct": 78,
+    "active_pct": 17,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 20,
+    "sample_titles": [
+      "Jordan 3 Powder Blue (PS)",
+      "Jordan 3 Retro Teyana Taylor Concrete Rose (Women's)",
+      "Jordan 3 Retro Georgetown (2021) (GS)"
+    ],
+    "score": 68,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Nike",
+    "name": "Kobe 6 Protro",
+    "query": "Nike Kobe 6",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 65,
+    "active_pct": 30,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 27,
+    "sample_titles": [
+      "Nike Kobe 6 Prelude All-Star MVP",
+      "Nike Kobe 6 Kay Yow Think Pink (2011)",
+      "Nike Kobe 6 ASG West Challenge Red"
+    ],
+    "score": 68,
+    "source": "candidate"
+  },
+  {
+    "brand": "Nike",
+    "name": "Air Force 1",
+    "query": "Nike Air Force 1",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 85,
+    "active_pct": 0,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 0,
+    "sample_titles": [
+      "Nike Air Force 1 White Elemental Pink (PS)",
+      "Nike Air Force 1 White (I)",
+      "Nike Air Force 1 LXX White Red Royal (Women's)"
+    ],
+    "score": 66,
+    "source": "watchlist"
+  },
+  {
+    "brand": "ASICS",
+    "name": "Novablast",
+    "query": "ASICS Novablast",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 65,
+    "active_pct": 20,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 1,
+    "sample_titles": [
+      "ASICS Novablast Reborn Blue",
+      "ASICS Novablast Digital Aqua Marigold Orange",
+      "ASICS Novablast Slam Jam"
+    ],
+    "score": 66,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Saucony",
+    "name": "Ride Millennium",
+    "query": "Saucony Ride Millennium",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 80,
+    "active_pct": 5,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 1,
+    "sample_titles": [
+      "Saucony Ride Millennium White Gold Black",
+      "Saucony Ride Millennium White Royal Silver Black",
+      "Saucony Ride Millennium Mist Mantis Gray Green"
+    ],
+    "score": 66,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Salomon",
+    "name": "XT-Slate",
+    "query": "Salomon XT Slate",
+    "returned": 20,
+    "identity_matched": 11,
+    "full_data_pct": 82,
+    "active_pct": 0,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0,
+    "max_weekly_orders": 0,
+    "sample_titles": [
+      "Salomon XT-Slate Gray Violet Lime Cream",
+      "Salomon XT-Slate Year of the Snake Red Viper",
+      "Salomon XT-Slate Shortbread"
+    ],
+    "score": 65,
+    "source": "candidate"
+  },
+  {
+    "brand": "ASICS",
+    "name": "Gel-Quantum 360",
+    "query": "ASICS Gel Quantum 360",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 55,
+    "active_pct": 25,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 1,
+    "sample_titles": [
+      "ASICS Gel-Quantum 360 White Blazing Coral",
+      "ASICS Gel-Quantum 360 Edo Moji (Women's)",
+      "ASICS Gel-Quantum 360 Multi-Crossing"
+    ],
+    "score": 64,
+    "source": "candidate"
+  },
+  {
+    "brand": "Vans",
+    "name": "Slip-On",
+    "query": "Vans Slip On",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 45,
+    "active_pct": 10,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 6,
+    "sample_titles": [
+      "Vans Slip-On Checkerboard Black White",
+      "Vans Slip-On LX Murakami Silver Flower",
+      "Vans Slip-On Harry Potter Hufflepuff"
+    ],
+    "score": 56,
+    "source": "watchlist"
+  },
+  {
+    "brand": "New Balance",
+    "name": "990",
+    "query": "New Balance 990",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 45,
+    "active_pct": 0,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 0,
+    "sample_titles": [
+      "New Balance 990 Mid-Century Modern",
+      "New Balance 990 Black White",
+      "New Balance 990 Japanimation"
+    ],
+    "score": 54,
+    "source": "watchlist"
+  },
+  {
+    "brand": "Saucony",
+    "name": "Jazz",
+    "query": "Saucony Jazz",
+    "returned": 20,
+    "identity_matched": 20,
+    "full_data_pct": 10,
+    "active_pct": 0,
+    "fresh_pct": 100,
+    "median_weekly_orders": 0.0,
+    "max_weekly_orders": 0,
+    "sample_titles": [
+      "Saucony Jazz Gold Orange",
+      "Saucony Jazz Super 7 Frankenstein SDCC (2018)",
+      "Saucony Jazz Super 7 Metaluna Mutant SDCC (2018)"
+    ],
+    "score": 43,
+    "source": "candidate"
+  },
+  {
+    "brand": "Nike",
+    "name": "Mind 001",
+    "query": "Nike Mind 001",
+    "returned": 20,
+    "identity_matched": 0,
+    "score": 0,
+    "source": "candidate"
+  },
+  {
+    "brand": "Crocs",
+    "name": "Classic Clog",
+    "query": "Crocs Classic Clog",
+    "returned": 20,
+    "identity_matched": 0,
+    "score": 0,
+    "source": "candidate"
+  }
+]
