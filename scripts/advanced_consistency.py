@@ -334,8 +334,37 @@ def check_collaboration(product):
 # GENDER / SIZING
 # ============================================================
 
+GENDER_FIELD_MAP = {
+    "men": "MEN",
+    "mens": "MEN",
+    "male": "MEN",
+    "women": "WOMEN",
+    "womens": "WOMEN",
+    "female": "WOMEN",
+    "unisex": "UNISEX",
+}
+
+KIDS_FIELD_VALUES = {"kids", "kid", "youth", "child", "children"}
+
+
 def detect_gender(product):
+    # KicksDB espone un campo `gender` strutturato ("men", "women",
+    # "kids", "unisex"): e' piu' affidabile del testo del titolo
+    # (che puo' non avere alcun marcatore). "kids" e' generico, quindi
+    # si usa il testo per distinguere toddler/infant, altrimenti GS.
+    field_value = normalize_text(product.get("gender"))
+
+    if field_value in GENDER_FIELD_MAP:
+        return GENDER_FIELD_MAP[field_value]
+
     text = extract_product_text(product)
+
+    if field_value in KIDS_FIELD_VALUES:
+        if re.search(r"\b(toddler|td)\b", text):
+            return "TODDLER"
+        if re.search(r"\binfant\b", text):
+            return "INFANT"
+        return "GS"
 
     ordered_keywords = sorted(
         GENDER_KEYWORDS.items(),
@@ -729,42 +758,103 @@ def check_brand_model_consistency(product):
 # CATEGORY ↔ PRODUCT TYPE
 # ============================================================
 
-def check_category_product_type(product):
-    category = normalize_text(product.get("category"))
+FOOTWEAR_TERMS = {
+    "sneaker",
+    "sneakers",
+    "shoe",
+    "shoes",
+    "footwear",
+}
+
+
+def _category_signals(product):
+    """
+    Raccoglie le etichette di categoria del prodotto.
+
+    Nei dati reali di KicksDB il campo `category` NON dice se il
+    prodotto e' una scarpa: contiene un'etichetta di brand/linea
+    ("Air Jordan", "Nike", "Other Brands"). L'informazione vera e'
+    in `categories` (es. ["sneakers", "lifestyle"] oppure
+    ["apparel", "undergarments", ...]) e nei `breadcrumbs`.
+
+    Si usa `category` solo come ripiego quando `categories` e
+    `breadcrumbs` mancano (dati di altre fonti o vecchi test).
+    """
+    labels = []
+
+    categories = product.get("categories")
+    if isinstance(categories, (list, tuple)):
+        labels.extend(normalize_text(item) for item in categories)
+
+    breadcrumbs = product.get("breadcrumbs")
+    if isinstance(breadcrumbs, (list, tuple)):
+        for crumb in breadcrumbs:
+            if isinstance(crumb, dict):
+                labels.append(normalize_text(crumb.get("value")))
+                labels.append(normalize_text(crumb.get("alias")))
+
+    labels = [label for label in labels if label]
+
+    if not labels:
+        legacy = normalize_text(product.get("category"))
+        if legacy:
+            labels.append(legacy)
+
+    return labels
+
+
+def check_category_product_type(product, require_footwear=True):
+    """
+    Verifica che il prodotto sia una scarpa e che le sue etichette
+    siano coerenti.
+
+    - segnali in disaccordo (es. product_type "socks" ma categoria
+      "sneakers")                         -> category_product_type_mismatch
+    - segnali concordi che NON sono scarpe (es. calzini, abbigliamento:
+      product_type "streetwear", categories ["apparel", ...])
+                                          -> not_footwear
+      (solo se require_footwear=True: il progetto traccia sneaker)
+    - informazioni mancanti               -> passa (non si indovina)
+    """
+    labels = _category_signals(product)
     product_type = normalize_text(product.get("product_type"))
 
-    if not category or not product_type:
+    category_text = ", ".join(labels) or None
+
+    if not labels or not product_type:
         return {
             "passed": True,
-            "category": category or None,
+            "category": category_text,
             "product_type": product_type or None,
             "reason": None,
         }
 
-    footwear_terms = {
-        "sneaker",
-        "sneakers",
-        "shoe",
-        "shoes",
-        "footwear",
-    }
+    labels_are_footwear = any(
+        term in label for label in labels for term in FOOTWEAR_TERMS
+    )
+    type_is_footwear = any(term in product_type for term in FOOTWEAR_TERMS)
 
-    category_is_footwear = any(term in category for term in footwear_terms)
-    type_is_footwear = any(term in product_type for term in footwear_terms)
-
-    if category_is_footwear == type_is_footwear:
+    if labels_are_footwear != type_is_footwear:
         return {
-            "passed": True,
-            "category": category,
+            "passed": False,
+            "category": category_text,
             "product_type": product_type,
-            "reason": None,
+            "reason": "category_product_type_mismatch",
+        }
+
+    if require_footwear and not type_is_footwear:
+        return {
+            "passed": False,
+            "category": category_text,
+            "product_type": product_type,
+            "reason": "not_footwear",
         }
 
     return {
-        "passed": False,
-        "category": category,
+        "passed": True,
+        "category": category_text,
         "product_type": product_type,
-        "reason": "category_product_type_mismatch",
+        "reason": None,
     }
 
 
@@ -1047,6 +1137,11 @@ def _parse_date_value(value):
         if text.endswith("Z"):
             text = text[:-1] + "+00:00"
 
+        # KicksDB manda frazioni di secondo con 8-9 cifre
+        # ("2026-10-05T00:42:37.72832134Z"): fromisoformat di Python
+        # < 3.11 accetta al massimo 6 cifre, quindi si tronca.
+        text = re.sub(r"(\.\d{6})\d+", r"\1", text)
+
         try:
             parsed = datetime.datetime.fromisoformat(text)
 
@@ -1134,7 +1229,12 @@ def check_data_freshness(product, max_age_days=90):
 # espone un campo volume/numero vendite tra quelli noti, il
 # controllo passa sempre (nessuna rottura rispetto a oggi).
 
+# "weekly_orders" e' il campo reale di KicksDB: ordini della
+# SETTIMANA, non il totale storico. Nei dati osservati oltre meta'
+# dei prodotti ha valore 0 anche per scarpe legittime, quindi non
+# va usato come soglia fissa: min_sales resta None di default.
 SALES_COUNT_FIELD_CANDIDATES = (
+    "weekly_orders",
     "sales_count",
     "sale_count",
     "number_of_sales",

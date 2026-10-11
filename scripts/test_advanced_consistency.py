@@ -937,6 +937,64 @@ expect("Jordan con modello adidas segnalato",
        "brand_model_inconsistency"
        in full_run(model="adidas Samba", title="adidas Samba OG")["review_reasons"], True)
 
+# --- DATI REALI KicksDB (scripts/fixtures/kicksdb_real_sample.json) ---
+# I test sopra usano prodotti inventati: avevano category="sneakers",
+# ma nei dati veri `category` e' un'etichetta di brand ("Air Jordan",
+# "Other Brands") e 22 sneaker su 24 venivano segnalate per errore.
+# Qui l'atteso e' calcolato da regole semplici e indipendenti dal
+# modulo: e' una scarpa, ha SKU e prezzo > 0 -> deve essere approvata.
+
+import json
+import os
+
+fixture_path = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "fixtures",
+    "kicksdb_real_sample.json",
+)
+
+with open(fixture_path, encoding="utf-8") as fixture_file:
+    real_products = json.load(fixture_file)["products"]
+
+expect("campione reale: numero prodotti", len(real_products), 24)
+
+for real in real_products:
+    # max_age_days=None: le date del campione invecchiano, il
+    # controllo freschezza e' provato a parte qui sotto.
+    outcome = run_advanced_consistency(real, max_age_days=None)
+    reasons = outcome["review_reasons"]
+    name = real["title"][:45]
+
+    is_shoe = real["product_type"] == "sneakers"
+    has_sku = bool(str(real.get("sku") or "").strip())
+    has_price = (real.get("avg_price") or 0) > 0
+
+    expect(f"reale/{name}: category mismatch falso",
+           "category_product_type_mismatch" in reasons, False)
+    expect(f"reale/{name}: not_footwear",
+           "not_footwear" in reasons, not is_shoe)
+    expect(f"reale/{name}: approvato",
+           outcome["approved"], is_shoe and has_sku and has_price)
+
+expect("reale: gender dal campo (kids -> GS)",
+       run_advanced_consistency(real_products[0])["details"]["gender"]["detected"],
+       "GS")
+
+from advanced_consistency import check_data_freshness
+
+real_date = check_data_freshness({"updated_at": "2026-10-05T00:42:37.72832134Z"})
+expect("data reale con 8 cifre frazionarie interpretata",
+       real_date["age_days"] is not None, True)
+
+expect("weekly_orders letto come campo liquidita",
+       run_advanced_consistency(
+           {"weekly_orders": 0, "sku": "X-1", "avg_price": 100,
+            "product_type": "sneakers", "categories": ["sneakers"],
+            "title": "t", "brand": "b", "model": "m"},
+           min_sales=1,
+       )["checks"]["liquidity"],
+       False)
+
 print("\n" + "=" * 70)
 print("ASSERTIONS")
 print("=" * 70)
