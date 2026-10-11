@@ -828,6 +828,129 @@ print_test_result(
 
 
 # ============================================================
+# ASSERTIONS (FANNO FALLIRE LA CI SE UN RISULTATO E' SBAGLIATO)
+# ============================================================
+#
+# I test sopra stampano soltanto: la CI risultava verde anche con
+# un risultato sbagliato, purche' lo script non andasse in errore.
+# Qui ogni controllo confronta il risultato con quello atteso e,
+# se anche uno solo non combacia, lo script termina con codice 1.
+
+import sys
+
+from advanced_consistency import (
+    check_brand_model_consistency,
+    check_collaboration,
+)
+
+assertion_failures = []
+assertion_count = 0
+
+
+def expect(label, actual, expected):
+    global assertion_count
+    assertion_count += 1
+
+    if actual != expected:
+        assertion_failures.append(
+            f"{label}: ottenuto {actual!r}, atteso {expected!r}"
+        )
+
+
+def brand_ok(brand, model, title=""):
+    return check_brand_model_consistency(
+        {"brand": brand, "model": model, "title": title}
+    )["passed"]
+
+
+def is_collab(title):
+    return check_collaboration({"title": title})["is_collaboration"]
+
+
+def full_run(**overrides):
+    product = {
+        "brand": "Jordan",
+        "model": "Jordan 1 Retro High",
+        "title": "Air Jordan 1 Retro High",
+        "sku": "555088-161",
+        "product_type": "sneakers",
+        "category": "sneakers",
+        "avg_price": 180,
+    }
+    product.update(overrides)
+    return run_advanced_consistency(product, reference_price=180)
+
+
+# --- brand / modello: Jordan non e' piu' un caso senza regole ---
+expect("Jordan + adidas Samba", brand_ok("Jordan", "adidas Samba"), False)
+expect("Jordan + Jordan 1", brand_ok("Jordan", "Jordan 1 Retro High"), True)
+expect("Nike + Jordan 4", brand_ok("Nike", "Jordan 4 Retro"), True)
+expect("Nike + adidas Samba", brand_ok("Nike", "adidas Samba"), False)
+
+# --- brand "On": il token "on" non deve combaciare dentro altre parole ---
+expect("On + Hoka Clifton", brand_ok("On", "Hoka Clifton 9"), False)
+expect("On + Vans Slip On", brand_ok("On", "Vans Slip On"), False)
+expect("On + On Running Cloud X", brand_ok("On", "On Running Cloud X 4"), True)
+expect("On + Cloudmonster", brand_ok("On", "On Cloudmonster 2"), True)
+
+# --- altri brand: nessun falso scarto introdotto ---
+expect("Hoka One One alias", brand_ok("Hoka One One", "Hoka One One Clifton 9"), True)
+expect("Hoka senza brand nel modello", brand_ok("Hoka", "Bondi B3LS"), True)
+expect("NB 990v5", brand_ok("New Balance", "990v5"), True)
+expect("ASICS Gel-Kayano", brand_ok("ASICS", "Gel-Kayano 14"), True)
+expect("ASICS vs Gelato", brand_ok("ASICS", "Gelato Runner"), False)
+expect("Salomon XT-6", brand_ok("Salomon", "Salomon XT-6"), True)
+expect("Salomon vs Nike", brand_ok("Salomon", "Nike Dunk Low"), False)
+
+# --- collab: "union" solo come parola intera ---
+expect("Reunion non e' collab", is_collab("Nike Dunk Low Reunion Pack"), False)
+expect("Communion non e' collab", is_collab("Air Jordan 1 Communion Edition"), False)
+expect("Union LA e' collab", is_collab("Nike Union LA Dunk"), True)
+expect("Travis Scott e' collab", is_collab("Travis Scott x Air Jordan 1"), True)
+expect("Off-White e' collab", is_collab("Off-White x Nike Dunk"), True)
+expect("Panda non e' collab", is_collab("Nike Dunk Low Panda"), False)
+
+# --- comportamento complessivo che non deve regredire ---
+clean = full_run()
+expect("prodotto pulito approvato", clean["approved"], True)
+
+travis = full_run(
+    title="Travis Scott x Air Jordan 1 Retro High",
+    avg_price=900,
+)
+expect("Travis Scott approvato", travis["approved"], True)
+expect("Travis Scott riconosciuto come collab", travis["checks"]["is_collaboration"], True)
+
+expect("SKU mancante segnalato",
+       "missing_sku" in full_run(sku="")["review_reasons"], True)
+expect("prezzo anomalo segnalato",
+       "price_anomaly" in full_run(avg_price=52000)["review_reasons"], True)
+expect("prezzo zero segnalato",
+       "non_positive_price" in full_run(avg_price=0)["review_reasons"], True)
+expect("replica UA batch segnalata",
+       "counterfeit_risk_keyword_detected"
+       in full_run(title="Air Jordan 1 Retro High UA Batch")["review_reasons"], True)
+expect("Guava non e' replica",
+       "counterfeit_risk_keyword_detected"
+       in full_run(title="Air Jordan 1 Retro High Guava Ice")["review_reasons"], False)
+expect("Jordan con modello adidas segnalato",
+       "brand_model_inconsistency"
+       in full_run(model="adidas Samba", title="adidas Samba OG")["review_reasons"], True)
+
+print("\n" + "=" * 70)
+print("ASSERTIONS")
+print("=" * 70)
+
+if assertion_failures:
+    print(f"\nFALLITE {len(assertion_failures)} su {assertion_count}:")
+    for failure in assertion_failures:
+        print(f"  - {failure}")
+    sys.exit(1)
+
+print(f"\nTutte le {assertion_count} assertion sono passate.")
+
+
+# ============================================================
 # SUMMARY
 # ============================================================
 
@@ -836,7 +959,7 @@ print("=" * 70)
 print("ADVANCED CONSISTENCY TEST SUITE COMPLETED")
 print("=" * 70)
 
-print("\n28 test case eseguiti.")
+print("\n28 test case eseguiti, piu' le assertion.")
 
 print("\nCONTROLLI VERIFICATI:")
 

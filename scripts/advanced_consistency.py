@@ -88,6 +88,32 @@ def extract_product_text(product):
     return normalize_text(" ".join(str(field) for field in fields if field))
 
 
+def contains_whole_phrase(phrase, text):
+    """
+    True se `phrase` compare in `text` come parola/frase intera,
+    non dentro un'altra parola. Il testo deve essere gia'
+    normalizzato in minuscolo (normalize_text).
+
+    Esempi con phrase="union":
+        "nike union la dunk"   -> True
+        "nike dunk reunion"    -> False  (dentro "reunion")
+        "communion edition"    -> False  (dentro "communion")
+
+    Il confine e' "carattere non alfanumerico", cosi' funziona
+    anche per frasi con trattino o spazi ("off-white", "air max").
+    """
+    if not phrase or not text:
+        return False
+
+    pattern = (
+        r"(?<![a-z0-9])"
+        + re.escape(phrase)
+        + r"(?![a-z0-9])"
+    )
+
+    return re.search(pattern, text) is not None
+
+
 # ============================================================
 # COLORWAY
 # ============================================================
@@ -286,8 +312,11 @@ def check_condition(product, expected_condition=None):
 def check_collaboration(product):
     text = extract_product_text(product)
 
-    for keyword in COLLAB_KEYWORDS:
-        if keyword in text:
+    # Match a parola intera: "union" non deve scattare dentro
+    # "reunion" o "communion". sorted() rende il risultato
+    # deterministico se piu' parole combaciano.
+    for keyword in sorted(COLLAB_KEYWORDS):
+        if contains_whole_phrase(keyword, text):
             return {
                 "passed": True,
                 "is_collaboration": True,
@@ -502,6 +531,43 @@ def check_sku(product):
 # BRAND ↔ MODEL
 # ============================================================
 
+def _brand_token_matches(token, texts):
+    """
+    True se il token brand/modello compare in uno dei testi.
+
+    Regole di confine (prima era una semplice sottostringa,
+    per cui "on" combaciava dentro "clifton"):
+      - il token deve iniziare a inizio parola;
+      - se e' corto e solo alfabetico (<= 3 lettere: "on", "nb",
+        "gel", "acs", "sb") deve anche finire a fine parola;
+      - se inizia con "^" deve stare all'inizio del testo.
+    I token lunghi o con cifre non richiedono la fine parola, cosi'
+    "cloud" copre "cloudnova" e "990" copre "990v5".
+    """
+    anchored = token.startswith("^")
+    core = token[1:] if anchored else token
+
+    if not core:
+        return False
+
+    for text in texts:
+        if not text:
+            continue
+
+        if anchored:
+            pattern = r"^\s*" + re.escape(core) + r"(?![a-z0-9])"
+        else:
+            pattern = r"(?<![a-z0-9])" + re.escape(core)
+
+            if core.isalpha() and len(core) <= 3:
+                pattern += r"(?![a-z0-9])"
+
+        if re.search(pattern, text):
+            return True
+
+    return False
+
+
 def check_brand_model_consistency(product):
     """
     Controlla che il brand dichiarato sia compatibile con il
@@ -529,8 +595,6 @@ def check_brand_model_consistency(product):
             "model": model or None,
             "reason": None,
         }
-
-    combined = f"{model} {title}"
 
     known_brand_tokens = {
         "nike": {
@@ -599,14 +663,38 @@ def check_brand_model_consistency(product):
             "acs",
             "speedcross",
         },
+        # "^on" = "on" ANCORATO all'inizio del modello o del
+        # titolo ("On Running Cloud X 4"). Non puo' essere un
+        # token libero: "on" compare in "Vans Slip On",
+        # "Clifton", "Salomon", ecc. e farebbe passare quasi
+        # qualsiasi cosa.
         "on": {
-            "on",
+            "^on",
+            "on running",
             "cloud",
             "cloudmonster",
             "cloudtilt",
             "cloudsurfer",
         },
+        # Jordan prima non aveva regole: un prodotto con brand
+        # "Jordan" e modello "adidas Samba" passava.
+        "jordan": {
+            "jordan",
+            "jumpman",
+        },
     }
+
+    # Nomi alternativi dello stesso brand (come in
+    # validate_watchlist.normalize_brand).
+    brand_aliases = {
+        "hoka one one": "hoka",
+        "hoka one": "hoka",
+        "on running": "on",
+        "air jordan": "jordan",
+        "jordan brand": "jordan",
+    }
+
+    brand = brand_aliases.get(brand, brand)
 
     expected_tokens = known_brand_tokens.get(brand)
 
@@ -618,7 +706,10 @@ def check_brand_model_consistency(product):
             "reason": None,
         }
 
-    if any(token in combined for token in expected_tokens):
+    if any(
+        _brand_token_matches(token, (model, title))
+        for token in expected_tokens
+    ):
         return {
             "passed": True,
             "brand": brand,
