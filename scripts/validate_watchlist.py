@@ -17,15 +17,11 @@ WATCHLIST = [
     ("Nike", "Air Force 1", "Air Force 1", "Nike Air Force 1"),
     ("Nike", "Dunk", "Dunk", "Nike Dunk"),
     ("Nike", "SB Dunk", "SB Dunk", "Nike SB Dunk"),
-    ("Nike", "Vomero 5", "Vomero 5", "Nike Vomero 5"),
     ("Nike", "P-6000", "P-6000", "Nike P-6000"),
     ("Nike", "Kobe", "Kobe", "Nike Kobe"),
-    ("Nike", "Air Max", "Air Max", "Nike Air Max"),
 
     ("adidas", "Samba", "Samba", "adidas Samba"),
     ("adidas", "Gazelle", "Gazelle", "adidas Gazelle"),
-    ("adidas", "Bad Bunny", "Bad Bunny", "adidas Bad Bunny"),
-    ("adidas", "Taekwondo", "Taekwondo", "adidas Taekwondo"),
     ("adidas", "Yeezy", "Yeezy", "adidas Yeezy"),
     ("adidas", "Adizero", "Adizero", "adidas Adizero"),
 
@@ -33,7 +29,6 @@ WATCHLIST = [
     ("New Balance", "2002R", "2002R", "New Balance 2002R"),
     ("New Balance", "9060", "9060", "New Balance 9060"),
     ("New Balance", "530", "530", "New Balance 530"),
-    ("New Balance", "990", "990", "New Balance 990"),
     ("New Balance", "993", "993", "New Balance 993"),
     ("New Balance", "204L", "204L", "New Balance 204L"),
 
@@ -41,34 +36,38 @@ WATCHLIST = [
     ("ASICS", "Gel-Kayano 14", "Gel Kayano 14", "ASICS Gel Kayano 14"),
     ("ASICS", "Gel-NYC", "Gel NYC", "ASICS Gel NYC"),
     ("ASICS", "GT-2160", "GT 2160", "ASICS GT-2160"),
-    ("ASICS", "Novablast", "Novablast", "ASICS Novablast"),
 
-    ("Vans", "Old Skool", "Old Skool", "Vans Old Skool"),
     ("Vans", "Knu Skool", "Knu Skool", "Vans Knu Skool"),
-    ("Vans", "Slip-On", "Slip On", "Vans Slip On"),
-    ("Vans", "Sk8-Hi", "Sk8 Hi", "Vans Sk8 Hi"),
 
     ("Saucony", "ProGrid Omni 9", "ProGrid Omni 9", "Saucony ProGrid Omni 9"),
     ("Saucony", "ProGrid Triumph 4", "ProGrid Triumph 4", "Saucony ProGrid Triumph 4"),
-    ("Saucony", "Guide 7", "Guide 7", "Saucony Guide 7"),
-    ("Saucony", "Ride Millennium", "Ride Millennium", "Saucony Ride Millennium"),
 
     ("Salomon", "XT-6", "XT 6", "Salomon XT-6"),
     ("Salomon", "XT-4", "XT 4", "Salomon XT-4"),
-    ("Salomon", "ACS Pro", "ACS Pro", "Salomon ACS Pro"),
-    ("Salomon", "Speedcross", "Speedcross", "Salomon Speedcross"),
 
-    ("Mizuno", "MXR", "MXR", "Mizuno MXR"),
-    ("Mizuno", "Wave Prophecy Moc", "Wave Prophecy Moc", "Mizuno Wave Prophecy Moc"),
-    ("Mizuno", "Wave Rider", "Wave Rider", "Mizuno Wave Rider"),
 
     ("HOKA", "Clifton", "Clifton", "HOKA Clifton"),
     ("HOKA", "Bondi", "Bondi", "HOKA Bondi"),
-    ("HOKA", "Speedgoat", "Speedgoat", "HOKA Speedgoat"),
 
     ("On", "Cloud", "Cloud", "On Cloud"),
     ("On", "Cloudmonster", "Cloudmonster", "On Cloudmonster"),
     ("On", "Cloudtilt", "Cloudtilt", "On Cloudtilt"),
+    # --- Aggiunte da ricerca di mercato USA (dati KicksDB completi) ---
+    ("Nike", "Air Max 95", "Air Max 95", "Nike Air Max 95"),
+    ("Nike", "Air Max 90", "Air Max 90", "Nike Air Max 90"),
+    ("Nike", "Air Max 1", "Air Max 1", "Nike Air Max 1"),
+    ("Nike", "Ja 3", "Ja 3", "Nike Ja 3"),
+    ("Converse", "Shai 001", "Shai 001", "Converse Shai 001"),
+    ("adidas", "Handball Spezial", "Handball Spezial", "adidas Handball Spezial"),
+    ("adidas", "Campus 00s", "Campus 00s", "adidas Campus 00s"),
+    ("adidas", "Superstar", "Superstar", "adidas Superstar"),
+    ("adidas", "Tokyo", "Tokyo", "adidas Tokyo"),
+    ("New Balance", "550", "550", "New Balance 550"),
+    ("New Balance", "740", "740", "New Balance 740"),
+    ("New Balance", "1000", "1000", "New Balance 1000"),
+    ("Salomon", "XT-Whisper", "XT Whisper", "Salomon XT Whisper"),
+    ("ASICS", "Gel-Nimbus 10.1", "Nimbus 10.1", "ASICS Gel Nimbus 10.1"),
+    ("HOKA", "Mafate", "Mafate", "HOKA Mafate"),
 ]
 
 
