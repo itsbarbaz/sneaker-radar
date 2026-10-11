@@ -1,0 +1,41 @@
+name: Inspect KicksDB Fields
+
+# Salva la risposta grezza di KicksDB su un branch dedicato
+# (inspection-results) per poterla leggere senza scaricare artifact.
+# Non tocca main.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Fetch raw KicksDB sample
+        env:
+          KICKSDB_API_KEY: ${{ secrets.KICKSDB_API_KEY }}
+          OUTPUT_PATH: ${{ runner.temp }}/kicksdb_raw_sample.json
+        run: python scripts/inspect_kicksdb_fields.py
+
+      - name: Publish results to inspection-results branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan inspection-results
+          git rm -rf . > /dev/null 2>&1 || true
+          cp "${{ runner.temp }}/kicksdb_raw_sample.json" kicksdb_raw_sample.json
+          git add kicksdb_raw_sample.json
+          git commit -m "KicksDB raw sample"
+          git push --force origin inspection-results
