@@ -1,0 +1,41 @@
+name: Score Watchlist Candidates
+
+# Misura la qualita dei dati per ogni modello e
+# pubblica il risultato su inspection-results.
+# Non tocca main.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Fetch raw KicksDB sample
+        env:
+          KICKSDB_API_KEY: ${{ secrets.KICKSDB_API_KEY }}
+          OUTPUT_PATH: ${{ runner.temp }}/candidate_scores.json
+        run: python scripts/score_watchlist_candidates.py
+
+      - name: Publish results to inspection-results branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan inspection-results
+          git rm -rf . > /dev/null 2>&1 || true
+          cp "${{ runner.temp }}/candidate_scores.json" candidate_scores.json
+          git add candidate_scores.json
+          git commit -m "Candidate scores"
+          git push --force origin inspection-results
