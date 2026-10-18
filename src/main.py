@@ -10,6 +10,8 @@ Per ogni modello della WATCHLIST (scripts/validate_watchlist.py):
 Variabili d'ambiente:
   KICKSDB_API_KEY, SUPABASE_URL, SUPABASE_SECRET_KEY   obbligatorie
   DRY_RUN=1          non scrive su Supabase (solo log)
+  MAX_QUERIES_PER_RUN  ricerche per run (default 20): la watchlist ruota ogni
+                       giorno, cosi' il piano gratuito KicksDB (1000/mese) basta
   SEARCH_TERM        se presente, cerca solo questo termine (niente gate identita')
   EXPECTED_GENDER / EXPECTED_COLORWAY / EXPECTED_CONDITION   opzionali
 """
@@ -18,6 +20,7 @@ import json
 import os
 import sys
 import time
+from datetime import date
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -203,6 +206,12 @@ def main():
             for brand, _display, validation_model, query in vw.WATCHLIST
         ]
 
+    if not search_term:
+        batch = int(os.environ.get("MAX_QUERIES_PER_RUN", "20"))
+        if 0 < batch < len(targets):
+            start = (date.today().toordinal() * batch) % len(targets)
+            targets = [targets[(start + i) % len(targets)] for i in range(batch)]
+
     log(f"📋 Ricerche da eseguire: {len(targets)}")
 
     stats = {k: 0 for k in (
@@ -217,6 +226,13 @@ def main():
         log(f"🔎 {query}")
         try:
             products = fetch_products(api_key, query)
+        except urllib.error.HTTPError as error:
+            stats["queries_failed"] += 1
+            log(f"   ❌ errore KicksDB: {error}")
+            if error.code in (401, 403, 429):
+                log("   🛑 chiave non valida o quota esaurita: mi fermo per non sprecare richieste")
+                break
+            continue
         except (urllib.error.URLError, TimeoutError, ValueError) as error:
             stats["queries_failed"] += 1
             log(f"   ❌ errore KicksDB: {error}")
