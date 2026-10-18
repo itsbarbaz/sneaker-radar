@@ -1,0 +1,38 @@
+name: Dry Run Report
+
+# Esegue la pipeline completa SENZA scrivere su Supabase e pubblica
+# il log sul branch inspection-results (leggibile senza scaricare log).
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Run pipeline (dry run)
+        env:
+          KICKSDB_API_KEY: ${{ secrets.KICKSDB_API_KEY }}
+          DRY_RUN: "1"
+        run: python src/main.py 2>&1 | tee "${{ runner.temp }}/dry_run_log.txt"
+
+      - name: Publish log
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan inspection-results
+          git rm -rf . > /dev/null 2>&1 || true
+          cp "${{ runner.temp }}/dry_run_log.txt" dry_run_log.txt
+          git add dry_run_log.txt
+          git commit -m "Dry run log"
+          git push --force origin inspection-results
