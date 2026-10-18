@@ -1,0 +1,168 @@
+🧪 DRY_RUN: nessuna scrittura su Supabase
+📋 Ricerche da eseguire: 50
+
+🔎 Jordan 1
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 Jordan 3
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 Jordan 4
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 Jordan 5
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 Jordan 11
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 Jordan 12
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 Nike Air Force 1
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 Nike Dunk
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 Nike SB Dunk
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 Nike P-6000
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 Nike Kobe
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 adidas Samba
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 adidas Gazelle
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 adidas Yeezy
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 adidas Adizero
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 New Balance 1906R
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 New Balance 2002R
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 New Balance 9060
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 New Balance 530
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 New Balance 993
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 New Balance 204L
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 ASICS Gel 1130
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 ASICS Gel Kayano 14
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 ASICS Gel NYC
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 ASICS GT-2160
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 Vans Knu Skool
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 Saucony ProGrid Omni 9
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 Saucony ProGrid Triumph 4
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 Salomon XT-6
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 Salomon XT-4
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 HOKA Clifton
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 HOKA Bondi
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 On Cloud
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 On Cloudmonster
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 On Cloudtilt
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 Nike Air Max 95
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 Nike Air Max 90
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 Nike Air Max 1
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 Nike Ja 3
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 Converse Shai 001
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 adidas Handball Spezial
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 adidas Campus 00s
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 adidas Superstar
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 adidas Tokyo
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 New Balance 550
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 New Balance 740
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 New Balance 1000
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 Salomon XT Whisper
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 ASICS Gel Nimbus 10.1
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+🔎 HOKA Mafate
+   ❌ errore KicksDB: HTTP Error 401: Unauthorized
+
+============================================================
+📊 RIEPILOGO
+  created: 0
+  existing: 0
+  approved: 0
+  review: 0
+  identity_rejected: 0
+  no_sku: 0
+  duplicates: 0
+  prices_saved: 0
+  prices_skipped: 0
+  queries_ok: 0
+  queries_failed: 50
+============================================================
+❌ Nessuna query riuscita
