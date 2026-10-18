@@ -1,1016 +1,252 @@
+"""
+Sneaker Radar - pipeline principale.
+
+Per ogni modello della WATCHLIST (scripts/validate_watchlist.py):
+  1. cerca su KicksDB
+  2. controlla l'IDENTITA' (brand + sneaker + modello)  -> scarta il resto
+  3. controlla la COERENZA (scripts/advanced_consistency.py)
+  4. salva su Supabase: prodotto sempre, prezzo solo se approvato
+
+Variabili d'ambiente:
+  KICKSDB_API_KEY, SUPABASE_URL, SUPABASE_SECRET_KEY   obbligatorie
+  DRY_RUN=1          non scrive su Supabase (solo log)
+  SEARCH_TERM        se presente, cerca solo questo termine (niente gate identita')
+  EXPECTED_GENDER / EXPECTED_COLORWAY / EXPECTED_CONDITION   opzionali
+"""
+
+import json
 import os
 import sys
-import json
-import urllib.request
+import time
 import urllib.error
 import urllib.parse
-import re
+import urllib.request
 
-from supabase import create_client
+sys.path.insert(
+    0,
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "scripts"),
+)
 
-
-# ============================================================
-# LOGGING
-# ============================================================
+import validate_watchlist as vw  # noqa: E402
+from advanced_consistency import run_advanced_consistency  # noqa: E402
 
 try:
     sys.stdout.reconfigure(line_buffering=True)
 except Exception:
     pass
 
+PER_QUERY_LIMIT = 10
+PAUSE_BETWEEN_QUERIES = 0.3
+
 
 def log(*args):
     print(*args, flush=True)
 
 
-# ============================================================
-# HELPERS
-# ============================================================
+# ------------------------------------------------------------
+# KICKSDB
+# ------------------------------------------------------------
 
-def normalize(value):
-    if value is None:
-        return ""
-
-    return str(value).strip().lower()
-
-
-def extract_year(title):
-    if not title:
-        return None
-
-    match = re.search(r"\b(19|20)\d{2}\b", str(title))
-
-    if match:
-        return int(match.group())
-
-    return None
-
-
-def detect_condition(product):
-    """
-    Cerca di determinare la condizione dal prodotto.
-    Se non viene trovata, restituisce UNKNOWN.
-    """
-
-    title = normalize(product.get("title"))
-    description = normalize(product.get("description"))
-    text = f"{title} {description}"
-
-    if "used" in text:
-        return "USED"
-
-    if "new" in text:
-        return "NEW"
-
-    return "UNKNOWN"
-
-
-def detect_gender(product):
-    """
-    Mantiene il valore fornito da KicksDB.
-    """
-
-    gender = product.get("gender")
-
-    if not gender:
-        return "UNKNOWN"
-
-    return str(gender).upper()
-
-
-# ============================================================
-# CATEGORY / PRODUCT TYPE
-# ============================================================
-
-def check_category_product_type(product):
-    """
-    Controllo compatibilita tra category e product_type.
-
-    KicksDB puo restituire:
-
-        category = "air jordan"
-        product_type = "sneakers"
-
-    Questo e un abbinamento valido per Sneaker Radar.
-    """
-
-    category = normalize(product.get("category"))
-    product_type = normalize(product.get("product_type"))
-
-    # Caso normale
-    if category == "air jordan" and product_type == "sneakers":
-        return {
-            "passed": True,
-            "category": category,
-            "product_type": product_type,
-            "reason": None
-        }
-
-    # Altri casi sneaker compatibili
-    sneaker_categories = {
-        "air jordan",
-        "jordan",
-        "nike",
-        "adidas",
-        "new balance",
-        "asics",
-        "puma",
-        "reebok",
-        "yeezy",
-        "converse",
-        "vans",
-        "supreme"
-    }
-
-    sneaker_types = {
-        "sneakers",
-        "shoes",
-        "footwear"
-    }
-
-    if category in sneaker_categories and product_type in sneaker_types:
-        return {
-            "passed": True,
-            "category": category,
-            "product_type": product_type,
-            "reason": None
-        }
-
-    # Se mancano i dati, non blocchiamo il prodotto.
-    if not category or not product_type:
-        return {
-            "passed": True,
-            "category": category or None,
-            "product_type": product_type or None,
-            "reason": None
-        }
-
-    # Caso realmente incompatibile
-    return {
-        "passed": False,
-        "category": category,
-        "product_type": product_type,
-        "reason": "category_product_type_mismatch"
-    }
-
-
-# ============================================================
-# CONSISTENCY CHECKS
-# ============================================================
-
-def run_consistency_checks(
-    product,
-    historical_price=None,
-    expected_gender=None,
-    expected_colorway=None,
-    expected_condition=None
-):
-    """
-    Advanced Consistency Layer.
-
-    Restituisce:
-
-        {
-            "status": "PASS" / "REVIEW",
-            "checks": {...},
-            "details": {...},
-            "reasons": [...]
-        }
-    """
-
-    title = normalize(product.get("title"))
-    sku = product.get("sku")
-    price = product.get("avg_price")
-
-    # --------------------------------------------------------
-    # RELEASE YEAR
-    # --------------------------------------------------------
-
-    release_year = extract_year(title)
-
-    release_year_check = {
-        "passed": True,
-        "year": release_year,
-        "reason": None
-    }
-
-    # --------------------------------------------------------
-    # COLLABORATION
-    # --------------------------------------------------------
-
-    collaboration_check = {
-        "passed": True,
-        "detected": None
-    }
-
-    # --------------------------------------------------------
-    # GENDER
-    # --------------------------------------------------------
-
-    detected_gender = detect_gender(product)
-
-    if expected_gender:
-        gender_passed = (
-            normalize(detected_gender)
-            == normalize(expected_gender)
-        )
-    else:
-        gender_passed = True
-
-    gender_check = {
-        "passed": gender_passed,
-        "detected": detected_gender,
-        "expected": expected_gender
-    }
-
-    # --------------------------------------------------------
-    # PRICE ANOMALY
-    # --------------------------------------------------------
-
-    price_value = None
-
-    try:
-        if price is not None:
-            price_value = float(price)
-    except (ValueError, TypeError):
-        price_value = None
-
-    reference_price = None
-    ratio = None
-
-    if historical_price is not None:
-        try:
-            reference_price = float(historical_price)
-        except (ValueError, TypeError):
-            reference_price = None
-
-    if (
-        price_value is not None
-        and reference_price is not None
-        and reference_price > 0
-    ):
-        ratio = price_value / reference_price
-
-    # Manteniamo il controllo permissivo.
-    price_anomaly_passed = True
-
-    price_anomaly_check = {
-        "passed": price_anomaly_passed,
-        "price": price_value,
-        "reference_price": reference_price,
-        "ratio": ratio
-    }
-
-    # --------------------------------------------------------
-    # SKU
-    # --------------------------------------------------------
-
-    sku_passed = bool(sku)
-
-    sku_check = {
-        "passed": sku_passed,
-        "sku": sku,
-        "reason": None if sku_passed else "missing_sku"
-    }
-
-    # --------------------------------------------------------
-    # BRAND / MODEL
-    # --------------------------------------------------------
-
-    product_brand = normalize(product.get("brand"))
-    product_model = normalize(product.get("model"))
-
-    brand_model_passed = bool(
-        product_brand and product_model
+def fetch_products(api_key, query):
+    url = "https://api.kicks.dev/v3/stockx/products?" + urllib.parse.urlencode(
+        {"query": query, "limit": PER_QUERY_LIMIT}
     )
-
-    brand_model_check = {
-        "passed": brand_model_passed,
-        "brand": product_brand,
-        "model": product_model,
-        "reason": (
-            None
-            if brand_model_passed
-            else "missing_brand_or_model"
-        )
-    }
-
-    # --------------------------------------------------------
-    # CATEGORY / PRODUCT TYPE
-    # --------------------------------------------------------
-
-    category_product_type_check = (
-        check_category_product_type(product)
-    )
-
-    # --------------------------------------------------------
-    # DUPLICATE
-    # --------------------------------------------------------
-
-    identity = None
-
-    if sku:
-        identity = f"sku:{normalize(sku)}"
-
-    duplicate_check = {
-        "passed": True,
-        "duplicate": False,
-        "identity": identity,
-        "reason": None
-    }
-
-    # --------------------------------------------------------
-    # PRICE VALIDITY
-    # --------------------------------------------------------
-
-    price_validity_passed = (
-        price_value is not None
-        and price_value >= 0
-    )
-
-    price_validity_check = {
-        "passed": price_validity_passed,
-        "price": price_value,
-        "reason": (
-            None
-            if price_validity_passed
-            else "invalid_price"
-        )
-    }
-
-    # --------------------------------------------------------
-    # DATA COMPLETENESS
-    # --------------------------------------------------------
-
-    required_fields = [
-        "title",
-        "brand",
-        "model",
-        "sku",
-        "product_type",
-        "category"
-    ]
-
-    missing_fields = [
-        field
-        for field in required_fields
-        if not product.get(field)
-    ]
-
-    completeness = (
-        (len(required_fields) - len(missing_fields))
-        / len(required_fields)
-    )
-
-    data_completeness_passed = len(missing_fields) == 0
-
-    data_completeness_check = {
-        "passed": data_completeness_passed,
-        "completeness": completeness,
-        "missing_fields": missing_fields,
-        "reason": (
-            None
-            if data_completeness_passed
-            else "missing_fields"
-        )
-    }
-
-    # --------------------------------------------------------
-    # TITLE / MODEL
-    # --------------------------------------------------------
-
-    title_model_passed = True
-    match_ratio = None
-
-    if product_model and title:
-        model_words = product_model.split()
-
-        if model_words:
-            matches = sum(
-                1
-                for word in model_words
-                if word in title
-            )
-
-            match_ratio = matches / len(model_words)
-
-            title_model_passed = match_ratio >= 0.8
-
-    title_model_check = {
-        "passed": title_model_passed,
-        "model": product_model,
-        "title": title,
-        "match_ratio": match_ratio,
-        "reason": (
-            None
-            if title_model_passed
-            else "title_model_mismatch"
-        )
-    }
-
-    # --------------------------------------------------------
-    # COLORWAY
-    # --------------------------------------------------------
-
-    colorway_check = {
-        "passed": True,
-        "detected": None,
-        "expected": expected_colorway,
-        "match_ratio": None,
-        "reason": None
-    }
-
-    # --------------------------------------------------------
-    # CONDITION
-    # --------------------------------------------------------
-
-    detected_condition = detect_condition(product)
-
-    if expected_condition:
-        condition_passed = (
-            normalize(detected_condition)
-            == normalize(expected_condition)
-        )
-    else:
-        condition_passed = True
-
-    condition_check = {
-        "passed": condition_passed,
-        "detected": detected_condition,
-        "expected": expected_condition,
-        "reason": (
-            None
-            if condition_passed
-            else "condition_mismatch"
-        )
-    }
-
-    # ========================================================
-    # FINAL CHECK RESULT
-    # ========================================================
-
-    checks = {
-        "release_year": release_year_check["passed"],
-        "collaboration": collaboration_check["passed"],
-        "gender": gender_check["passed"],
-        "price_anomaly": price_anomaly_check["passed"],
-        "sku": sku_check["passed"],
-        "brand_model": brand_model_check["passed"],
-        "category_product_type": (
-            category_product_type_check["passed"]
-        ),
-        "duplicate": duplicate_check["passed"],
-        "price_validity": price_validity_check["passed"],
-        "data_completeness": (
-            data_completeness_check["passed"]
-        ),
-        "title_model": title_model_check["passed"],
-        "colorway": colorway_check["passed"],
-        "condition": condition_check["passed"]
-    }
-
-    reasons = []
-
-    for name, passed in checks.items():
-        if not passed:
-            detail = None
-
-            if name == "category_product_type":
-                detail = category_product_type_check.get(
-                    "reason"
-                )
-
-            elif name == "gender":
-                detail = "gender_mismatch"
-
-            elif name == "sku":
-                detail = sku_check.get("reason")
-
-            elif name == "brand_model":
-                detail = brand_model_check.get("reason")
-
-            elif name == "price_validity":
-                detail = price_validity_check.get("reason")
-
-            elif name == "data_completeness":
-                detail = data_completeness_check.get("reason")
-
-            elif name == "title_model":
-                detail = title_model_check.get("reason")
-
-            elif name == "condition":
-                detail = condition_check.get("reason")
-
-            reasons.append(detail or name)
-
-    status = "PASS" if not reasons else "REVIEW"
-
-    details = {
-        "collaboration": collaboration_check,
-        "gender": gender_check,
-        "release_year": release_year_check,
-        "price_anomaly": price_anomaly_check,
-        "sku": sku_check,
-        "brand_model": brand_model_check,
-        "category_product_type": category_product_type_check,
-        "duplicate": duplicate_check,
-        "price_validity": price_validity_check,
-        "data_completeness": data_completeness_check,
-        "title_model": title_model_check,
-        "colorway": colorway_check,
-        "condition": condition_check
-    }
-
-    return {
-        "status": status,
-        "checks": checks,
-        "details": details,
-        "reasons": reasons
-    }
-
-
-# ============================================================
-# MAIN
-# ============================================================
-
-def main():
-
-    # ========================================================
-    # SUPABASE
-    # ========================================================
-
-    supabase_url = os.environ["SUPABASE_URL"]
-    supabase_key = os.environ["SUPABASE_SECRET_KEY"]
-
-    supabase = create_client(
-        supabase_url,
-        supabase_key
-    )
-
-    log("🔥 Supabase connected!")
-
-    # ========================================================
-    # ADVANCED CONSISTENCY CONFIG
-    # ========================================================
-
-    expected_gender = os.environ.get(
-        "EXPECTED_GENDER"
-    )
-
-    expected_colorway = os.environ.get(
-        "EXPECTED_COLORWAY"
-    )
-
-    expected_condition = os.environ.get(
-        "EXPECTED_CONDITION"
-    )
-
-    log("=" * 60)
-    log("🛡️ ADVANCED CONSISTENCY LAYER")
-    log("=" * 60)
-
-    log(
-        "Expected gender:",
-        expected_gender or "NONE"
-    )
-
-    log(
-        "Expected colorway:",
-        expected_colorway or "NONE"
-    )
-
-    log(
-        "Expected condition:",
-        expected_condition or "NONE"
-    )
-
-    log("=" * 60)
-
-    # ========================================================
-    # KICKSDB
-    # ========================================================
-
-    api_key = os.environ["KICKSDB_API_KEY"]
-
-    search_term = os.environ.get(
-        "SEARCH_TERM",
-        "Jordan 4 Retro"
-    )
-
-    encoded_search = urllib.parse.quote(search_term)
-
-    url = (
-        "https://api.kicks.dev/v3/stockx/products"
-        f"?query={encoded_search}&limit=10"
-    )
-
-    log("🔎 Search term:", search_term)
-    log("📋 URL richiesto:", url)
-
-    request = urllib.request.Request(
-        url,
-        headers={
-            "Authorization": api_key
-        }
-    )
-
-    try:
-
-        with urllib.request.urlopen(request) as response:
-
-            data = json.loads(
-                response.read().decode()
-            )
-
-    except urllib.error.HTTPError as e:
-
-        log("❌ KicksDB error:", e.code)
-
-        log(
-            "Headers:",
-            dict(e.headers)
-        )
-
-        log(
-            "Body:",
-            e.read().decode()
-        )
-
-        raise
-
-    except urllib.error.URLError as e:
-
-        log(
-            "❌ KicksDB connection error:",
-            e
-        )
-
-        raise
-
-    log("🔥 KicksDB connected!")
-
-    # ========================================================
-    # RESPONSE
-    # ========================================================
-
-    log(
-        "📡 Response type:",
-        type(data).__name__
-    )
-
+    request = urllib.request.Request(url, headers={"Authorization": api_key})
+    with urllib.request.urlopen(request, timeout=60) as response:
+        data = json.loads(response.read().decode())
     if isinstance(data, dict):
+        return data.get("data") or []
+    return data if isinstance(data, list) else []
 
-        log(
-            "🔑 Top-level keys:",
-            list(data.keys())
-        )
 
-        log(
-            "📋 meta:",
-            json.dumps(
-                data.get("meta"),
-                indent=2
-            )
-        )
+# ------------------------------------------------------------
+# SUPABASE
+# ------------------------------------------------------------
 
-        raw_data = data.get("data")
+def reference_price_for(supabase, product_id):
+    rows = (
+        supabase.table("price_history")
+        .select("price")
+        .eq("product_id", product_id)
+        .order("created_at", desc=True)
+        .limit(10)
+        .execute()
+    ).data or []
+    prices = []
+    for row in rows:
+        try:
+            value = float(row.get("price"))
+        except (TypeError, ValueError):
+            continue
+        if value > 0:
+            prices.append(value)
+    return sum(prices) / len(prices) if prices else None
 
-        log(
-            "📋 data (raw):",
-            json.dumps(raw_data)[:500]
-        )
 
-        products = raw_data or []
-
-    elif isinstance(data, list):
-
-        products = data
-
-    else:
-
-        products = []
-
-    log(
-        f"📦 Products returned: {len(products)}"
+def get_or_create_product(supabase, product):
+    sku = product.get("sku")
+    existing = supabase.table("products").select("id").eq("sku", sku).execute()
+    if existing.data:
+        return existing.data[0]["id"], True
+    created = (
+        supabase.table("products")
+        .insert({
+            "title": product.get("title"),
+            "brand": product.get("brand"),
+            "sku": sku,
+            "source": "kicksdb",
+        })
+        .execute()
     )
+    if not created.data:
+        raise RuntimeError("Product insert failed for sku " + str(sku))
+    return created.data[0]["id"], False
 
-    if not products:
 
-        log(
-            "⚠️ Nessun prodotto restituito."
-        )
+# ------------------------------------------------------------
+# PROCESS ONE PRODUCT
+# ------------------------------------------------------------
 
-        log("✅ Done.")
+def process_product(product, target, supabase, dry_run, seen_skus, expected, stats):
+    title = product.get("title")
+    sku = product.get("sku")
 
+    if target is not None:
+        brand, validation_model = target
+        identity = vw.evaluate_candidate(brand, validation_model, product)
+        if not identity["identity_match"]:
+            stats["identity_rejected"] += 1
+            log(f"   ⏭️  identita' non valida, scartato: {title} ({', '.join(identity['reasons'])})")
+            return
+
+    if not vw.has_valid_sku(product):
+        stats["no_sku"] += 1
+        log(f"   ⏭️  senza SKU, scartato: {title}")
         return
 
-    log(
-        "👟 First product keys:",
-        list(products[0].keys())
+    if sku in seen_skus:
+        stats["duplicates"] += 1
+        return
+    seen_skus.add(sku)
+
+    product_id = None
+    reference = None
+    if not dry_run:
+        product_id, existed = get_or_create_product(supabase, product)
+        stats["existing" if existed else "created"] += 1
+        if existed:
+            reference = reference_price_for(supabase, product_id)
+
+    consistency = run_advanced_consistency(
+        product,
+        reference_price=reference,
+        expected_gender=expected["gender"],
+        expected_colorway=expected["colorway"],
+        expected_condition=expected["condition"],
     )
 
-    # ========================================================
-    # PROCESS PRODUCTS
-    # ========================================================
+    approved = consistency["approved"]
+    reasons = consistency["review_reasons"]
+    price = product.get("avg_price")
 
-    for index, product in enumerate(
-        products,
-        start=1
-    ):
+    if approved:
+        stats["approved"] += 1
+        log(f"   ✅ {title} | {sku} | ${price}")
+    else:
+        stats["review"] += 1
+        log(f"   ⚠️  REVIEW {title} | {sku} | motivi: {', '.join(reasons)}")
 
-        log("")
-        log("=" * 60)
+    if approved and vw.has_valid_price(product):
+        if dry_run:
+            stats["prices_saved"] += 1
+        else:
+            supabase.table("price_history").insert({
+                "product_id": product_id,
+                "price": float(price),
+                "currency": "USD",
+            }).execute()
+            stats["prices_saved"] += 1
+    else:
+        stats["prices_skipped"] += 1
 
-        log(
-            f"👟 PRODUCT {index}/{len(products)}"
+
+# ------------------------------------------------------------
+# MAIN
+# ------------------------------------------------------------
+
+def main():
+    api_key = os.environ["KICKSDB_API_KEY"]
+    dry_run = os.environ.get("DRY_RUN", "").lower() in ("1", "true", "yes")
+
+    supabase = None
+    if not dry_run:
+        from supabase import create_client
+        supabase = create_client(
+            os.environ["SUPABASE_URL"], os.environ["SUPABASE_SECRET_KEY"]
         )
+        log("🔥 Supabase connected!")
+    else:
+        log("🧪 DRY_RUN: nessuna scrittura su Supabase")
 
-        log("=" * 60)
+    expected = {
+        "gender": os.environ.get("EXPECTED_GENDER"),
+        "colorway": os.environ.get("EXPECTED_COLORWAY"),
+        "condition": os.environ.get("EXPECTED_CONDITION"),
+    }
 
-        title = product.get("title")
-        sku = product.get("sku")
-        price = product.get("avg_price")
-        brand = product.get("brand")
+    search_term = os.environ.get("SEARCH_TERM")
+    if search_term:
+        targets = [(search_term, None)]
+    else:
+        targets = [
+            (query, (brand, validation_model))
+            for brand, _display, validation_model, query in vw.WATCHLIST
+        ]
 
-        log("Title:", title)
-        log("Brand:", brand)
-        log("SKU:", sku)
-        log("Price:", price)
+    log(f"📋 Ricerche da eseguire: {len(targets)}")
 
-        if not sku:
+    stats = {k: 0 for k in (
+        "created", "existing", "approved", "review", "identity_rejected",
+        "no_sku", "duplicates", "prices_saved", "prices_skipped",
+        "queries_ok", "queries_failed",
+    )}
+    seen_skus = set()
 
-            log(
-                "⚠️ Product has no SKU, skipping."
-            )
-
-            log("---")
-
+    for query, target in targets:
+        log("")
+        log(f"🔎 {query}")
+        try:
+            products = fetch_products(api_key, query)
+        except (urllib.error.URLError, TimeoutError, ValueError) as error:
+            stats["queries_failed"] += 1
+            log(f"   ❌ errore KicksDB: {error}")
             continue
 
-        # ====================================================
-        # CHECK PRODUCT
-        # ====================================================
+        stats["queries_ok"] += 1
+        log(f"   📦 {len(products)} risultati")
 
-        existing = (
-            supabase
-            .table("products")
-            .select("id")
-            .eq("sku", sku)
-            .execute()
-        )
-
-        historical_price = None
-
-        if existing.data:
-
-            product_id = existing.data[0]["id"]
-
-            log(
-                f"🔎 Found existing product with id {product_id}"
-            )
-
-            # ------------------------------------------------
-            # HISTORICAL REFERENCE PRICE
-            # ------------------------------------------------
-
-            historical = (
-                supabase
-                .table("price_history")
-                .select("price")
-                .eq("product_id", product_id)
-                .order(
-                    "created_at",
-                    desc=True
-                )
-                .limit(10)
-                .execute()
-            )
-
-            if historical.data:
-
-                prices = []
-
-                for row in historical.data:
-
-                    try:
-
-                        value = float(
-                            row.get("price")
-                        )
-
-                        if value > 0:
-                            prices.append(value)
-
-                    except (
-                        ValueError,
-                        TypeError
-                    ):
-                        pass
-
-                if prices:
-
-                    historical_price = (
-                        sum(prices)
-                        / len(prices)
-                    )
-
-            log(
-                "📊 Historical reference price:",
-                historical_price
-            )
-
-        else:
-
-            log(
-                "🆕 Product not found in database."
-            )
-
-            log(
-                "💾 Saving product..."
-            )
-
-            insert_result = (
-                supabase
-                .table("products")
-                .insert({
-                    "title": title,
-                    "brand": brand,
-                    "sku": sku,
-                    "source": "kicksdb"
-                })
-                .execute()
-            )
-
-            if not insert_result.data:
-
-                raise RuntimeError(
-                    "❌ Product insert failed."
-                )
-
-            product_id = (
-                insert_result.data[0]["id"]
-            )
-
-            log(
-                f"✅ Product saved to Supabase with id {product_id}"
-            )
-
-        # ====================================================
-        # CONSISTENCY
-        # ====================================================
-
-        log(
-            "🛡️ Running Advanced Consistency..."
-        )
-
-        consistency = run_consistency_checks(
-            product=product,
-            historical_price=historical_price,
-            expected_gender=expected_gender,
-            expected_colorway=expected_colorway,
-            expected_condition=expected_condition
-        )
-
-        log(
-            "🧠 CONSISTENCY RESULT:",
-            consistency["status"]
-        )
-
-        log("CHECKS:")
-
-        for (
-            check_name,
-            passed
-        ) in consistency["checks"].items():
-
-            symbol = "✅" if passed else "❌"
-
-            log(
-                f"{symbol} {check_name}: {passed}"
-            )
-
-        if consistency["reasons"]:
-
-            log(
-                "⚠️ REVIEW REASONS:"
-            )
-
-            for reason in consistency["reasons"]:
-
-                log(
-                    f"- {reason}"
-                )
-
-        log(
-            "DETAILS:"
-        )
-
-        log(
-            json.dumps(
-                consistency["details"],
-                indent=2
-            )
-        )
-
-        # ====================================================
-        # SAVE PRICE
-        # ====================================================
-
-        if existing.data:
-
-            log(
-                "💾 Product already exists."
-            )
-
-        else:
-
-            log(
-                "💾 Product created."
-            )
-
-        if price is not None:
-
+        for product in products:
             try:
-
-                numeric_price = float(price)
-
-            except (
-                ValueError,
-                TypeError
-            ):
-
-                numeric_price = None
-
-            if (
-                numeric_price is not None
-                and numeric_price > 0
-            ):
-
-                (
-                    supabase
-                    .table("price_history")
-                    .insert({
-                        "product_id": product_id,
-                        "price": numeric_price,
-                        "currency": "USD"
-                    })
-                    .execute()
+                process_product(
+                    product, target, supabase, dry_run, seen_skus, expected, stats
                 )
+            except Exception as error:  # un prodotto rotto non ferma la run
+                stats["review"] += 1
+                log(f"   ❌ errore su {product.get('title')}: {error!r}")
 
-                log(
-                    "💰 Price saved to price_history!"
-                )
-
-            else:
-
-                log(
-                    "⚠️ Price is 0 or invalid, "
-                    "so it was not saved."
-                )
-
-        else:
-
-            log(
-                "⚠️ Price is missing, "
-                "so it was not saved."
-            )
-
-        # ====================================================
-        # FINAL STATUS
-        # ====================================================
-
-        log(
-            "🏁 FINAL STATUS:",
-            consistency["status"]
-        )
-
-        if consistency["status"] == "PASS":
-
-            log(
-                "✅ Product approved."
-            )
-
-        else:
-
-            log(
-                "⚠️ Product requires review."
-            )
-
-        log("---")
-
-    # ========================================================
-    # COMPLETE
-    # ========================================================
+        time.sleep(PAUSE_BETWEEN_QUERIES)
 
     log("")
     log("=" * 60)
-    log("✅ PIPELINE COMPLETED")
+    log("📊 RIEPILOGO")
+    for key, value in stats.items():
+        log(f"  {key}: {value}")
     log("=" * 60)
 
+    if stats["queries_ok"] == 0:
+        log("❌ Nessuna query riuscita")
+        sys.exit(1)
 
-# ============================================================
-# ENTRY POINT
-# ============================================================
 
 if __name__ == "__main__":
     main()

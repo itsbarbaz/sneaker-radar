@@ -2,6 +2,10 @@ name: Sneaker Radar
 
 on:
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Prova senza scrivere su Supabase (1 = si)"
+        default: "0"
 
   schedule:
     - cron: "0 6 * * *"
@@ -27,4 +31,5 @@ jobs:
           KICKSDB_API_KEY: ${{ secrets.KICKSDB_API_KEY }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: python src/main.py
