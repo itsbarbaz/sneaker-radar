@@ -23,6 +23,7 @@ jobs:
         env:
           KICKSDB_API_KEY: ${{ secrets.KICKSDB_API_KEY }}
           DRY_RUN: "1"
+        shell: bash
         run: python src/main.py 2>&1 | tee "${{ runner.temp }}/dry_run_log.txt"
 
       - name: Publish log
