@@ -1,193 +1,181 @@
 <!doctype html>
-<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sneaker Radar</title>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hypewise</title>
+<meta name="description" content="Hypewise segue i prezzi di rivendita delle sneaker negli Stati Uniti e ti mostra quando comprare, aspettare o vendere.">
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Public+Sans:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&display=swap">
 <style>
-/* Layout: one dense price board. Masthead, stat strip, filter bar, then a ledger of shoes with a sparkline each. */
+/* Layout: wordmark masthead, a hero with one verdict card as the focal object, then three ruled bands (how it works, the signal, coverage) and a closing call to action. */
 :root{
-  --bg:#f3f1ed; --surface:#fbfaf8; --ink:#1b1a18; --muted:#6d6a63; --line:#dedad2;
-  --accent:#e2461c; --up:#14804a; --down:#c2262e;
+  --bg:#f3f1ed; --surface:#fbfaf8; --ink:#1b1a18; --muted:#6a675f; --line:#dedad2;
+  --accent:#e2461c; --on-accent:#fff; --up:#14804a; --down:#c2262e; --wait:#a76a00;
   --display:"Familjen Grotesk",system-ui,sans-serif; --body:"Public Sans",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12110f;--surface:#1a1917;--ink:#efece6;--muted:#9a968d;--line:#2d2b27;--accent:#ff6a3d;--up:#3fc27d;--down:#ff6b72;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#12110f;--surface:#1a1917;--ink:#efece6;--muted:#9a968d;--line:#2d2b27;--accent:#ff6a3d;--up:#3fc27d;--down:#ff6b72;color-scheme:dark}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12110f;--surface:#1a1917;--ink:#efece6;--muted:#a09c93;--line:#2d2b27;--accent:#ff6a3d;--on-accent:#1b0b04;--up:#3fc27d;--down:#ff6b72;--wait:#e6b04a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12110f;--surface:#1a1917;--ink:#efece6;--muted:#a09c93;--line:#2d2b27;--accent:#ff6a3d;--on-accent:#1b0b04;--up:#3fc27d;--down:#ff6b72;--wait:#e6b04a;color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;
-  padding-block:24px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
-header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:14px}
-h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,6vw,46px);line-height:1;letter-spacing:-.02em;margin:0;text-wrap:balance}
-h1 span{color:var(--accent)}
-.sub{color:var(--muted);margin:6px 0 0;max-width:46ch}
-.stamp{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right}
-.demo{font-family:var(--mono);font-size:12px;border:1px dashed var(--accent);color:var(--accent);padding:8px 12px;border-radius:4px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
-.stat{padding:2px 0 2px 12px;border-left:3px solid var(--line)}
-.stat b{display:block;font-family:var(--mono);font-weight:500;font-size:26px;font-variant-numeric:tabular-nums}
-.stat small{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
-.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.chip,select,input[type=search]{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 12px}
-.chip{cursor:pointer}
-.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-input[type=search]{flex:1;min-width:160px}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.ledger{border-top:1px solid var(--line)}
-.row{display:grid;grid-template-columns:minmax(0,1fr) 120px 96px 92px;gap:16px;align-items:center;padding:14px 4px;border-bottom:1px solid var(--line)}
-.name{min-width:0}
-.name b{display:block;font-family:var(--display);font-weight:600;font-size:17px;line-height:1.25;overflow-wrap:anywhere}
-.name span{font-family:var(--mono);font-size:12px;color:var(--muted)}
-.price{font-family:var(--mono);font-size:18px;text-align:right;font-variant-numeric:tabular-nums}
-.chg{font-family:var(--mono);font-size:13px;text-align:right;font-variant-numeric:tabular-nums}
-.up{color:var(--up)}.down{color:var(--down)}.flat{color:var(--muted)}
-svg.spark{width:120px;height:34px;display:block}
-.empty{padding:40px 0;color:var(--muted);text-align:center}
-footer{color:var(--muted);font-size:12px}
-@media (max-width:560px){.row{grid-template-columns:minmax(0,1fr) auto;row-gap:6px}.row svg.spark{grid-column:1;width:100%}.row .chg{grid-column:2;grid-row:2}}
-@media (prefers-reduced-motion:no-preference){.row{transition:background .15s}.row:hover{background:var(--surface)}}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;
+  padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:72px}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+nav{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:12px}
+.mark{font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:-.02em;text-decoration:none}
+.mark span{color:var(--accent)}
+nav .links{display:flex;gap:20px;align-items:center;flex-wrap:wrap;font-size:15px}
+nav .links a{text-decoration:none;color:var(--muted)}
+nav .links a:hover{color:var(--ink)}
+.btn{display:inline-block;font-family:var(--display);font-weight:600;font-size:16px;text-decoration:none;padding:12px 20px;border-radius:6px;background:var(--accent);color:var(--on-accent)!important;border:2px solid var(--accent)}
+.btn.ghost{background:transparent;color:var(--ink)!important;border-color:var(--ink)}
+nav .btn{padding:8px 14px;font-size:14px}
+
+.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:48px;align-items:center}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 14px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(42px,8vw,84px);line-height:.95;letter-spacing:-.035em;margin:0;text-wrap:balance}
+h1 em{font-style:normal;color:var(--accent)}
+.lead{font-size:19px;max-width:46ch;margin:22px 0 28px;color:var(--ink)}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.card .tag{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.card h3{font-family:var(--display);font-size:20px;line-height:1.25;margin:0}
+.card .sku{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.card .px{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.card .px b{font-family:var(--mono);font-weight:500;font-size:34px;font-variant-numeric:tabular-nums}
+.card .px span{font-family:var(--mono);font-size:14px;color:var(--down)}
+.card svg{width:100%;height:auto;display:block}
+.verdict{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+.verdict .v{font-family:var(--display);font-weight:700;font-size:22px;color:var(--wait)}
+.verdict p{margin:0;font-size:14px;color:var(--muted)}
+.fine{font-size:12px;color:var(--muted);margin:0}
+
+h2{font-family:var(--display);font-weight:700;font-size:clamp(28px,4.5vw,40px);line-height:1.05;letter-spacing:-.02em;margin:0 0 8px;text-wrap:balance}
+.band{border-top:2px solid var(--ink);padding-top:20px;display:flex;flex-direction:column;gap:28px}
+.intro{max-width:60ch;color:var(--muted);margin:0}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:28px}
+.col{min-width:0;border-left:3px solid var(--line);padding-left:16px}
+.col .n{font-family:var(--mono);font-size:12px;color:var(--accent);letter-spacing:.08em}
+.col h3{font-family:var(--display);font-size:21px;margin:4px 0 6px;line-height:1.2}
+.col p{margin:0;color:var(--muted);font-size:15px}
+.soon{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--accent);color:var(--accent);padding:2px 8px;border-radius:999px;vertical-align:middle;margin-left:8px}
+
+.verd{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.verd .card{gap:8px}
+.verd .name{font-family:var(--display);font-weight:700;font-size:26px}
+.verd .cop .name{color:var(--up)}.verd .wait .name{color:var(--wait)}.verd .sell .name{color:var(--down)}
+.verd p{margin:0;font-size:15px;color:var(--muted)}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips span{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:6px 12px;font-size:15px}
+.chips span.later{border-style:dashed;color:var(--muted)}
+
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:28px}
+.two h3{font-family:var(--display);font-size:22px;margin:0 0 6px}
+.two p{margin:0;color:var(--muted)}
+
+.final{background:var(--ink);color:var(--bg);border-radius:12px;padding:clamp(24px,5vw,48px);display:flex;flex-direction:column;gap:18px;align-items:flex-start}
+.final h2{color:var(--bg);max-width:18ch}
+.final .btn{background:var(--accent);border-color:var(--accent);color:var(--on-accent)!important}
+footer{display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:20px}
+footer p{margin:0;max-width:80ch}
+
+@media (max-width:760px){.hero{grid-template-columns:minmax(0,1fr);gap:32px}.wrap{gap:56px}}
+@media (prefers-reduced-motion:no-preference){.btn{transition:transform .12s}.btn:hover{transform:translateY(-2px)}}
 </style>
 
 </head><body>
 <div class="wrap">
-  <header>
-    <div>
-      <h1>Sneaker<span>Radar</span></h1>
-      <p class="sub">Prezzi di mercato USA in dollari, solo scarpe verificate. Aggiornati ogni giorno.</p>
+  <nav>
+    <a class="mark" href="./">Hype<span>wise</span></a>
+    <div class="links">
+      <a href="#come">Come funziona</a>
+      <a href="#segnale">Il segnale</a>
+      <a href="#copertura">Cosa seguiamo</a>
+      <a class="btn" href="board.html">Apri la bacheca</a>
     </div>
-    <div class="stamp" id="stamp"></div>
-  </header>
+  </nav>
 
-  <div class="demo" id="demo" hidden>DATI DI ESEMPIO. Collega Supabase in site/index.html per mostrare i prezzi veri.</div>
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Prezzi di rivendita delle sneaker, USA</p>
+      <h1>Compra con la <em>testa.</em></h1>
+      <p class="lead">Hypewise segue ogni giorno i prezzi di rivendita delle sneaker più richieste negli Stati Uniti. Vedi se un modello sale, scende o resta fermo, in dollari, senza dover aprire dieci siti.</p>
+      <div class="cta">
+        <a class="btn" href="board.html">Apri la bacheca</a>
+        <a class="btn ghost" href="#come">Come funziona</a>
+      </div>
+    </div>
 
-  <section class="stats" id="stats" aria-label="Riepilogo"></section>
+    <aside class="card" aria-label="Esempio di scheda scarpa">
+      <div class="tag"><span>Scheda di esempio</span><span>30 giorni</span></div>
+      <div>
+        <h3>Jordan 4 Retro Black Cat</h3>
+        <span class="sku">Jordan · CU1110-010</span>
+      </div>
+      <div class="px"><b>$285</b><span>-4,2% in 7 giorni</span></div>
+      <svg viewBox="0 0 320 90" role="img" aria-label="Grafico di esempio del prezzo negli ultimi 30 giorni">
+        <line x1="0" y1="20" x2="320" y2="20" stroke="var(--line)" stroke-width="1"/>
+        <line x1="0" y1="45" x2="320" y2="45" stroke="var(--line)" stroke-width="1"/>
+        <line x1="0" y1="70" x2="320" y2="70" stroke="var(--line)" stroke-width="1"/>
+        <path d="M4 52 L30 48 L56 40 L82 36 L108 30 L134 24 L160 20 L186 24 L212 32 L238 44 L264 52 L290 60 L314 64" fill="none" stroke="var(--down)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+        <circle cx="314" cy="64" r="4" fill="var(--down)"/>
+      </svg>
+      <div class="verdict">
+        <div class="v">Aspetta</div>
+        <p>Il prezzo sta ancora scendendo da 2 settimane. Meglio aspettare che si stabilizzi.</p>
+      </div>
+      <p class="fine">Esempio illustrativo. Prezzi e grafico non sono dati reali.</p>
+    </aside>
+  </section>
 
-  <div class="bar">
-    <input type="search" id="q" placeholder="Cerca modello o SKU" aria-label="Cerca modello o SKU">
-    <div class="bar" id="brands" role="group" aria-label="Marchio"></div>
-    <select id="sort" aria-label="Ordina">
-      <option value="move">Maggiore variazione</option>
-      <option value="price">Prezzo più alto</option>
-      <option value="name">Nome</option>
-    </select>
-  </div>
+  <section class="band" id="come">
+    <div>
+      <h2>Come funziona</h2>
+      <p class="intro">Tre passaggi, tutti automatici. Ogni giorno i dati si aggiornano da soli.</p>
+    </div>
+    <div class="cols">
+      <div class="col"><span class="n">PASSO 1</span><h3>Raccogliamo i prezzi</h3><p>Leggiamo i prezzi medi di mercato in dollari di 50 modelli tra i più richiesti. Ogni modello viene aggiornato ogni 1-2 giorni.</p></div>
+      <div class="col"><span class="n">PASSO 2</span><h3>Controlliamo ogni scheda</h3><p>Scartiamo i risultati con modello o marchio sbagliato, calzini e accessori, dati vecchi e prezzi fuori scala. Teniamo solo le scarpe di cui possiamo fidarci.</p></div>
+      <div class="col"><span class="n">PASSO 3</span><h3>Ti mostriamo l'andamento</h3><p>Per ogni scarpa trovi il prezzo di oggi, la variazione degli ultimi 7 giorni e l'andamento nel tempo. Così capisci a colpo d'occhio cosa si muove.</p></div>
+    </div>
+  </section>
 
-  <section class="ledger" id="ledger" aria-live="polite"></section>
-  <footer>Prezzo medio di mercato in USD (fonte KicksDB / StockX). La variazione confronta l'ultimo prezzo con quello di circa 7 giorni prima; "in raccolta" significa che servono ancora almeno due rilevazioni.</footer>
+  <section class="band" id="segnale">
+    <div>
+      <h2>Il segnale<span class="soon">in arrivo</span></h2>
+      <p class="intro">Su ogni scarpa Hypewise leggerà il grafico e ti darà un'indicazione chiara, con il motivo scritto sotto. Non una frase a caso: ogni segnale spiega su cosa si basa.</p>
+    </div>
+    <div class="verd">
+      <div class="card cop"><span class="name">Cop</span><p>Il prezzo è vicino al minimo recente e la discesa sta rallentando. Può essere un buon momento per comprare.</p></div>
+      <div class="card wait"><span class="name">Aspetta</span><p>Il prezzo sta ancora scendendo, o i segnali sono contrastanti. Meglio guardare ancora qualche giorno.</p></div>
+      <div class="card sell"><span class="name">Sell</span><p>Il prezzo è vicino al massimo recente e la salita sta rallentando. Può essere un buon momento per vendere.</p></div>
+    </div>
+    <p class="fine">Sono stime automatiche basate sui prezzi passati, pensate per aiutarti a ragionare. Non sono consigli finanziari e non vanno prese alla lettera. Se i dati sono pochi, Hypewise lo dice invece di dare un consiglio.</p>
+  </section>
+
+  <section class="band" id="copertura">
+    <div>
+      <h2>Cosa seguiamo</h2>
+      <p class="intro">Per ora ci concentriamo sulle sneaker, scelte tra i modelli che negli Stati Uniti si scambiano di più.</p>
+    </div>
+    <div class="chips">
+      <span>Jordan</span><span>Nike</span><span>adidas</span><span>New Balance</span><span>ASICS</span><span>Saucony</span><span>Salomon</span><span>HOKA</span><span>On</span><span>Vans</span><span>Converse</span>
+      <span class="later">Abbigliamento: in programma</span>
+    </div>
+    <div class="two">
+      <div><h3>Se rivendi</h3><p>Vedi dove il prezzo si sta muovendo prima di comprare scorte, e controlli se il prezzo che ti viene offerto è in linea con il mercato.</p></div>
+      <div><h3>Se compri per te</h3><p>Capisci se stai pagando un prezzo alto o basso rispetto agli ultimi giorni, senza essere esperto di mercato.</p></div>
+    </div>
+  </section>
+
+  <section class="final">
+    <h2>Guarda cosa si muove oggi.</h2>
+    <a class="btn" href="board.html">Apri la bacheca</a>
+  </section>
+
+  <footer>
+    <p>I prezzi sono stime di mercato in USD calcolate da dati StockX forniti tramite KicksDB, e possono differire dai prezzi reali al momento dell'acquisto. Hypewise non fornisce consulenza finanziaria.</p>
+    <p>Hypewise non è affiliato né sponsorizzato da StockX, Nike, Jordan, adidas o altri marchi citati. I nomi appartengono ai rispettivi proprietari.</p>
+  </footer>
 </div>
-
-<script>
-// Per usare i dati veri: inserisci URL progetto e chiave "anon" (mai la secret key).
-var SUPABASE_URL = "https://fbxvrrppskilblmszlvo.supabase.co";
-var SUPABASE_ANON_KEY = "sb_publishable_D1afxXoieLW5ORTAuqoytQ_MLrr7Viz"; // chiave pubblica, sola lettura
-
-function demoData(){
-  var base=[["Jordan 4 Retro Black Cat","Jordan","CU1110-010",285],["Nike Dunk Low Panda","Nike","DD1391-100",118],
-    ["adidas Samba OG Cloud White","adidas","B75806",142],["New Balance 9060 Sea Salt","New Balance","U9060ECA",156],
-    ["ASICS Gel-1130 Cream Silver","ASICS","1201A256-107",131],["Jordan 11 Retro Gamma Blue","Jordan","378037-006",268],
-    ["Salomon XT-6 Black Phantom","Salomon","L41086000",196],["Saucony ProGrid Omni 9 Grey","Saucony","S70785-1",149],
-    ["adidas Campus 00s Core Black","adidas","HQ8708",98],["Nike Air Max 95 Neon","Nike","CT1689-001",172],
-    ["Converse Shai 001","Converse","A09123C",121],["Jordan 5 Retro Wolf Grey","Jordan","DD0587-100",205]];
-  return base.map(function(b,i){
-    var pts=[],p=b[3]*0.93,s=i*7+3;
-    for(var d=0;d<30;d++){s=(s*9301+49297)%233280;p+= (s/233280-0.44)*b[3]*0.03;pts.push(Math.round(p));}
-    var now=Date.now(),times=pts.map(function(_,k){return now-(pts.length-1-k)*864e5});
-    return {title:b[0],brand:b[1],sku:b[2],prices:pts,times:times};
-  });
-}
-
-async function api(path){
-  var r=await fetch(SUPABASE_URL+"/rest/v1/"+path,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+SUPABASE_ANON_KEY}});
-  if(!r.ok) throw new Error("HTTP "+r.status+" su "+path.split("?")[0]);
-  return r.json();
-}
-
-async function apiAll(path){
-  // Supabase restituisce al massimo 1000 righe per richiesta: leggo a pagine.
-  var out=[],step=1000;
-  for(var from=0;from<200000;from+=step){
-    var rows=await api(path+"&limit="+step+"&offset="+from);
-    out=out.concat(rows);
-    if(rows.length<step) break;
-  }
-  return out;
-}
-
-async function liveData(){
-  var products=await apiAll("products?select=id,title,brand,sku&order=id.asc");
-  var history=await apiAll("price_history?select=product_id,price,created_at&order=created_at.asc,id.asc");
-  var byId={};
-  history.forEach(function(h){
-    var v=Number(h.price); if(!(v>0)) return;
-    var e=byId[h.product_id]=byId[h.product_id]||{prices:[],times:[]};
-    e.prices.push(v); e.times.push(Date.parse(h.created_at));
-  });
-  return products.filter(function(p){return byId[p.id]}).map(function(p){
-    return {title:p.title,brand:p.brand,sku:p.sku,prices:byId[p.id].prices,times:byId[p.id].times};
-  });
-}
-
-var state={items:[],brand:"Tutti"};
-var usd=new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0});
-
-// Variazione sugli ultimi 7 giorni. Senza almeno due prezzi a giorni diversi restituisce null.
-function change(x){
-  var p=x.prices,t=x.times; if(!p||p.length<2) return null;
-  var last=p.length-1, target=t[last]-7*864e5, ref=0;
-  for(var i=0;i<last;i++){ if(Math.abs(t[i]-target)<Math.abs(t[ref]-target)) ref=i; }
-  if(t[last]-t[ref]<5*36e5 || !p[ref]) return null;
-  return (p[last]-p[ref])/p[ref]*100;
-}
-function spark(p){
-  var w=120,h=34; if(p.length<2) return '<svg class="spark" viewBox="0 0 '+w+' '+h+'"></svg>';
-  var mn=Math.min.apply(null,p),mx=Math.max.apply(null,p),rg=(mx-mn)||1;
-  var pts=p.map(function(v,i){return [(i/(p.length-1))*(w-6)+3,h-4-((v-mn)/rg)*(h-8)]});
-  var d=pts.map(function(q,i){return (i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)}).join(" ");
-  var last=pts[pts.length-1], c=p[p.length-1]>=p[0]?"var(--up)":"var(--down)";
-  return '<svg class="spark" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Andamento prezzo"><path d="'+d+'" fill="none" stroke="'+c+'" stroke-width="1.75" stroke-linejoin="round" stroke-linecap="round"/><circle cx="'+last[0].toFixed(1)+'" cy="'+last[1].toFixed(1)+'" r="2.6" fill="'+c+'"/></svg>';
-}
-function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
-
-function render(){
-  var q=document.getElementById("q").value.trim().toLowerCase(), sort=document.getElementById("sort").value;
-  var list=state.items.filter(function(x){
-    return (state.brand==="Tutti"||x.brand===state.brand)&&(!q||(x.title+" "+x.sku).toLowerCase().indexOf(q)>-1);
-  }).map(function(x){return Object.assign({},x,{price:x.prices[x.prices.length-1],chg:change(x)})});
-  list.sort(function(a,b){return sort==="price"?b.price-a.price:sort==="name"?a.title.localeCompare(b.title):(b.chg===null?-1:Math.abs(b.chg))-(a.chg===null?-1:Math.abs(a.chg))});
-  var el=document.getElementById("ledger");
-  if(!list.length){el.innerHTML='<div class="empty">Nessuna scarpa trovata con questi filtri.</div>';return}
-  el.innerHTML=list.map(function(x){
-    var none=x.chg===null, cls=none?"flat":x.chg>0.05?"up":x.chg<-0.05?"down":"flat", sign=!none&&x.chg>0?"+":"";
-    return '<div class="row"><div class="name"><b>'+esc(x.title)+'</b><span>'+esc(x.brand)+' · '+esc(x.sku)+'</span></div>'+spark(x.prices)+
-      '<div class="price">'+usd.format(x.price)+'</div><div class="chg '+cls+'">'+(none?'in raccolta':sign+x.chg.toFixed(1)+'%')+'</div></div>';
-  }).join("");
-}
-
-function setup(items,isDemo){
-  state.items=items;
-  document.getElementById("demo").hidden=!isDemo;
-  var brands=["Tutti"].concat(Array.from(new Set(items.map(function(x){return x.brand}))).sort());
-  document.getElementById("brands").innerHTML=brands.map(function(b){return '<button type="button" class="chip" aria-pressed="'+(b===state.brand)+'" data-b="'+esc(b)+'">'+esc(b)+'</button>'}).join("");
-  var movers=items.filter(function(x){return change(x)!==null&&Math.abs(change(x))>=5}).length;
-  document.getElementById("stats").innerHTML=
-    '<div class="stat"><b>'+items.length+'</b><small>Modelli seguiti</small></div>'+
-    '<div class="stat"><b>'+(brands.length-1)+'</b><small>Marchi</small></div>'+
-    '<div class="stat"><b>'+movers+'</b><small>Mosse oltre 5% in 7 giorni</small></div>';
-  document.getElementById("stamp").textContent="Aggiornato "+new Date().toLocaleDateString("it-IT",{day:"numeric",month:"long",year:"numeric"});
-  render();
-}
-
-document.getElementById("brands").addEventListener("click",function(e){
-  var b=e.target.closest("button"); if(!b) return; state.brand=b.dataset.b;
-  Array.prototype.forEach.call(this.children,function(c){c.setAttribute("aria-pressed",String(c===b))}); render();
-});
-document.getElementById("q").addEventListener("input",render);
-document.getElementById("sort").addEventListener("change",render);
-
-(async function(){
-  if(SUPABASE_URL&&SUPABASE_ANON_KEY){
-    try{ var live=await liveData(); if(live.length){ setup(live,false); } else { setup([],false); document.getElementById("ledger").innerHTML='<div class="empty">Ancora nessun prezzo salvato. Il bot li aggiunge a ogni esecuzione.</div>'; } return; }catch(e){ console.warn("Supabase non raggiungibile, uso dati di esempio",e); }
-  }
-  setup(demoData(),true);
-})();
-</script>
 </body></html>
