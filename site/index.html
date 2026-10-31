@@ -4,7 +4,7 @@
 <meta name="description" content="Hypewise tracks US sneaker resale prices and shows you when to buy, wait or sell.">
 <meta name="claude:viewport-fit-sides" content="cover">
 <script>try{var t=localStorage.getItem("hw-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="style.css?v=6">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: aurora hero (headline + live sample card), price ticker, three how-it-works tiles, signal cards, brands row, closing call to action. */
@@ -121,12 +121,12 @@ h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;back
   </section>
 
   <section class="bento" id="copertura">
-    <div><h2 data-i18n="l.brands">Brands we track</h2><p class="intro" data-i18n="cov.intro"></p></div>
+    <div><h2 class="h2i"><span class="ico sm" style="--a:#6a3df0;--b:#9b6bff"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3 6 6 .9-4.4 4.3 1 6.1L12 16.5 6.4 19.3l1-6.1L3 8.9 9 8z"/></svg></span><span class="neon" data-i18n="l.brands">Brands we track</span></h2><p class="intro" data-i18n="cov.intro"></p></div>
     <div class="brandrow" id="brandrow"></div>
     <p class="fine" data-i18n="l.brandsnote"></p>
     <div class="two">
-      <div><h3 data-i18n="who1.h"></h3><p data-i18n="who1.p"></p></div>
-      <div><h3 data-i18n="who2.h"></h3><p data-i18n="who2.p"></p></div>
+      <div class="glass scroll-rise" style="padding:22px"><h3><span class="ico sm" style="--a:#6a3df0;--b:#0fa968"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-9"/><path d="M15 6h6v6"/></svg></span><span data-i18n="who1.h"></span></h3><p data-i18n="who1.p"></p></div>
+      <div class="glass scroll-rise" style="padding:22px"><h3><span class="ico sm" style="--a:#ff8a5c;--b:#d1365c"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a1 1 0 0 0 .8.8h8.9a1 1 0 0 0 1-.8L20 7H6"/></svg></span><span data-i18n="who2.h"></span></h3><p data-i18n="who2.p"></p></div>
     </div>
   </section>
 
@@ -137,14 +137,14 @@ h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;back
 
   <footer><p data-i18n="foot1"></p><p data-i18n="foot2"></p></footer>
 </div>
-<script src="i18n.js?v=5"></script>
-<script src="strings.js?v=5"></script>
-<script src="app.js?v=5"></script>
-<script src="ui.js?v=5"></script>
+<script src="i18n.js?v=6"></script>
+<script src="strings.js?v=6"></script>
+<script src="app.js?v=6"></script>
+<script src="ui.js?v=6"></script>
 <script>
 HW.mount(); UI.initTheme(); UI.backdrop(); UI.banner();
 var D = window.HWD, BR = ["Jordan","Nike","adidas","New Balance","ASICS","Saucony","Salomon","HOKA","On","Vans","Converse"];
-function brands() { document.getElementById("brandrow").innerHTML = BR.map(D.bchip).join(""); }
+function brands() { document.getElementById("brandrow").innerHTML = BR.map(function (b, i) { return D.bchip(b, i); }).join(""); }
 brands();
 document.getElementById("samplecover").innerHTML = D.cover({ brand: "Jordan", title: "Jordan 4 Retro Black Cat", image: null }, "s", "");
 (function () { var r = document.getElementById("rot"), k = 0; if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;

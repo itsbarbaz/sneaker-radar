@@ -3,7 +3,7 @@
 <title>Hypewise</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <script>try{var t=localStorage.getItem("hw-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="style.css?v=6">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>/* Layout: back link, hero (photo + big price), chart card with live readout, four figures, story + specs, links + signal. */
 .back{display:inline-flex;gap:6px;font-size:14px;font-weight:600;color:var(--muted);text-decoration:none;width:max-content}
@@ -85,10 +85,10 @@ td:last-child,th:last-child{text-align:right;font-family:var(--mono)}
   <div id="view"><div class="empty" data-i18n="d.loading">Loading…</div></div>
   <footer><p data-i18n="foot1"></p><p data-i18n="foot2"></p></footer>
 </div>
-<script src="i18n.js?v=5"></script>
-<script src="strings.js?v=5"></script>
-<script src="app.js?v=5"></script>
-<script src="ui.js?v=5"></script>
+<script src="i18n.js?v=6"></script>
+<script src="strings.js?v=6"></script>
+<script src="app.js?v=6"></script>
+<script src="ui.js?v=6"></script>
 <script>
 HW.mount(); UI.initTheme(); UI.backdrop(); UI.banner();
 var D = window.HWD, $ = function (id) { return document.getElementById(id); };
@@ -184,6 +184,7 @@ function story(st) {
   return L.map(function (x) { return x.replace(/\.\.$/, "."); });
 }
 
+function hl(t) { return t.replace(/(\$[\d,]+(?:\.\d+)?|[+\-−]?\d+(?:[.,]\d+)?\s?%)/g, '<span class="hl">$1</span>'); }
 function row(k, v, mono) { return "<dt>" + D.esc(HW.t(k)) + "</dt><dd" + (mono ? ' class="mono"' : "") + ">" + D.esc(v) + "</dd>"; }
 
 function view() {
@@ -210,15 +211,15 @@ function view() {
     x.prices.map(function (v, i) { return "<tr><td>" + D.esc(dateFmt(x.times[i], true)) + "</td><td>" + D.money(v) + "</td></tr>"; }).reverse().join("") + "</tbody></table></div></details></section>" +
     '<section class="figs">' +
     fig("d.low", D.money(st.min), D.esc(dateFmt(st.tmin, true))) + fig("d.high", D.money(st.max), D.esc(dateFmt(st.tmax, true))) + fig("d.avg", D.money(st.avg), "&nbsp;") + fig("d.reads", String(st.n), "&nbsp;") + "</section>" +
-    '<section class="two"><div class="card glass story"><h2>' + D.esc(HW.t("d.story")) + "</h2>" + story(st).map(function (s) { return "<p>" + D.esc(s) + "</p>"; }).join("") + "</div>" +
-    '<div class="card glass"><h2>' + D.esc(HW.t("d.specs")) + "</h2><dl>" +
+    '<section class="two"><div class="card glass story"><h2 class="h2i"><span class="ico sm" style="--a:#6a3df0;--b:#9b6bff"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-9"/><path d="M15 6h6v6"/></svg></span>' + D.esc(HW.t("d.story")) + "</h2>" + story(st).map(function (s) { return "<p>" + hl(D.esc(s)) + "</p>"; }).join("") + "</div>" +
+    '<div class="card glass"><h2 class="h2i"><span class="ico sm" style="--a:#0fa968;--b:#3be8a0"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span>' + D.esc(HW.t("d.specs")) + "</h2><dl>" +
     row("d.brand", x.brand) + row("d.model", tit.name) + row("d.year", x.year || tit.year || "–") + row("d.fit", HW.t(fitKey)) + row("d.cat", HW.t("d.catv")) + row("d.sku", x.sku, true) +
     row("d.src", HW.t("d.srcv")) + row("d.cur", "USD") + row("d.first", dateFmt(st.tfirst, true)) + row("d.last", dateFmt(st.tlast, true)) + "</dl></div></section>" +
-    '<section class="two"><div class="card glass"><h2>' + D.esc(HW.t("d.other")) + '</h2><p class="fine" style="font-size:14px">' + D.esc(HW.t("d.otherp")) + '</p><div class="links">' +
+    '<section class="two"><div class="card glass"><h2 class="h2i"><span class="ico sm" style="--a:#ff8a5c;--b:#d1365c"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h13l-3-3M17 17H4l3 3"/></svg></span>' + D.esc(HW.t("d.other")) + '</h2><p class="fine" style="font-size:14px">' + D.esc(HW.t("d.otherp")) + '</p><div class="links">' +
     '<a class="btn ghost" target="_blank" rel="noopener noreferrer" href="' + D.esc(stockx) + '">StockX ↗</a>' +
     '<a class="btn ghost" target="_blank" rel="noopener noreferrer" href="https://www.goat.com/search?query=' + q + '">GOAT ↗</a>' +
     '<a class="btn ghost" target="_blank" rel="noopener noreferrer" href="https://www.ebay.com/sch/i.html?_nkw=' + q + '">eBay ↗</a></div></div>' +
-    '<div class="card glass signal"><span class="soon">' + D.esc(HW.t("sig.soon")) + "</span><h2>" + D.esc(HW.t("d.sig")) + '</h2><p class="fine" style="font-size:14px">' + D.esc(HW.t("d.sigp")) + "</p></div></section></div>";
+    '<div class="card glass signal"><span class="soon">' + D.esc(HW.t("sig.soon")) + '</span><h2 class="h2i"><span class="ico sm" style="--a:#a98bff;--b:#6a3df0"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8a6 6 0 0 1 0 8.4M7.8 16.2a6 6 0 0 1 0-8.4M19 5a10 10 0 0 1 0 14M5 19A10 10 0 0 1 5 5"/></svg></span>' + D.esc(HW.t("d.sig")) + '</h2><p class="fine" style="font-size:14px">' + D.esc(HW.t("d.sigp")) + "</p></div></section></div>";
   Array.prototype.forEach.call(document.querySelectorAll(".ranges .chip"), function (b) {
     var r = b.dataset.r;
     if (r !== "all") { var days = Number(r), n = x.times.filter(function (tm) { return tm >= x.times[x.times.length - 1] - days * D.DAY; }).length; if (n < 2) b.disabled = true; }

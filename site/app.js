@@ -130,11 +130,13 @@
     return pick;
   }
   function abbr(b) { return BRAND_ABBR[b] || String(b || "?").replace(/[^A-Za-z0-9]/g, "").slice(0, 2).toUpperCase(); }
+  var GLYPH = {"Jordan": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 17V7M7.5 11.5L12 7l4.5 4.5\"/>", "Nike": "<path d=\"M3 16l7-7 3 3 8-6\"/><path d=\"M3 20l5-5M9 20l3-3\"/>", "adidas": "<circle cx=\"12\" cy=\"12\" r=\"3\"/><circle cx=\"12\" cy=\"12\" r=\"7\"/><path d=\"M12 2v3M12 19v3\"/>", "New Balance": "<path d=\"M4 8h12a3 3 0 0 1 0 6H8M20 16H8a3 3 0 0 0 0 6\"/>", "ASICS": "<path d=\"M4 12c3-6 6 6 8 0s5 6 8 0\"/><path d=\"M4 18c3-6 6 6 8 0s5 6 8 0\" opacity=\".5\"/>", "Saucony": "<path d=\"M13 2L5 14h6l-1 8 9-13h-6z\"/>", "Salomon": "<path d=\"M2 20L9 7l4 7 3-5 6 11z\"/>", "HOKA": "<path d=\"M3 8l9-4 9 4-9 4zM3 13l9 4 9-4M3 18l9 4 9-4\"/>", "On": "<circle cx=\"12\" cy=\"12\" r=\"8\"/><circle cx=\"12\" cy=\"12\" r=\"2.2\" fill=\"currentColor\"/>", "Vans": "<rect x=\"2\" y=\"9\" width=\"20\" height=\"6\" rx=\"3\"/><circle cx=\"7\" cy=\"19\" r=\"1.7\"/><circle cx=\"17\" cy=\"19\" r=\"1.7\"/>", "Converse": "<path d=\"M12 3l2.7 5.8 6.3.8-4.6 4.4 1.2 6.3L12 17.2 6.4 20.3l1.2-6.3L3 9.6l6.3-.8z\"/>"};
+  function glyph(b) { return GLYPH[b] ? '<svg class="gl" viewBox="0 0 24 24" aria-hidden="true">' + GLYPH[b] + "</svg>" : ""; }
   function bmark(b, size) {
     var c = brandColors(b);
-    return '<span class="bmark" style="--c1:' + c[0] + ";--c2:" + c[1] + ";--s:" + (size || 40) + 'px" aria-hidden="true">' + esc(abbr(b)) + "</span>";
+    return '<span class="bmark" style="--c1:' + c[0] + ";--c2:" + c[1] + ";--s:" + (size || 40) + 'px" aria-hidden="true">' + (glyph(b) || esc(abbr(b))) + "</span>";
   }
-  function bchip(b) { return '<span class="bchip">' + bmark(b, 30) + esc(b) + "</span>"; }
+  function bchip(b, i) { return '<span class="bchip" style="--d:' + ((i || 0) * -0.35) + 's">' + bmark(b, 30) + esc(b) + "</span>"; }
 
   /* "Verificato": almeno 2 letture e nessun salto sospetto (oltre il 50%) tra una lettura e la successiva. */
   function verified(x) {

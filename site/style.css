@@ -167,3 +167,27 @@ svg.spark{width:100%;max-width:130px;height:36px;display:block}
 .soon{text-shadow:0 0 10px color-mix(in srgb,var(--accent) 70%,transparent);box-shadow:0 0 14px -2px var(--accent)}
 .mark{text-shadow:0 0 18px color-mix(in srgb,var(--accent) 45%,transparent)}
 @media (prefers-reduced-motion:no-preference){.neon-sign{animation:flick 5s infinite}@keyframes flick{0%,18%,22%,62%,64%,100%{opacity:1}20%,63%{opacity:.55}}}
+
+/* marchi: simboli originali Hypewise (non i loghi ufficiali) */
+.bmark svg.gl{width:58%;height:58%;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bmark{transition:transform .3s cubic-bezier(.3,1.5,.5,1)}
+.bchip:hover .bmark,.brandsec>header:hover .bmark{transform:rotate(-10deg) scale(1.15)}
+@media (prefers-reduced-motion:no-preference){
+  .bchip .bmark{animation:bob 3.2s ease-in-out infinite;animation-delay:var(--d,0s)}
+  .bchip .bmark svg.gl{animation:glint 4.5s ease-in-out infinite;animation-delay:var(--d,0s)}
+  @keyframes bob{50%{transform:translateY(-4px)}}
+  @keyframes glint{0%,70%,100%{transform:none}80%{transform:rotate(14deg) scale(1.15)}90%{transform:rotate(-8deg)}}
+  .ico svg{animation:icoFloat 3.4s ease-in-out infinite}
+  .ico::after{animation:ring 2.8s ease-out infinite}
+  @keyframes icoFloat{50%{transform:translateY(-3px) scale(1.06)}}
+  @keyframes ring{0%{transform:scale(.92);opacity:.9}100%{transform:scale(1.35);opacity:0}}
+}
+.ico.sm{width:42px;height:42px;border-radius:14px}.ico.sm svg{width:21px;height:21px}.ico.sm::after{border-radius:18px}
+.h2i{display:flex;align-items:center;gap:14px}
+.hl{font-family:var(--display);font-weight:800;color:var(--accent2);text-shadow:0 0 14px color-mix(in srgb,var(--accent2) 55%,transparent);white-space:nowrap}
+.story p{font-size:16.5px;font-weight:500;color:var(--ink);line-height:1.65;padding-left:14px;border-left:3px solid var(--accent);margin:0 0 10px}
+.story p:nth-of-type(2){border-color:var(--accent2)}
+dd{font-weight:700}dt{color:var(--ink);opacity:.72}
+.card h2{font-size:22px;font-weight:800}
+.two h3{display:flex;align-items:center;gap:12px;font-size:21px;font-weight:800}
+.two p{color:color-mix(in srgb,var(--ink) 82%,transparent)!important;font-size:16px!important;font-weight:500}
