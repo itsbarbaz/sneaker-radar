@@ -72,7 +72,7 @@ footer{color:var(--muted);font-size:12px}
   </div>
 
   <section class="ledger" id="ledger" aria-live="polite"></section>
-  <footer>Prezzo medio di mercato in USD (fonte KicksDB / StockX). La variazione confronta l'ultimo prezzo con quello di circa 7 giorni prima.</footer>
+  <footer>Prezzo medio di mercato in USD (fonte KicksDB / StockX). La variazione confronta l'ultimo prezzo con quello di circa 7 giorni prima; "in raccolta" significa che servono ancora almeno due rilevazioni.</footer>
 </div>
 
 <script>
@@ -90,7 +90,8 @@ function demoData(){
   return base.map(function(b,i){
     var pts=[],p=b[3]*0.93,s=i*7+3;
     for(var d=0;d<30;d++){s=(s*9301+49297)%233280;p+= (s/233280-0.44)*b[3]*0.03;pts.push(Math.round(p));}
-    return {title:b[0],brand:b[1],sku:b[2],prices:pts};
+    var now=Date.now(),times=pts.map(function(_,k){return now-(pts.length-1-k)*864e5});
+    return {title:b[0],brand:b[1],sku:b[2],prices:pts,times:times};
   });
 }
 
@@ -100,20 +101,42 @@ async function api(path){
   return r.json();
 }
 
+async function apiAll(path){
+  // Supabase restituisce al massimo 1000 righe per richiesta: leggo a pagine.
+  var out=[],step=1000;
+  for(var from=0;from<200000;from+=step){
+    var rows=await api(path+"&limit="+step+"&offset="+from);
+    out=out.concat(rows);
+    if(rows.length<step) break;
+  }
+  return out;
+}
+
 async function liveData(){
-  var products=await api("products?select=id,title,brand,sku&limit=1000");
-  var history=await api("price_history?select=product_id,price,created_at&order=created_at.asc&limit=10000");
+  var products=await apiAll("products?select=id,title,brand,sku&order=id.asc");
+  var history=await apiAll("price_history?select=product_id,price,created_at&order=created_at.asc,id.asc");
   var byId={};
-  history.forEach(function(h){var v=Number(h.price); if(v>0)(byId[h.product_id]=byId[h.product_id]||[]).push(v)});
-  return products.filter(function(p){return byId[p.id]&&byId[p.id].length}).map(function(p){
-    return {title:p.title,brand:p.brand,sku:p.sku,prices:byId[p.id]};
+  history.forEach(function(h){
+    var v=Number(h.price); if(!(v>0)) return;
+    var e=byId[h.product_id]=byId[h.product_id]||{prices:[],times:[]};
+    e.prices.push(v); e.times.push(Date.parse(h.created_at));
+  });
+  return products.filter(function(p){return byId[p.id]}).map(function(p){
+    return {title:p.title,brand:p.brand,sku:p.sku,prices:byId[p.id].prices,times:byId[p.id].times};
   });
 }
 
 var state={items:[],brand:"Tutti"};
 var usd=new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0});
 
-function change(p){ if(p.length<2) return 0; var ref=p[Math.max(0,p.length-8)]; return ref? (p[p.length-1]-ref)/ref*100 : 0; }
+// Variazione sugli ultimi 7 giorni. Senza almeno due prezzi a giorni diversi restituisce null.
+function change(x){
+  var p=x.prices,t=x.times; if(!p||p.length<2) return null;
+  var last=p.length-1, target=t[last]-7*864e5, ref=0;
+  for(var i=0;i<last;i++){ if(Math.abs(t[i]-target)<Math.abs(t[ref]-target)) ref=i; }
+  if(t[last]-t[ref]<5*36e5 || !p[ref]) return null;
+  return (p[last]-p[ref])/p[ref]*100;
+}
 function spark(p){
   var w=120,h=34; if(p.length<2) return '<svg class="spark" viewBox="0 0 '+w+' '+h+'"></svg>';
   var mn=Math.min.apply(null,p),mx=Math.max.apply(null,p),rg=(mx-mn)||1;
@@ -128,14 +151,14 @@ function render(){
   var q=document.getElementById("q").value.trim().toLowerCase(), sort=document.getElementById("sort").value;
   var list=state.items.filter(function(x){
     return (state.brand==="Tutti"||x.brand===state.brand)&&(!q||(x.title+" "+x.sku).toLowerCase().indexOf(q)>-1);
-  }).map(function(x){return Object.assign({},x,{price:x.prices[x.prices.length-1],chg:change(x.prices)})});
-  list.sort(function(a,b){return sort==="price"?b.price-a.price:sort==="name"?a.title.localeCompare(b.title):Math.abs(b.chg)-Math.abs(a.chg)});
+  }).map(function(x){return Object.assign({},x,{price:x.prices[x.prices.length-1],chg:change(x)})});
+  list.sort(function(a,b){return sort==="price"?b.price-a.price:sort==="name"?a.title.localeCompare(b.title):(b.chg===null?-1:Math.abs(b.chg))-(a.chg===null?-1:Math.abs(a.chg))});
   var el=document.getElementById("ledger");
   if(!list.length){el.innerHTML='<div class="empty">Nessuna scarpa trovata con questi filtri.</div>';return}
   el.innerHTML=list.map(function(x){
-    var cls=x.chg>0.05?"up":x.chg<-0.05?"down":"flat", sign=x.chg>0?"+":"";
+    var none=x.chg===null, cls=none?"flat":x.chg>0.05?"up":x.chg<-0.05?"down":"flat", sign=!none&&x.chg>0?"+":"";
     return '<div class="row"><div class="name"><b>'+esc(x.title)+'</b><span>'+esc(x.brand)+' · '+esc(x.sku)+'</span></div>'+spark(x.prices)+
-      '<div class="price">'+usd.format(x.price)+'</div><div class="chg '+cls+'">'+sign+x.chg.toFixed(1)+'%</div></div>';
+      '<div class="price">'+usd.format(x.price)+'</div><div class="chg '+cls+'">'+(none?'in raccolta':sign+x.chg.toFixed(1)+'%')+'</div></div>';
   }).join("");
 }
 
@@ -144,7 +167,7 @@ function setup(items,isDemo){
   document.getElementById("demo").hidden=!isDemo;
   var brands=["Tutti"].concat(Array.from(new Set(items.map(function(x){return x.brand}))).sort());
   document.getElementById("brands").innerHTML=brands.map(function(b){return '<button type="button" class="chip" aria-pressed="'+(b===state.brand)+'" data-b="'+esc(b)+'">'+esc(b)+'</button>'}).join("");
-  var movers=items.filter(function(x){return Math.abs(change(x.prices))>=5}).length;
+  var movers=items.filter(function(x){return change(x)!==null&&Math.abs(change(x))>=5}).length;
   document.getElementById("stats").innerHTML=
     '<div class="stat"><b>'+items.length+'</b><small>Modelli seguiti</small></div>'+
     '<div class="stat"><b>'+(brands.length-1)+'</b><small>Marchi</small></div>'+
