@@ -3,7 +3,7 @@
 <title>Hypewise Prices</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <script>try{var t=localStorage.getItem("hw-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="style.css?v=5">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: floating pill nav, big gradient title, price ticker, three glass figures, filter pills, then one block per brand with a grid of glass sneaker cards. */
@@ -58,6 +58,7 @@ input[type=search]{flex:1;min-width:200px;padding:11px 18px}
 
   <div class="ticker" id="ticker" hidden aria-label="Top movers"></div>
   <div class="demo" id="demo" data-i18n="b.demo" hidden></div>
+  <div class="explain glass"><p data-i18n="b.explain"></p></div>
   <section class="stats" id="stats" data-i18n-aria="b.summary"></section>
 
   <div class="tools">
@@ -77,10 +78,10 @@ input[type=search]{flex:1;min-width:200px;padding:11px 18px}
   <footer><p data-i18n="b.foot"></p><p data-i18n="l.brandsnote"></p></footer>
 </div>
 
-<script src="i18n.js?v=4"></script>
-<script src="strings.js?v=4"></script>
-<script src="app.js?v=4"></script>
-<script src="ui.js?v=4"></script>
+<script src="i18n.js?v=5"></script>
+<script src="strings.js?v=5"></script>
+<script src="app.js?v=5"></script>
+<script src="ui.js?v=5"></script>
 <script>
 HW.mount(); UI.initTheme(); UI.backdrop(); UI.banner(); UI.sync();
 var D = window.HWD, ALL = "__all__", PAGE = 8, state = { items: [], brand: ALL, demo: false, ready: false, shown: {} };

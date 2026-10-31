@@ -4,7 +4,7 @@
 <meta name="description" content="Hypewise tracks US sneaker resale prices and shows you when to buy, wait or sell.">
 <meta name="claude:viewport-fit-sides" content="cover">
 <script>try{var t=localStorage.getItem("hw-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="style.css?v=5">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: aurora hero (headline + live sample card), price ticker, three how-it-works tiles, signal cards, brands row, closing call to action. */
@@ -111,7 +111,7 @@ h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;back
   </section>
 
   <section class="bento" id="segnale">
-    <div><h2><span data-i18n="sig.h"></span><span class="soon" data-i18n="sig.soon"></span></h2><p class="intro" data-i18n="sig.intro"></p></div>
+    <div><h2><span data-i18n="sig.h"></span><span class="neon-sign" style="margin-left:16px;font-size:13px;vertical-align:middle;padding:6px 14px" data-i18n="sig.soon"></span></h2><p class="intro" data-i18n="sig.intro"></p></div>
     <div class="verd">
       <div class="vcard cop glass scroll-rise"><span class="ico" style="--a:#0b8a4c;--b:#3be8a0"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 7H6"/></svg></span><span class="name" data-i18n="cop.name"></span><p data-i18n="cop.p"></p></div>
       <div class="vcard wait glass scroll-rise"><span class="ico" style="--a:#a76a00;--b:#f2c14e"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12M6 21h12M7 3c0 5 5 6 5 9s-5 4-5 9M17 3c0 5-5 6-5 9s5 4 5 9"/></svg></span><span class="name" data-i18n="wait.name"></span><p data-i18n="wait.p"></p></div>
@@ -137,10 +137,10 @@ h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;back
 
   <footer><p data-i18n="foot1"></p><p data-i18n="foot2"></p></footer>
 </div>
-<script src="i18n.js?v=4"></script>
-<script src="strings.js?v=4"></script>
-<script src="app.js?v=4"></script>
-<script src="ui.js?v=4"></script>
+<script src="i18n.js?v=5"></script>
+<script src="strings.js?v=5"></script>
+<script src="app.js?v=5"></script>
+<script src="ui.js?v=5"></script>
 <script>
 HW.mount(); UI.initTheme(); UI.backdrop(); UI.banner();
 var D = window.HWD, BR = ["Jordan","Nike","adidas","New Balance","ASICS","Saucony","Salomon","HOKA","On","Vans","Converse"];

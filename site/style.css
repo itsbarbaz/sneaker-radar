@@ -1,6 +1,6 @@
 /* Hypewise design system: violet + green on a soft night/day aurora. Glass cards, big numerals, motion only as enhancement. */
 :root{
-  --bg:#f4f2fc; --surface:rgba(255,255,255,.72); --solid:#ffffff; --ink:#15112b; --muted:#6a6485; --line:rgba(106,61,240,.14);
+  --bg:#f4f2fc; --surface:rgba(255,255,255,.72); --solid:#ffffff; --ink:#15112b; --muted:#4c4668; --line:rgba(106,61,240,.14);
   --accent:#6a3df0; --on-accent:#ffffff; --accent2:#0fa968; --tint:rgba(106,61,240,.08);
   --up:#0b8a4c; --down:#d1365c; --wait:#a76a00;
   --aur1:rgba(124,77,255,.22); --aur2:rgba(16,185,129,.18); --aur3:rgba(255,120,180,.12);
@@ -10,14 +10,14 @@
   --r:20px;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0a0816; --surface:rgba(255,255,255,.05); --solid:#15112b; --ink:#f1eeff; --muted:#a39dc2; --line:rgba(255,255,255,.1);
+  --bg:#0a0816; --surface:rgba(255,255,255,.05); --solid:#15112b; --ink:#f1eeff; --muted:#cdc7ec; --line:rgba(255,255,255,.1);
   --accent:#9a7cff; --on-accent:#0e0626; --accent2:#3be8a0; --tint:rgba(154,124,255,.12);
   --up:#3be8a0; --down:#ff6b92; --wait:#e6b04a;
   --aur1:rgba(124,77,255,.38); --aur2:rgba(16,185,129,.22); --aur3:rgba(255,90,170,.16);
   --glow:0 10px 50px -12px rgba(154,124,255,.55); --shadow:0 1px 0 rgba(255,255,255,.06) inset,0 10px 30px -14px rgba(0,0,0,.7);
   --grad:linear-gradient(110deg,#9a7cff 0%,#3be8a0 100%); color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0a0816; --surface:rgba(255,255,255,.05); --solid:#15112b; --ink:#f1eeff; --muted:#a39dc2; --line:rgba(255,255,255,.1);
+  --bg:#0a0816; --surface:rgba(255,255,255,.05); --solid:#15112b; --ink:#f1eeff; --muted:#cdc7ec; --line:rgba(255,255,255,.1);
   --accent:#9a7cff; --on-accent:#0e0626; --accent2:#3be8a0; --tint:rgba(154,124,255,.12);
   --up:#3be8a0; --down:#ff6b92; --wait:#e6b04a;
   --aur1:rgba(124,77,255,.38); --aur2:rgba(16,185,129,.22); --aur3:rgba(255,90,170,.16);
@@ -148,3 +148,22 @@ svg.spark{width:100%;max-width:130px;height:36px;display:block}
 @media (prefers-reduced-motion:no-preference){.glass:hover .ico{animation:wob .8s ease}@keyframes wob{30%{transform:rotate(-8deg) scale(1.08)}60%{transform:rotate(6deg) scale(1.08)}}}
 .cover .shoe{position:absolute;left:50%;top:50%;width:78%;transform:translate(-50%,-52%);filter:drop-shadow(0 18px 24px rgba(0,0,0,.45))}
 .cover img~.shoe{display:none}
+
+/* testi secondari piu' leggibili */
+.fine{font-size:13px;line-height:1.55}
+.intro,.sub,.lead{color:color-mix(in srgb,var(--ink) 78%,transparent)}
+.explain{display:flex;gap:14px;align-items:flex-start;padding:16px 20px;font-size:14.5px;line-height:1.6;color:color-mix(in srgb,var(--ink) 85%,transparent)}
+.explain::before{content:"i";flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--grad);color:#fff;font:700 14px var(--display)}
+.explain p{margin:0}
+
+/* scritte neon */
+.neon,.grad-text,h1 em{filter:drop-shadow(0 0 12px color-mix(in srgb,var(--accent) 55%,transparent))}
+:root[data-theme="dark"] .neon,:root[data-theme="dark"] .grad-text,:root[data-theme="dark"] h1 em{filter:drop-shadow(0 0 10px rgba(154,124,255,.85)) drop-shadow(0 0 28px rgba(59,232,160,.45))}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .neon,:root:not([data-theme="light"]) .grad-text,:root:not([data-theme="light"]) h1 em{filter:drop-shadow(0 0 10px rgba(154,124,255,.85)) drop-shadow(0 0 28px rgba(59,232,160,.45))}}
+.neon-sign{display:inline-block;font:700 clamp(15px,2.2vw,20px) var(--display);letter-spacing:.14em;text-transform:uppercase;color:#fff;padding:10px 20px;border-radius:14px;border:2px solid var(--accent2);background:rgba(10,8,22,.55);
+  text-shadow:0 0 4px #fff,0 0 12px var(--accent2),0 0 28px var(--accent2),0 0 52px var(--accent2);box-shadow:0 0 14px var(--accent2),inset 0 0 14px color-mix(in srgb,var(--accent2) 40%,transparent)}
+.neon-sign.v{border-color:#a98bff;text-shadow:0 0 4px #fff,0 0 12px #9a7cff,0 0 28px #9a7cff,0 0 52px #7c4dff;box-shadow:0 0 14px #7c4dff,inset 0 0 14px rgba(124,77,255,.4)}
+.eyebrow b.rot{color:var(--accent2)!important;text-shadow:0 0 10px color-mix(in srgb,var(--accent2) 80%,transparent),0 0 24px color-mix(in srgb,var(--accent2) 55%,transparent)}
+.soon{text-shadow:0 0 10px color-mix(in srgb,var(--accent) 70%,transparent);box-shadow:0 0 14px -2px var(--accent)}
+.mark{text-shadow:0 0 18px color-mix(in srgb,var(--accent) 45%,transparent)}
+@media (prefers-reduced-motion:no-preference){.neon-sign{animation:flick 5s infinite}@keyframes flick{0%,18%,22%,62%,64%,100%{opacity:1}20%,63%{opacity:.55}}}
