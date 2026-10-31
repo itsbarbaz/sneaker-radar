@@ -2,42 +2,48 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Hypewise Prices</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<script>try{var t=localStorage.getItem("hw-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: nav, page title, three figures, filters, then one section per brand with a grid of sneaker cards. */
-h1{font-family:var(--display);font-weight:700;font-size:clamp(32px,6vw,48px);line-height:1;letter-spacing:-.025em;margin:0}
-.sub{color:var(--muted);margin:8px 0 0;max-width:56ch}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
-.stat{padding:2px 0 2px 12px;border-left:3px solid var(--accent)}
-.stat b{display:block;font-family:var(--mono);font-weight:500;font-size:26px;font-variant-numeric:tabular-nums}
-.stat small{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+/* Layout: floating pill nav, big gradient title, price ticker, three glass figures, filter pills, then one block per brand with a grid of glass sneaker cards. */
+h1{font-weight:800;font-size:clamp(38px,7vw,68px);line-height:1;margin:0}
+.sub{color:var(--muted);margin:12px 0 0;max-width:56ch;font-size:17px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.stat{padding:18px 20px}
+.stat b{display:block;font-family:var(--display);font-weight:700;font-size:clamp(30px,4vw,40px);line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.stat small{display:block;margin-top:6px;color:var(--muted);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.08em}
 .tools{display:flex;flex-direction:column;gap:12px}
 .tools .row1{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-input[type=search]{flex:1;min-width:180px}
+input[type=search]{flex:1;min-width:200px;padding:11px 18px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chips .chip .n{opacity:.6;margin-left:6px;font-family:var(--mono);font-size:12px}
-.brandsec{display:flex;flex-direction:column;gap:16px;scroll-margin-top:16px}
-.brandsec>header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:8px}
-.brandsec h2{font-family:var(--display);font-size:clamp(24px,4vw,32px);margin:0;letter-spacing:-.02em}
-.brandsec header span{font-family:var(--mono);font-size:12px;color:var(--muted)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
-.scard{display:flex;flex-direction:column;gap:12px;text-decoration:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;min-width:0}
-.scard:hover{border-color:var(--accent)}
-.scard .body{display:flex;flex-direction:column;gap:2px;min-width:0;padding:0 4px 4px}
-.scard b{font-family:var(--display);font-weight:600;font-size:17px;line-height:1.25;overflow-wrap:anywhere}
-.scard .sku{font-family:var(--mono);font-size:12px;color:var(--muted)}
-.scard .pr{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px}
-.scard .price{font-family:var(--mono);font-size:20px;font-variant-numeric:tabular-nums}
-.scard .chg{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;text-align:right}
-.scard svg.spark{margin-top:6px;max-width:100%}
-.empty{padding:40px 0;color:var(--muted);text-align:center}
-@media (prefers-reduced-motion:no-preference){.scard{transition:transform .12s,border-color .12s}.scard:hover{transform:translateY(-2px)}}
+.chips .chip .n{opacity:.6;margin-left:6px;font-family:var(--mono);font-size:11px}
+.brandsec{display:flex;flex-direction:column;gap:18px;scroll-margin-top:16px}
+.brandsec>header{display:flex;align-items:center;gap:14px}
+.brandsec h2{font-size:clamp(24px,4vw,34px);margin:0;line-height:1.1}
+.brandsec header .cnt{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.brandsec header .more{margin-left:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.scard{display:flex;flex-direction:column;gap:14px;text-decoration:none;padding:10px;min-width:0;transition:border-color .2s,box-shadow .2s,transform .2s}
+.scard:hover{border-color:var(--accent);box-shadow:var(--glow);transform:translateY(-4px)}
+.scard .body{display:flex;flex-direction:column;gap:2px;min-width:0;padding:0 8px 8px}
+.scard b{font-family:var(--display);font-weight:600;font-size:16px;line-height:1.3;letter-spacing:-.02em;overflow-wrap:anywhere}
+.scard .sku{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.scard .pr{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px}
+.scard .price{font-family:var(--display);font-weight:700;font-size:24px;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.scard .chg{font-family:var(--mono);font-size:12px;font-weight:500;padding:4px 10px;border-radius:999px;background:var(--tint)}
+.scard .chg.up{background:color-mix(in srgb,var(--up) 16%,transparent)}
+.scard .chg.down{background:color-mix(in srgb,var(--down) 16%,transparent)}
+.scard svg.spark{margin-top:8px;max-width:100%}
+.empty{padding:60px 0;color:var(--muted);text-align:center}
 </style>
 </head><body data-title="b.title">
 <div class="wrap">
   <nav>
-    <a class="mark" href="./">Hype<span>wise</span></a>
+    <div class="nav-left">
+      <button id="theme" class="theme" type="button" aria-pressed="false"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 13a9 9 0 1 1-10-10 7 7 0 0 0 10 10z"/></svg><span class="knob"></span></button>
+      <a class="mark" href="./">Hype<span>wise</span></a>
+    </div>
     <div class="links">
       <a href="./" data-i18n="nav.home">Home</a>
       <a href="board.html" aria-current="page" data-i18n="nav.prices">Prices</a>
@@ -45,11 +51,12 @@ input[type=search]{flex:1;min-width:180px}
     </div>
   </nav>
 
-  <header>
-    <h1 data-i18n="b.h1">Sneaker prices</h1>
+  <header class="rise">
+    <h1 class="grad-text" data-i18n="b.h1">Sneaker prices</h1>
     <p class="sub" data-i18n="b.sub"></p>
   </header>
 
+  <div class="ticker" id="ticker" hidden aria-label="Top movers"></div>
   <div class="demo" id="demo" data-i18n="b.demo" hidden></div>
   <section class="stats" id="stats" data-i18n-aria="b.summary"></section>
 
@@ -67,42 +74,49 @@ input[type=search]{flex:1;min-width:180px}
   </div>
 
   <div id="list" aria-live="polite"></div>
-  <footer><p data-i18n="b.foot"></p></footer>
+  <footer><p data-i18n="b.foot"></p><p data-i18n="l.brandsnote"></p></footer>
 </div>
 
 <script src="i18n.js"></script>
 <script src="strings.js"></script>
 <script src="app.js"></script>
+<script src="ui.js"></script>
 <script>
-HW.mount();
-var D = window.HWD, ALL = "__all__", state = { items: [], brand: ALL, demo: false, ready: false };
+HW.mount(); UI.initTheme(); UI.sync();
+var D = window.HWD, ALL = "__all__", PAGE = 8, state = { items: [], brand: ALL, demo: false, ready: false, shown: {} };
 var $ = function (id) { return document.getElementById(id); };
 var fromUrl = new URLSearchParams(location.search).get("brand"); if (fromUrl) state.brand = fromUrl;
+var firstRender = true;
+
+function limitFor(b, searching) { return state.shown[b] || (state.brand !== ALL || searching ? 24 : PAGE); }
 
 function render() {
-  var q = $("q").value.trim().toLowerCase(), sort = $("sort").value, loc = HW.locale();
+  var q = $("q").value.trim().toLowerCase(), sort = $("sort").value, loc = HW.locale(), searching = !!q;
   var rows = state.items.filter(function (x) { return !q || (x.title + " " + x.sku).toLowerCase().indexOf(q) > -1; })
     .map(function (x) { return Object.assign({}, x, { price: x.prices[x.prices.length - 1], chg: D.change(x, 7) }); });
   var out = $("list");
   if (!rows.length) { out.innerHTML = '<div class="empty">' + D.esc(HW.t(state.items.length ? "b.nomatch" : "b.nodata")) + "</div>"; return; }
-  var by = {};
-  rows.forEach(function (x) { (by[x.brand] = by[x.brand] || []).push(x); });
+  var by = {}; rows.forEach(function (x) { (by[x.brand] = by[x.brand] || []).push(x); });
   var brands = Object.keys(by).sort(function (a, b) { return D.brandRank(a) - D.brandRank(b) || a.localeCompare(b); });
   if (state.brand !== ALL) brands = brands.filter(function (b) { return b === state.brand; });
-  out.innerHTML = '<div style="display:flex;flex-direction:column;gap:48px">' + brands.map(function (b) {
+  var delay = 0, vt = HW.t("v.badge"), vtip = HW.t("v.tip");
+  out.innerHTML = '<div style="display:flex;flex-direction:column;gap:56px">' + brands.map(function (b) {
     var list = by[b].sort(function (a, c) {
       return sort === "price" ? c.price - a.price : sort === "name" ? a.title.localeCompare(c.title)
         : (c.chg === null ? -1 : Math.abs(c.chg)) - (a.chg === null ? -1 : Math.abs(a.chg));
     });
-    return '<section class="brandsec" id="brand-' + D.esc(b.replace(/\s+/g, "-")) + '"><header><h2>' + D.esc(b) + "</h2><span>" + D.esc(HW.f("b.models", { n: list.length })) + '</span></header><div class="grid">' +
-      list.map(function (x) {
-        var none = x.chg === null, cls = none ? "flat" : x.chg > 0.05 ? "up" : x.chg < -0.05 ? "down" : "flat";
-        return '<a class="scard" href="shoe.html?sku=' + encodeURIComponent(x.sku) + '">' + D.shoeImage(x, "s") +
+    var lim = limitFor(b, searching), vis = list.slice(0, lim), rest = list.length - vis.length;
+    return '<section class="brandsec" id="brand-' + D.esc(b.replace(/\s+/g, "-")) + '"><header>' + D.bmark(b, 46) + "<h2>" + D.esc(b) + '</h2><span class="cnt">' + D.esc(HW.f("b.models", { n: list.length })) + "</span>" +
+      (rest > 0 ? '<button type="button" class="chip more" data-more="' + D.esc(b) + '">' + D.esc(HW.f(state.brand === ALL && !searching && !state.shown[b] ? "b.showall" : "b.showmore", { n: list.length })) + "</button>" : "") +
+      '</header><div class="grid">' + vis.map(function (x) {
+        var none = x.chg === null, cls = none ? "flat" : x.chg > 0.05 ? "up" : x.chg < -0.05 ? "down" : "flat", i = firstRender ? Math.min(delay++, 16) : 0;
+        return '<a class="scard glass' + (firstRender ? " rise" : "") + '" style="--i:' + i + '" href="shoe.html?sku=' + encodeURIComponent(x.sku) + '">' + D.cover(x, "s", D.vbadge(x, vt, vtip)) +
           '<div class="body"><b>' + D.esc(x.title) + '</b><span class="sku">' + D.esc(x.sku) + "</span>" +
           '<div class="pr"><span class="price">' + D.money(x.price) + '</span><span class="chg ' + cls + '">' + (none ? D.esc(HW.t("b.collecting")) : D.pct(x.chg, loc)) + "</span></div>" +
           D.spark(x.prices, x.times) + "</div></a>";
       }).join("") + "</div></section>";
   }).join("") + "</div>";
+  firstRender = false;
 }
 
 function chips() {
@@ -114,28 +128,31 @@ function chips() {
   }).join("");
 }
 
-function setup(items, demo) {
+function setup(items, demo, animate) {
   state.items = items; state.demo = demo; state.ready = true;
   $("demo").hidden = !demo;
   var brands = {}; items.forEach(function (x) { brands[x.brand] = 1; });
   var movers = items.filter(function (x) { var c = D.change(x, 7); return c !== null && Math.abs(c) >= 5; }).length;
-  $("stats").innerHTML =
-    '<div class="stat"><b>' + items.length + "</b><small>" + D.esc(HW.t("b.stat1")) + "</small></div>" +
-    '<div class="stat"><b>' + Object.keys(brands).length + "</b><small>" + D.esc(HW.t("b.stat2")) + "</small></div>" +
-    '<div class="stat"><b>' + movers + "</b><small>" + D.esc(HW.t("b.stat3")) + "</small></div>";
+  var vals = [items.length, Object.keys(brands).length, movers];
+  $("stats").innerHTML = ["b.stat1", "b.stat2", "b.stat3"].map(function (k, i) { return '<div class="stat glass rise" style="--i:' + i + '"><b data-v="' + vals[i] + '">' + vals[i] + "</b><small>" + D.esc(HW.t(k)) + "</small></div>"; }).join("");
+  if (animate) Array.prototype.forEach.call(document.querySelectorAll("#stats b"), function (b) { UI.countUp(b, Number(b.dataset.v)); });
   var last = items.reduce(function (m, x) { return Math.max(m, x.times[x.times.length - 1]); }, 0);
   $("stamp").textContent = last ? HW.t("b.updated") + " " + new Date(last).toLocaleDateString(HW.locale(), { day: "numeric", month: "long", year: "numeric" }) : "";
+  var mv = items.map(function (x) { return { label: x.title.replace(/\s*\([^)]*\)/g, ""), value: x.prices[x.prices.length - 1], chg: D.change(x, 7) }; })
+    .filter(function (m) { return m.chg !== null; }).sort(function (a, b) { return Math.abs(b.chg) - Math.abs(a.chg); }).slice(0, 14);
+  UI.ticker($("ticker"), mv, function (v) { return D.pct(v, HW.locale()); });
   chips(); render();
 }
 
-$("brands").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; state.brand = b.dataset.b; chips(); render(); });
-$("q").addEventListener("input", render);
+$("brands").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; state.brand = b.dataset.b; state.shown = {}; chips(); render(); });
+$("list").addEventListener("click", function (e) { var b = e.target.closest("[data-more]"); if (!b) return; var n = b.dataset.more; state.shown[n] = (state.shown[n] || (state.brand !== ALL ? 24 : PAGE)) + 48; render(); });
+$("q").addEventListener("input", function () { state.shown = {}; render(); });
 $("sort").addEventListener("change", render);
-document.addEventListener("hw-lang", function () { if (state.ready) setup(state.items, state.demo); });
+document.addEventListener("hw-lang", function () { if (state.ready) setup(state.items, state.demo, false); });
 
 (async function () {
-  try { setup(await D.loadAll(), false); }
-  catch (e) { console.warn("Supabase unreachable, showing sample data", e); setup(D.demoData(), true); }
+  try { setup(await D.loadAll(), false, true); }
+  catch (e) { console.warn("Supabase unreachable, showing sample data", e); setup(D.demoData(), true, true); }
 })();
 </script>
 </body></html>

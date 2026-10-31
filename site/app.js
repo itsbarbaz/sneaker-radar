@@ -118,31 +118,41 @@
     });
   }
 
-  /* ---------- Illustrazione di una sneaker (se manca la foto ufficiale) ---------- */
-  var PALETTES = [["#6a3df0", "#12a867"], ["#1a1530", "#8f72ff"], ["#12a867", "#1a1530"], ["#d1365c", "#1a1530"], ["#2f6df0", "#e9e6f7"], ["#a76a00", "#1a1530"], ["#8f72ff", "#12a867"]];
+  /* ---------- Marchi come badge (sigla colorata, NON i loghi ufficiali) ---------- */
+  var BRAND_COLORS = { "Jordan": ["#ff4d7d", "#7c4dff"], "Nike": ["#ff8a3d", "#ff3d7f"], "adidas": ["#3d8bff", "#7c4dff"], "New Balance": ["#7c8aa5", "#4d5b8a"],
+    "ASICS": ["#12c2b5", "#3d8bff"], "Saucony": ["#5b6bff", "#12c2b5"], "Salomon": ["#ff5d5d", "#ff9d3d"], "HOKA": ["#ffc93d", "#ff6b3d"],
+    "On": ["#8d99b3", "#5b6bff"], "Vans": ["#9a7cff", "#ff4d7d"], "Converse": ["#ff4d7d", "#ffc93d"] };
+  var BRAND_ABBR = { "New Balance": "NB", "ASICS": "AS", "Salomon": "SA", "Saucony": "SC", "Converse": "CV", "adidas": "A", "Jordan": "J", "Nike": "N", "HOKA": "H", "On": "ON", "Vans": "V" };
   function hash(s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h; }
-  function sneakerSVG(seed, label) {
-    var pal = PALETTES[hash(String(seed)) % PALETTES.length], a = pal[0], b = pal[1];
-    return '<svg class="shoe-ill" viewBox="0 0 320 180" role="img" aria-label="' + esc(label || "Sneaker illustration") + '">' +
-      '<ellipse cx="164" cy="160" rx="132" ry="7" fill="currentColor" opacity=".12"/>' +
-      '<path d="M34 128 L38 74 Q40 58 58 56 L98 52 Q112 50 122 60 L136 78 Q156 90 186 92 L252 100 Q296 108 304 128 Z" fill="' + a + '"/>' +
-      '<path d="M236 98 Q292 106 304 128 L256 128 Q252 110 236 98 Z" fill="' + b + '"/>' +
-      '<path d="M34 128 L38 84 Q58 78 80 88 L84 128 Z" fill="' + b + '" opacity=".9"/>' +
-      '<path d="M102 54 Q118 40 136 48 L142 70 Q124 70 112 64 Z" fill="#fff" opacity=".85"/>' +
-      '<g stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".95"><path d="M144 80 L160 70"/><path d="M158 86 L174 76"/><path d="M172 91 L188 81"/><path d="M188 94 L204 85"/></g>' +
-      '<path d="M96 112 Q160 92 232 104" fill="none" stroke="#fff" stroke-width="3" opacity=".55" stroke-linecap="round"/>' +
-      '<rect x="20" y="126" width="290" height="22" rx="11" fill="#f4f2ec" stroke="#cfcbe0"/>' +
-      '<rect x="22" y="142" width="286" height="8" rx="4" fill="#1a1530" opacity=".85"/>' +
-      '</svg>';
+  function brandColors(b) {
+    if (BRAND_COLORS[b]) return BRAND_COLORS[b];
+    var hues = Object.keys(BRAND_COLORS), pick = BRAND_COLORS[hues[hash(String(b)) % hues.length]];
+    return pick;
   }
+  function abbr(b) { return BRAND_ABBR[b] || String(b || "?").replace(/[^A-Za-z0-9]/g, "").slice(0, 2).toUpperCase(); }
+  function bmark(b, size) {
+    var c = brandColors(b);
+    return '<span class="bmark" style="--c1:' + c[0] + ";--c2:" + c[1] + ";--s:" + (size || 40) + 'px" aria-hidden="true">' + esc(abbr(b)) + "</span>";
+  }
+  function bchip(b) { return '<span class="bchip">' + bmark(b, 30) + esc(b) + "</span>"; }
 
-  /* Foto ufficiale (se c'è) con ripiego sull'illustrazione. size: "s" per le card, "l" per la scheda. */
-  function shoeImage(x, size) {
-    var ill = sneakerSVG(x.sku || x.title, x.title);
-    if (!x.image) return '<div class="shoe-img ill">' + ill + "</div>";
-    var url = String(x.image).replace(/w=\d+/, "w=" + (size === "l" ? 900 : 480)).replace(/h=\d+/, "h=" + (size === "l" ? 640 : 340));
-    return '<div class="shoe-img photo"><img src="' + esc(url) + '" alt="' + esc(x.title) + '" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.className=\'shoe-img ill\';this.parentNode.innerHTML=this.parentNode.dataset.ill" ></div>'
-      .replace('<div class="shoe-img photo">', '<div class="shoe-img photo" data-ill="' + esc(ill) + '">');
+  /* "Verificato": almeno 2 letture e nessun salto sospetto (oltre il 50%) tra una lettura e la successiva. */
+  function verified(x) {
+    var p = x.prices; if (!p || p.length < 2) return false;
+    for (var i = 1; i < p.length; i++) { var r = p[i] / p[i - 1]; if (r > 1.5 || r < 0.5) return false; }
+    return true;
+  }
+  var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M8.5 12.2l2.5 2.5 4.5-5"/></svg>';
+  function vbadge(x, label, tip) { return verified(x) ? '<span class="verified" title="' + esc(tip) + '">' + CHECK + esc(label) + "</span>" : ""; }
+
+  /* Copertina: foto ufficiale se c'è, altrimenti sfumatura generata nei colori del marchio. */
+  function cover(x, size, badge) {
+    var c = brandColors(x.brand), img = "";
+    if (x.image) {
+      var url = String(x.image).replace(/w=\d+/, "w=" + (size === "l" ? 900 : 480)).replace(/h=\d+/, "h=" + (size === "l" ? 640 : 340));
+      img = '<img src="' + esc(url) + '" alt="' + esc(x.title) + '" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">';
+    }
+    return '<div class="cover" style="--c1:' + c[0] + ";--c2:" + c[1] + '"><span class="big" aria-hidden="true">' + esc(abbr(x.brand)) + "</span>" + img + (badge ? '<div class="tag">' + badge + "</div>" : "") + "</div>";
   }
 
   function spark(p, t) {
@@ -157,5 +167,5 @@
   }
 
   window.HWD = { esc: esc, normBrand: normBrand, brandRank: brandRank, BRAND_ORDER: BRAND_ORDER, parseTitle: parseTitle, money: money, pct: pct, change: change, stats: stats,
-    loadAll: loadAll, loadOne: loadOne, demoData: demoData, sneakerSVG: sneakerSVG, shoeImage: shoeImage, spark: spark, DAY: DAY };
+    loadAll: loadAll, loadOne: loadOne, demoData: demoData, bmark: bmark, bchip: bchip, verified: verified, vbadge: vbadge, cover: cover, brandColors: brandColors, spark: spark, DAY: DAY };
 })();
