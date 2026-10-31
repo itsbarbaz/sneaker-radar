@@ -18,6 +18,7 @@ Variabili d'ambiente:
 
 import json
 import os
+import re
 import sys
 import time
 from datetime import date
@@ -86,21 +87,60 @@ def reference_price_for(supabase, product_id):
     return sum(prices) / len(prices) if prices else None
 
 
+EXTRAS_OK = False  # diventa True se la tabella products ha le colonne extra
+
+
+def detect_extras(supabase):
+    """Controlla se products ha image_url, stockx_url, gender, release_year."""
+    global EXTRAS_OK
+    try:
+        supabase.table("products").select(
+            "image_url,stockx_url,gender,release_year"
+        ).limit(1).execute()
+        EXTRAS_OK = True
+    except Exception:
+        EXTRAS_OK = False
+    log("🖼️  Colonne foto/dettagli:", "presenti" if EXTRAS_OK else "assenti (si salvano solo i dati base)")
+
+
+def product_extras(product):
+    """Foto, link StockX semplice, genere e anno di uscita, se KicksDB li fornisce."""
+    year = None
+    for text in (product.get("secondary_title"), product.get("title")):
+        found = re.search(r"\((19|20)\d\d\)", text or "")
+        if found:
+            year = int(found.group(0).strip("()"))
+            break
+    slug = product.get("slug")
+    extras = {
+        "image_url": product.get("image") or None,
+        "stockx_url": ("https://stockx.com/" + slug) if slug else None,
+        "gender": product.get("gender") or None,
+        "release_year": year,
+    }
+    return {k: v for k, v in extras.items() if v is not None}
+
+
 def get_or_create_product(supabase, product):
     sku = product.get("sku")
-    existing = supabase.table("products").select("id").eq("sku", sku).execute()
+    columns = "id,image_url" if EXTRAS_OK else "id"
+    existing = supabase.table("products").select(columns).eq("sku", sku).execute()
     if existing.data:
-        return existing.data[0]["id"], True
-    created = (
-        supabase.table("products")
-        .insert({
-            "title": product.get("title"),
-            "brand": product.get("brand"),
-            "sku": sku,
-            "source": "kicksdb",
-        })
-        .execute()
-    )
+        row = existing.data[0]
+        if EXTRAS_OK and not row.get("image_url"):
+            extras = product_extras(product)
+            if extras:
+                supabase.table("products").update(extras).eq("id", row["id"]).execute()
+        return row["id"], True
+    new_row = {
+        "title": product.get("title"),
+        "brand": product.get("brand"),
+        "sku": sku,
+        "source": "kicksdb",
+    }
+    if EXTRAS_OK:
+        new_row.update(product_extras(product))
+    created = supabase.table("products").insert(new_row).execute()
     if not created.data:
         raise RuntimeError("Product insert failed for sku " + str(sku))
     return created.data[0]["id"], False
@@ -188,6 +228,7 @@ def main():
             os.environ["SUPABASE_URL"], os.environ["SUPABASE_SECRET_KEY"]
         )
         log("🔥 Supabase connected!")
+        detect_extras(supabase)
     else:
         log("🧪 DRY_RUN: nessuna scrittura su Supabase")
 

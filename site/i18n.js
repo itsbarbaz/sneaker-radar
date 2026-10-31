@@ -233,5 +233,7 @@
     apply();
   }
 
-  window.HW = { t: t, locale: locale, set: set, apply: apply, mount: mount };
+  function add(code, obj) { D[code] = Object.assign(D[code] || {}, obj); }
+  function f(key, vars) { return t(key).replace(/\{(\w+)\}/g, function (m, k) { return vars && vars[k] != null ? vars[k] : m; }); }
+  window.HW = { t: t, f: f, add: add, locale: locale, set: set, apply: apply, mount: mount, lang: function () { return lang; } };
 })();

@@ -1,0 +1,117 @@
+/* Hypewise: testi delle pagine Prezzi e Scheda nelle 5 lingue. */
+HW.add("en", {
+  "b.models": "Models: {n}", "b.hint": "Pick a brand or open any sneaker for the full chart.",
+  "d.back": "All sneakers", "d.price": "Current price", "d.chg7": "7-day change", "d.chgAll": "Since first reading",
+  "d.r7": "7D", "d.r30": "30D", "d.rAll": "All", "d.chart": "Price history (USD)",
+  "d.low": "Lowest", "d.high": "Highest", "d.avg": "Average", "d.reads": "Readings",
+  "d.story": "How the price moved", "d.specs": "Details",
+  "d.brand": "Brand", "d.model": "Name", "d.year": "Release year", "d.fit": "Fit", "d.cat": "Category", "d.catv": "Sneakers",
+  "d.src": "Source", "d.srcv": "StockX, via KicksDB", "d.cur": "Currency", "d.first": "First reading", "d.last": "Latest reading",
+  "fit.men": "Men's", "fit.women": "Women's", "fit.gs": "Grade school (GS)", "fit.ps": "Preschool (PS)", "fit.td": "Toddler (TD)", "fit.na": "Not specified",
+  "d.other": "Compare on other sites", "d.otherp": "Open this pair on other marketplaces. Prices there are not shown here.",
+  "d.sig": "Hypewise signal", "d.sigp": "Coming soon: Cop, Wait or Sell, with the reason written underneath.",
+  "d.imgnote": "Illustration. The official photo appears when available.",
+  "d.notfound": "We could not find this sneaker.", "d.loading": "Loading…", "d.table": "Show all readings", "d.date": "Date", "d.pricecol": "Price (USD)",
+  "d.vsprev": "vs previous reading", "d.nochart": "One reading so far. The chart appears after a second one.",
+  "st.one": "Only one price reading so far ({price} on {date}). Trend charts need at least two readings.",
+  "st.intro": "Hypewise has {n} price readings for this pair, from {d1} to {d2}.",
+  "st.up": "Overall the price rose {pct}, from {p1} to {p2}.", "st.down": "Overall the price fell {pct}, from {p1} to {p2}.",
+  "st.flat": "Overall the price barely moved, from {p1} to {p2}.",
+  "st.hl": "The highest reading was {max} on {dmax}, and the lowest was {min} on {dmin}.",
+  "st.rup": "In the latest readings the price is rising.", "st.rdown": "In the latest readings the price is falling.", "st.rflat": "In the latest readings the price is moving sideways.",
+  "st.few": "With so few readings, treat this trend with caution."
+});
+HW.add("es", {
+  "b.models": "Modelos: {n}", "b.hint": "Elige una marca o abre cualquier zapatilla para ver el gráfico completo.",
+  "d.back": "Todas las zapatillas", "d.price": "Precio actual", "d.chg7": "Variación a 7 días", "d.chgAll": "Desde la primera lectura",
+  "d.r7": "7D", "d.r30": "30D", "d.rAll": "Todo", "d.chart": "Historial de precios (USD)",
+  "d.low": "Mínimo", "d.high": "Máximo", "d.avg": "Media", "d.reads": "Lecturas",
+  "d.story": "Cómo se ha movido el precio", "d.specs": "Detalles",
+  "d.brand": "Marca", "d.model": "Nombre", "d.year": "Año de lanzamiento", "d.fit": "Público", "d.cat": "Categoría", "d.catv": "Zapatillas",
+  "d.src": "Fuente", "d.srcv": "StockX, vía KicksDB", "d.cur": "Moneda", "d.first": "Primera lectura", "d.last": "Última lectura",
+  "fit.men": "Hombre", "fit.women": "Mujer", "fit.gs": "Júnior (GS)", "fit.ps": "Preescolar (PS)", "fit.td": "Bebé (TD)", "fit.na": "No especificado",
+  "d.other": "Compara en otras webs", "d.otherp": "Abre este par en otros marketplaces. Los precios de allí no se muestran aquí.",
+  "d.sig": "Señal de Hypewise", "d.sigp": "Próximamente: Cop, Espera o Sell, con el motivo escrito debajo.",
+  "d.imgnote": "Ilustración. La foto oficial aparecerá cuando esté disponible.",
+  "d.notfound": "No hemos encontrado esta zapatilla.", "d.loading": "Cargando…", "d.table": "Ver todas las lecturas", "d.date": "Fecha", "d.pricecol": "Precio (USD)",
+  "d.vsprev": "frente a la lectura anterior", "d.nochart": "Solo hay una lectura. El gráfico aparece con la segunda.",
+  "st.one": "Solo hay una lectura de precio ({price} el {date}). Los gráficos de tendencia necesitan al menos dos lecturas.",
+  "st.intro": "Hypewise tiene {n} lecturas de precio de este par, del {d1} al {d2}.",
+  "st.up": "En conjunto el precio subió un {pct}, de {p1} a {p2}.", "st.down": "En conjunto el precio bajó un {pct}, de {p1} a {p2}.",
+  "st.flat": "En conjunto el precio apenas se movió, de {p1} a {p2}.",
+  "st.hl": "La lectura más alta fue {max} el {dmax}, y la más baja {min} el {dmin}.",
+  "st.rup": "En las últimas lecturas el precio está subiendo.", "st.rdown": "En las últimas lecturas el precio está bajando.", "st.rflat": "En las últimas lecturas el precio se mueve de lado.",
+  "st.few": "Con tan pocas lecturas, toma esta tendencia con cautela."
+});
+HW.add("fr", {
+  "b.models": "Modèles : {n}", "b.hint": "Choisis une marque ou ouvre une sneaker pour voir le graphique complet.",
+  "d.back": "Toutes les sneakers", "d.price": "Prix actuel", "d.chg7": "Variation sur 7 jours", "d.chgAll": "Depuis le premier relevé",
+  "d.r7": "7J", "d.r30": "30J", "d.rAll": "Tout", "d.chart": "Historique des prix (USD)",
+  "d.low": "Plus bas", "d.high": "Plus haut", "d.avg": "Moyenne", "d.reads": "Relevés",
+  "d.story": "Comment le prix a évolué", "d.specs": "Détails",
+  "d.brand": "Marque", "d.model": "Nom", "d.year": "Année de sortie", "d.fit": "Public", "d.cat": "Catégorie", "d.catv": "Sneakers",
+  "d.src": "Source", "d.srcv": "StockX, via KicksDB", "d.cur": "Devise", "d.first": "Premier relevé", "d.last": "Dernier relevé",
+  "fit.men": "Homme", "fit.women": "Femme", "fit.gs": "Junior (GS)", "fit.ps": "Enfant (PS)", "fit.td": "Bébé (TD)", "fit.na": "Non précisé",
+  "d.other": "Comparer sur d'autres sites", "d.otherp": "Ouvre cette paire sur d'autres places de marché. Leurs prix ne sont pas affichés ici.",
+  "d.sig": "Signal Hypewise", "d.sigp": "Bientôt : Cop, Attends ou Sell, avec la raison écrite dessous.",
+  "d.imgnote": "Illustration. La photo officielle s'affichera quand elle sera disponible.",
+  "d.notfound": "Nous n'avons pas trouvé cette sneaker.", "d.loading": "Chargement…", "d.table": "Afficher tous les relevés", "d.date": "Date", "d.pricecol": "Prix (USD)",
+  "d.vsprev": "par rapport au relevé précédent", "d.nochart": "Un seul relevé pour l'instant. Le graphique apparaît au deuxième.",
+  "st.one": "Un seul relevé de prix pour l'instant ({price} le {date}). Un graphique de tendance demande au moins deux relevés.",
+  "st.intro": "Hypewise a {n} relevés de prix pour cette paire, du {d1} au {d2}.",
+  "st.up": "Au total, le prix a augmenté de {pct}, de {p1} à {p2}.", "st.down": "Au total, le prix a baissé de {pct}, de {p1} à {p2}.",
+  "st.flat": "Au total, le prix a à peine bougé, de {p1} à {p2}.",
+  "st.hl": "Le relevé le plus haut était de {max} le {dmax}, et le plus bas de {min} le {dmin}.",
+  "st.rup": "Sur les derniers relevés, le prix monte.", "st.rdown": "Sur les derniers relevés, le prix baisse.", "st.rflat": "Sur les derniers relevés, le prix stagne.",
+  "st.few": "Avec si peu de relevés, prends cette tendance avec prudence."
+});
+HW.add("it", {
+  "b.models": "Modelli: {n}", "b.hint": "Scegli un marchio o apri una scarpa per vedere il grafico completo.",
+  "d.back": "Tutte le sneaker", "d.price": "Prezzo attuale", "d.chg7": "Variazione a 7 giorni", "d.chgAll": "Dalla prima rilevazione",
+  "d.r7": "7G", "d.r30": "30G", "d.rAll": "Tutto", "d.chart": "Storico prezzi (USD)",
+  "d.low": "Minimo", "d.high": "Massimo", "d.avg": "Media", "d.reads": "Rilevazioni",
+  "d.story": "Come si è mosso il prezzo", "d.specs": "Dettagli",
+  "d.brand": "Marchio", "d.model": "Nome", "d.year": "Anno di uscita", "d.fit": "Taglia/pubblico", "d.cat": "Categoria", "d.catv": "Sneaker",
+  "d.src": "Fonte", "d.srcv": "StockX, tramite KicksDB", "d.cur": "Valuta", "d.first": "Prima rilevazione", "d.last": "Ultima rilevazione",
+  "fit.men": "Uomo", "fit.women": "Donna", "fit.gs": "Ragazzo (GS)", "fit.ps": "Bambino (PS)", "fit.td": "Neonato (TD)", "fit.na": "Non indicato",
+  "d.other": "Confronta su altri siti", "d.otherp": "Apri questa scarpa su altri marketplace. I prezzi di quei siti qui non sono mostrati.",
+  "d.sig": "Segnale Hypewise", "d.sigp": "In arrivo: Cop, Aspetta o Sell, con il motivo scritto sotto.",
+  "d.imgnote": "Illustrazione. La foto ufficiale compare quando è disponibile.",
+  "d.notfound": "Non abbiamo trovato questa scarpa.", "d.loading": "Caricamento…", "d.table": "Mostra tutte le rilevazioni", "d.date": "Data", "d.pricecol": "Prezzo (USD)",
+  "d.vsprev": "rispetto alla rilevazione precedente", "d.nochart": "Per ora c'è una sola rilevazione. Il grafico compare con la seconda.",
+  "st.one": "Per ora c'è una sola rilevazione di prezzo ({price} il {date}). Servono almeno due rilevazioni per un grafico di andamento.",
+  "st.intro": "Hypewise ha {n} rilevazioni di prezzo per questa scarpa, dal {d1} al {d2}.",
+  "st.up": "In totale il prezzo è salito del {pct}, da {p1} a {p2}.", "st.down": "In totale il prezzo è sceso del {pct}, da {p1} a {p2}.",
+  "st.flat": "In totale il prezzo si è mosso pochissimo, da {p1} a {p2}.",
+  "st.hl": "La rilevazione più alta è stata {max} il {dmax}, la più bassa {min} il {dmin}.",
+  "st.rup": "Nelle ultime rilevazioni il prezzo sta salendo.", "st.rdown": "Nelle ultime rilevazioni il prezzo sta scendendo.", "st.rflat": "Nelle ultime rilevazioni il prezzo è fermo.",
+  "st.few": "Con così poche rilevazioni, prendi questo andamento con cautela."
+});
+HW.add("ru", {
+  "b.models": "Моделей: {n}", "b.hint": "Выбери бренд или открой любую пару, чтобы увидеть полный график.",
+  "d.back": "Все кроссовки", "d.price": "Текущая цена", "d.chg7": "Изменение за 7 дней", "d.chgAll": "С первого замера",
+  "d.r7": "7 д", "d.r30": "30 д", "d.rAll": "Всё", "d.chart": "История цены (USD)",
+  "d.low": "Минимум", "d.high": "Максимум", "d.avg": "Среднее", "d.reads": "Замеров",
+  "d.story": "Как менялась цена", "d.specs": "Характеристики",
+  "d.brand": "Бренд", "d.model": "Название", "d.year": "Год выпуска", "d.fit": "Для кого", "d.cat": "Категория", "d.catv": "Кроссовки",
+  "d.src": "Источник", "d.srcv": "StockX, через KicksDB", "d.cur": "Валюта", "d.first": "Первый замер", "d.last": "Последний замер",
+  "fit.men": "Мужские", "fit.women": "Женские", "fit.gs": "Подростковые (GS)", "fit.ps": "Детские (PS)", "fit.td": "Для малышей (TD)", "fit.na": "Не указано",
+  "d.other": "Сравнить на других сайтах", "d.otherp": "Открой эту пару на других маркетплейсах. Их цены здесь не показываются.",
+  "d.sig": "Сигнал Hypewise", "d.sigp": "Скоро: Cop, Жди или Sell, с причиной ниже.",
+  "d.imgnote": "Иллюстрация. Официальное фото появится, когда будет доступно.",
+  "d.notfound": "Мы не нашли эту пару.", "d.loading": "Загрузка…", "d.table": "Показать все замеры", "d.date": "Дата", "d.pricecol": "Цена (USD)",
+  "d.vsprev": "к предыдущему замеру", "d.nochart": "Пока только один замер. График появится после второго.",
+  "st.one": "Пока только один замер цены ({price}, {date}). Для графика динамики нужно минимум два замера.",
+  "st.intro": "У Hypewise {n} замеров цены для этой пары, с {d1} по {d2}.",
+  "st.up": "В целом цена выросла на {pct}: с {p1} до {p2}.", "st.down": "В целом цена снизилась на {pct}: с {p1} до {p2}.",
+  "st.flat": "В целом цена почти не изменилась: с {p1} до {p2}.",
+  "st.hl": "Самый высокий замер был {max} ({dmax}), самый низкий {min} ({dmin}).",
+  "st.rup": "По последним замерам цена растёт.", "st.rdown": "По последним замерам цена снижается.", "st.rflat": "По последним замерам цена стоит на месте.",
+  "st.few": "При таком малом числе замеров относись к этому тренду осторожно."
+});
+HW.add("en", {"b.h1": "Sneaker prices", "nav.home": "Home", "nav.prices": "Prices", "fit.unisex": "Unisex", "fit.kids": "Kids"});
+HW.add("es", {"b.h1": "Precios de zapatillas", "nav.home": "Inicio", "nav.prices": "Precios", "fit.unisex": "Unisex", "fit.kids": "Niños"});
+HW.add("fr", {"b.h1": "Prix des sneakers", "nav.home": "Accueil", "nav.prices": "Prix", "fit.unisex": "Unisexe", "fit.kids": "Enfant"});
+HW.add("it", {"b.h1": "Prezzi delle sneaker", "nav.home": "Home", "nav.prices": "Prezzi", "fit.unisex": "Unisex", "fit.kids": "Bambino"});
+HW.add("ru", {"b.h1": "Цены на кроссовки", "nav.home": "Главная", "nav.prices": "Цены", "fit.unisex": "Унисекс", "fit.kids": "Детские"});
+HW.add("en", {"d.sku": "SKU"}); HW.add("es", {"d.sku": "SKU"}); HW.add("fr", {"d.sku": "SKU"}); HW.add("it", {"d.sku": "SKU"}); HW.add("ru", {"d.sku": "Артикул (SKU)"});

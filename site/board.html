@@ -1,199 +1,141 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Hypewise Prices</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Public+Sans:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&display=swap">
 <style>
-/* Layout: one dense price board. Masthead, stat strip, filter bar, then a ledger of shoes with a sparkline each. */
-:root{
-  --bg:#f3f1ed; --surface:#fbfaf8; --ink:#1b1a18; --muted:#6d6a63; --line:#dedad2;
-  --accent:#e2461c; --up:#14804a; --down:#c2262e;
-  --display:"Familjen Grotesk",system-ui,sans-serif; --body:"Public Sans",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
-}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12110f;--surface:#1a1917;--ink:#efece6;--muted:#9a968d;--line:#2d2b27;--accent:#ff6a3d;--up:#3fc27d;--down:#ff6b72;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#12110f;--surface:#1a1917;--ink:#efece6;--muted:#9a968d;--line:#2d2b27;--accent:#ff6a3d;--up:#3fc27d;--down:#ff6b72;color-scheme:dark}
-*{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;
-  padding-block:24px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
-header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:14px}
-h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,6vw,46px);line-height:1;letter-spacing:-.02em;margin:0;text-wrap:balance}
-h1 span{color:var(--accent)}
-h1 a.home{color:inherit;text-decoration:none}
-.sub{color:var(--muted);margin:6px 0 0;max-width:46ch}
-.stamp{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
-.langsel{font:inherit;font-size:13px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
-.demo{font-family:var(--mono);font-size:12px;border:1px dashed var(--accent);color:var(--accent);padding:8px 12px;border-radius:4px}
+/* Layout: nav, page title, three figures, filters, then one section per brand with a grid of sneaker cards. */
+h1{font-family:var(--display);font-weight:700;font-size:clamp(32px,6vw,48px);line-height:1;letter-spacing:-.025em;margin:0}
+.sub{color:var(--muted);margin:8px 0 0;max-width:56ch}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
-.stat{padding:2px 0 2px 12px;border-left:3px solid var(--line)}
+.stat{padding:2px 0 2px 12px;border-left:3px solid var(--accent)}
 .stat b{display:block;font-family:var(--mono);font-weight:500;font-size:26px;font-variant-numeric:tabular-nums}
 .stat small{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
-.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.chip,select,input[type=search]{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 12px}
-.chip{cursor:pointer}
-.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-input[type=search]{flex:1;min-width:160px}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.ledger{border-top:1px solid var(--line)}
-.row{display:grid;grid-template-columns:minmax(0,1fr) 120px 96px 92px;gap:16px;align-items:center;padding:14px 4px;border-bottom:1px solid var(--line)}
-.name{min-width:0}
-.name b{display:block;font-family:var(--display);font-weight:600;font-size:17px;line-height:1.25;overflow-wrap:anywhere}
-.name span{font-family:var(--mono);font-size:12px;color:var(--muted)}
-.price{font-family:var(--mono);font-size:18px;text-align:right;font-variant-numeric:tabular-nums}
-.chg{font-family:var(--mono);font-size:13px;text-align:right;font-variant-numeric:tabular-nums}
-.up{color:var(--up)}.down{color:var(--down)}.flat{color:var(--muted)}
-svg.spark{width:120px;height:34px;display:block}
+.tools{display:flex;flex-direction:column;gap:12px}
+.tools .row1{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input[type=search]{flex:1;min-width:180px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips .chip .n{opacity:.6;margin-left:6px;font-family:var(--mono);font-size:12px}
+.brandsec{display:flex;flex-direction:column;gap:16px;scroll-margin-top:16px}
+.brandsec>header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:8px}
+.brandsec h2{font-family:var(--display);font-size:clamp(24px,4vw,32px);margin:0;letter-spacing:-.02em}
+.brandsec header span{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+.scard{display:flex;flex-direction:column;gap:12px;text-decoration:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;min-width:0}
+.scard:hover{border-color:var(--accent)}
+.scard .body{display:flex;flex-direction:column;gap:2px;min-width:0;padding:0 4px 4px}
+.scard b{font-family:var(--display);font-weight:600;font-size:17px;line-height:1.25;overflow-wrap:anywhere}
+.scard .sku{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.scard .pr{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px}
+.scard .price{font-family:var(--mono);font-size:20px;font-variant-numeric:tabular-nums}
+.scard .chg{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;text-align:right}
+.scard svg.spark{margin-top:6px;max-width:100%}
 .empty{padding:40px 0;color:var(--muted);text-align:center}
-footer{color:var(--muted);font-size:12px}
-@media (max-width:560px){.row{grid-template-columns:minmax(0,1fr) auto;row-gap:6px}.row svg.spark{grid-column:1;width:100%}.row .chg{grid-column:2;grid-row:2}}
-@media (prefers-reduced-motion:no-preference){.row{transition:background .15s}.row:hover{background:var(--surface)}}
+@media (prefers-reduced-motion:no-preference){.scard{transition:transform .12s,border-color .12s}.scard:hover{transform:translateY(-2px)}}
 </style>
-
 </head><body data-title="b.title">
 <div class="wrap">
-  <header>
-    <div>
-      <h1><a href="./" class="home">Hype<span>wise</span></a></h1>
-      <p class="sub" data-i18n="b.sub"></p>
+  <nav>
+    <a class="mark" href="./">Hype<span>wise</span></a>
+    <div class="links">
+      <a href="./" data-i18n="nav.home">Home</a>
+      <a href="board.html" aria-current="page" data-i18n="nav.prices">Prices</a>
+      <select id="lang" class="langsel" aria-label="Language"></select>
     </div>
-    <div class="stamp"><select id="lang" class="langsel" aria-label="Language"></select><div id="stamp"></div></div>
+  </nav>
+
+  <header>
+    <h1 data-i18n="b.h1">Sneaker prices</h1>
+    <p class="sub" data-i18n="b.sub"></p>
   </header>
 
   <div class="demo" id="demo" data-i18n="b.demo" hidden></div>
-
   <section class="stats" id="stats" data-i18n-aria="b.summary"></section>
 
-  <div class="bar">
-    <input type="search" id="q" data-i18n-ph="b.search" data-i18n-aria="b.search">
-    <div class="bar" id="brands" role="group" data-i18n-aria="b.brand"></div>
-    <select id="sort" data-i18n-aria="b.sortlabel">
-      <option value="move" data-i18n="b.sort.move"></option>
-      <option value="price" data-i18n="b.sort.price"></option>
-      <option value="name" data-i18n="b.sort.name"></option>
-    </select>
+  <div class="tools">
+    <div class="row1">
+      <input type="search" id="q" data-i18n-ph="b.search" data-i18n-aria="b.search">
+      <select id="sort" data-i18n-aria="b.sortlabel">
+        <option value="move" data-i18n="b.sort.move"></option>
+        <option value="price" data-i18n="b.sort.price"></option>
+        <option value="name" data-i18n="b.sort.name"></option>
+      </select>
+    </div>
+    <div class="chips" id="brands" role="group" data-i18n-aria="b.brand"></div>
+    <p class="fine" id="stamp"></p>
   </div>
 
-  <section class="ledger" id="ledger" aria-live="polite"></section>
-  <footer data-i18n="b.foot"></footer>
+  <div id="list" aria-live="polite"></div>
+  <footer><p data-i18n="b.foot"></p></footer>
 </div>
 
 <script src="i18n.js"></script>
+<script src="strings.js"></script>
+<script src="app.js"></script>
 <script>
 HW.mount();
-// URL del progetto e chiave pubblica "anon" (mai la secret key).
-var SUPABASE_URL = "https://fbxvrrppskilblmszlvo.supabase.co";
-var SUPABASE_ANON_KEY = "sb_publishable_D1afxXoieLW5ORTAuqoytQ_MLrr7Viz"; // chiave pubblica, sola lettura
+var D = window.HWD, ALL = "__all__", state = { items: [], brand: ALL, demo: false, ready: false };
+var $ = function (id) { return document.getElementById(id); };
+var fromUrl = new URLSearchParams(location.search).get("brand"); if (fromUrl) state.brand = fromUrl;
 
-function demoData(){
-  var base=[["Jordan 4 Retro Black Cat","Jordan","CU1110-010",285],["Nike Dunk Low Panda","Nike","DD1391-100",118],
-    ["adidas Samba OG Cloud White","adidas","B75806",142],["New Balance 9060 Sea Salt","New Balance","U9060ECA",156],
-    ["ASICS Gel-1130 Cream Silver","ASICS","1201A256-107",131],["Jordan 11 Retro Gamma Blue","Jordan","378037-006",268],
-    ["Salomon XT-6 Black Phantom","Salomon","L41086000",196],["Saucony ProGrid Omni 9 Grey","Saucony","S70785-1",149],
-    ["adidas Campus 00s Core Black","adidas","HQ8708",98],["Nike Air Max 95 Neon","Nike","CT1689-001",172],
-    ["Converse Shai 001","Converse","A09123C",121],["Jordan 5 Retro Wolf Grey","Jordan","DD0587-100",205]];
-  return base.map(function(b,i){
-    var pts=[],p=b[3]*0.93,s=i*7+3;
-    for(var d=0;d<30;d++){s=(s*9301+49297)%233280;p+= (s/233280-0.44)*b[3]*0.03;pts.push(Math.round(p));}
-    var now=Date.now(),times=pts.map(function(_,k){return now-(pts.length-1-k)*864e5});
-    return {title:b[0],brand:b[1],sku:b[2],prices:pts,times:times};
-  });
+function render() {
+  var q = $("q").value.trim().toLowerCase(), sort = $("sort").value, loc = HW.locale();
+  var rows = state.items.filter(function (x) { return !q || (x.title + " " + x.sku).toLowerCase().indexOf(q) > -1; })
+    .map(function (x) { return Object.assign({}, x, { price: x.prices[x.prices.length - 1], chg: D.change(x, 7) }); });
+  var out = $("list");
+  if (!rows.length) { out.innerHTML = '<div class="empty">' + D.esc(HW.t(state.items.length ? "b.nomatch" : "b.nodata")) + "</div>"; return; }
+  var by = {};
+  rows.forEach(function (x) { (by[x.brand] = by[x.brand] || []).push(x); });
+  var brands = Object.keys(by).sort(function (a, b) { return D.brandRank(a) - D.brandRank(b) || a.localeCompare(b); });
+  if (state.brand !== ALL) brands = brands.filter(function (b) { return b === state.brand; });
+  out.innerHTML = '<div style="display:flex;flex-direction:column;gap:48px">' + brands.map(function (b) {
+    var list = by[b].sort(function (a, c) {
+      return sort === "price" ? c.price - a.price : sort === "name" ? a.title.localeCompare(c.title)
+        : (c.chg === null ? -1 : Math.abs(c.chg)) - (a.chg === null ? -1 : Math.abs(a.chg));
+    });
+    return '<section class="brandsec" id="brand-' + D.esc(b.replace(/\s+/g, "-")) + '"><header><h2>' + D.esc(b) + "</h2><span>" + D.esc(HW.f("b.models", { n: list.length })) + '</span></header><div class="grid">' +
+      list.map(function (x) {
+        var none = x.chg === null, cls = none ? "flat" : x.chg > 0.05 ? "up" : x.chg < -0.05 ? "down" : "flat";
+        return '<a class="scard" href="shoe.html?sku=' + encodeURIComponent(x.sku) + '">' + D.shoeImage(x, "s") +
+          '<div class="body"><b>' + D.esc(x.title) + '</b><span class="sku">' + D.esc(x.sku) + "</span>" +
+          '<div class="pr"><span class="price">' + D.money(x.price) + '</span><span class="chg ' + cls + '">' + (none ? D.esc(HW.t("b.collecting")) : D.pct(x.chg, loc)) + "</span></div>" +
+          D.spark(x.prices, x.times) + "</div></a>";
+      }).join("") + "</div></section>";
+  }).join("") + "</div>";
 }
 
-async function api(path){
-  var r=await fetch(SUPABASE_URL+"/rest/v1/"+path,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+SUPABASE_ANON_KEY}});
-  if(!r.ok) throw new Error("HTTP "+r.status+" su "+path.split("?")[0]);
-  return r.json();
-}
-
-async function apiAll(path){
-  // Supabase restituisce al massimo 1000 righe per richiesta: leggo a pagine.
-  var out=[],step=1000;
-  for(var from=0;from<200000;from+=step){
-    var rows=await api(path+"&limit="+step+"&offset="+from);
-    out=out.concat(rows);
-    if(rows.length<step) break;
-  }
-  return out;
-}
-
-async function liveData(){
-  var products=await apiAll("products?select=id,title,brand,sku&order=id.asc");
-  var history=await apiAll("price_history?select=product_id,price,created_at&order=created_at.asc,id.asc");
-  var byId={};
-  history.forEach(function(h){
-    var v=Number(h.price); if(!(v>0)) return;
-    var e=byId[h.product_id]=byId[h.product_id]||{prices:[],times:[]};
-    e.prices.push(v); e.times.push(Date.parse(h.created_at));
-  });
-  return products.filter(function(p){return byId[p.id]}).map(function(p){
-    return {title:p.title,brand:p.brand,sku:p.sku,prices:byId[p.id].prices,times:byId[p.id].times};
-  });
-}
-
-var ALL="__all__";
-var state={items:[],brand:ALL};
-var usd=new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0});
-
-// Variazione sugli ultimi 7 giorni. Senza almeno due prezzi a giorni diversi restituisce null.
-function change(x){
-  var p=x.prices,t=x.times; if(!p||p.length<2) return null;
-  var last=p.length-1, target=t[last]-7*864e5, ref=0;
-  for(var i=0;i<last;i++){ if(Math.abs(t[i]-target)<Math.abs(t[ref]-target)) ref=i; }
-  if(t[last]-t[ref]<5*36e5 || !p[ref]) return null;
-  return (p[last]-p[ref])/p[ref]*100;
-}
-function spark(p){
-  var w=120,h=34; if(p.length<2) return '<svg class="spark" viewBox="0 0 '+w+' '+h+'"></svg>';
-  var mn=Math.min.apply(null,p),mx=Math.max.apply(null,p),rg=(mx-mn)||1;
-  var pts=p.map(function(v,i){return [(i/(p.length-1))*(w-6)+3,h-4-((v-mn)/rg)*(h-8)]});
-  var d=pts.map(function(q,i){return (i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)}).join(" ");
-  var last=pts[pts.length-1], c=p[p.length-1]>=p[0]?"var(--up)":"var(--down)";
-  return '<svg class="spark" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="'+esc(HW.t("b.spark"))+'"><path d="'+d+'" fill="none" stroke="'+c+'" stroke-width="1.75" stroke-linejoin="round" stroke-linecap="round"/><circle cx="'+last[0].toFixed(1)+'" cy="'+last[1].toFixed(1)+'" r="2.6" fill="'+c+'"/></svg>';
-}
-function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
-
-function render(){
-  var q=document.getElementById("q").value.trim().toLowerCase(), sort=document.getElementById("sort").value;
-  var list=state.items.filter(function(x){
-    return (state.brand===ALL||x.brand===state.brand)&&(!q||(x.title+" "+x.sku).toLowerCase().indexOf(q)>-1);
-  }).map(function(x){return Object.assign({},x,{price:x.prices[x.prices.length-1],chg:change(x)})});
-  list.sort(function(a,b){return sort==="price"?b.price-a.price:sort==="name"?a.title.localeCompare(b.title):(b.chg===null?-1:Math.abs(b.chg))-(a.chg===null?-1:Math.abs(a.chg))});
-  var el=document.getElementById("ledger");
-  if(!list.length){el.innerHTML='<div class="empty">'+esc(HW.t(state.items.length?"b.nomatch":"b.nodata"))+'</div>';return}
-  el.innerHTML=list.map(function(x){
-    var none=x.chg===null, cls=none?"flat":x.chg>0.05?"up":x.chg<-0.05?"down":"flat", sign=!none&&x.chg>0?"+":"";
-    return '<div class="row"><div class="name"><b>'+esc(x.title)+'</b><span>'+esc(x.brand)+' · '+esc(x.sku)+'</span></div>'+spark(x.prices)+
-      '<div class="price">'+usd.format(x.price)+'</div><div class="chg '+cls+'">'+(none?esc(HW.t('b.collecting')):sign+x.chg.toLocaleString(HW.locale(),{minimumFractionDigits:1,maximumFractionDigits:1})+'%')+'</div></div>';
+function chips() {
+  var counts = {}; state.items.forEach(function (x) { counts[x.brand] = (counts[x.brand] || 0) + 1; });
+  var brands = Object.keys(counts).sort(function (a, b) { return D.brandRank(a) - D.brandRank(b) || a.localeCompare(b); });
+  $("brands").innerHTML = [ALL].concat(brands).map(function (b) {
+    return '<button type="button" class="chip" aria-pressed="' + (b === state.brand) + '" data-b="' + D.esc(b) + '">' + D.esc(b === ALL ? HW.t("b.all") : b) +
+      (b === ALL ? "" : '<span class="n">' + counts[b] + "</span>") + "</button>";
   }).join("");
 }
 
-function setup(items,isDemo){
-  state.items=items; state.demo=isDemo; state.loaded=true;
-  document.getElementById("demo").hidden=!isDemo;
-  var brands=[ALL].concat(Array.from(new Set(items.map(function(x){return x.brand}))).sort());
-  document.getElementById("brands").innerHTML=brands.map(function(b){return '<button type="button" class="chip" aria-pressed="'+(b===state.brand)+'" data-b="'+esc(b)+'">'+esc(b===ALL?HW.t("b.all"):b)+'</button>'}).join("");
-  var movers=items.filter(function(x){return change(x)!==null&&Math.abs(change(x))>=5}).length;
-  document.getElementById("stats").innerHTML=
-    '<div class="stat"><b>'+items.length+'</b><small>'+esc(HW.t('b.stat1'))+'</small></div>'+
-    '<div class="stat"><b>'+(brands.length-1)+'</b><small>'+esc(HW.t('b.stat2'))+'</small></div>'+
-    '<div class="stat"><b>'+movers+'</b><small>'+esc(HW.t('b.stat3'))+'</small></div>';
-  document.getElementById("stamp").textContent=HW.t("b.updated")+" "+new Date().toLocaleDateString(HW.locale(),{day:"numeric",month:"long",year:"numeric"});
-  render();
+function setup(items, demo) {
+  state.items = items; state.demo = demo; state.ready = true;
+  $("demo").hidden = !demo;
+  var brands = {}; items.forEach(function (x) { brands[x.brand] = 1; });
+  var movers = items.filter(function (x) { var c = D.change(x, 7); return c !== null && Math.abs(c) >= 5; }).length;
+  $("stats").innerHTML =
+    '<div class="stat"><b>' + items.length + "</b><small>" + D.esc(HW.t("b.stat1")) + "</small></div>" +
+    '<div class="stat"><b>' + Object.keys(brands).length + "</b><small>" + D.esc(HW.t("b.stat2")) + "</small></div>" +
+    '<div class="stat"><b>' + movers + "</b><small>" + D.esc(HW.t("b.stat3")) + "</small></div>";
+  var last = items.reduce(function (m, x) { return Math.max(m, x.times[x.times.length - 1]); }, 0);
+  $("stamp").textContent = last ? HW.t("b.updated") + " " + new Date(last).toLocaleDateString(HW.locale(), { day: "numeric", month: "long", year: "numeric" }) : "";
+  chips(); render();
 }
 
-document.getElementById("brands").addEventListener("click",function(e){
-  var b=e.target.closest("button"); if(!b) return; state.brand=b.dataset.b;
-  Array.prototype.forEach.call(this.children,function(c){c.setAttribute("aria-pressed",String(c===b))}); render();
-});
-document.getElementById("q").addEventListener("input",render);
-document.getElementById("sort").addEventListener("change",render);
-document.addEventListener("hw-lang",function(){ if(state.items.length||state.loaded){ setup(state.items,state.demo); } });
+$("brands").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; state.brand = b.dataset.b; chips(); render(); });
+$("q").addEventListener("input", render);
+$("sort").addEventListener("change", render);
+document.addEventListener("hw-lang", function () { if (state.ready) setup(state.items, state.demo); });
 
-(async function(){
-  if(SUPABASE_URL&&SUPABASE_ANON_KEY){
-    try{ var live=await liveData(); if(live.length){ setup(live,false); } else { setup([],false); render(); } return; }catch(e){ console.warn("Supabase unreachable, showing sample data",e); }
-  }
-  setup(demoData(),true);
+(async function () {
+  try { setup(await D.loadAll(), false); }
+  catch (e) { console.warn("Supabase unreachable, showing sample data", e); setup(D.demoData(), true); }
 })();
 </script>
 </body></html>

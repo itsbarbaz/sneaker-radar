@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hypewise</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: back link, a hero with the photo beside the price, one large chart card, four figures, then story + details side by side, links and signal below. */
+.back{font-size:14px;color:var(--muted);text-decoration:none}
+.back:hover{color:var(--ink)}
+.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:32px;align-items:center}
+.hero .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);text-decoration:none}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,5vw,44px);line-height:1.05;letter-spacing:-.025em;margin:6px 0 4px;text-wrap:balance}
+.sku{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.bigprice{font-family:var(--mono);font-weight:500;font-size:clamp(40px,7vw,60px);line-height:1;margin:22px 0 14px;font-variant-numeric:tabular-nums}
+.pills{display:flex;gap:10px;flex-wrap:wrap}
+.pill{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 12px;min-width:0}
+.pill small{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.pill b{font-family:var(--mono);font-weight:500;font-size:18px;font-variant-numeric:tabular-nums}
+.note{margin:10px 0 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.card h2{font-family:var(--display);font-size:20px;margin:0;letter-spacing:-.01em}
+.chart-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ranges{display:flex;gap:6px}
+.ranges .chip{padding:6px 12px}
+.ranges .chip:disabled{opacity:.4;cursor:default}
+#chart{position:relative;width:100%}
+#chart svg{display:block;width:100%;height:auto;overflow:visible}
+#chart text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.4;white-space:nowrap;transform:translate(-50%,-110%);z-index:2}
+.tip b{font-family:var(--mono);font-weight:500;font-size:15px;display:block}
+.nochart{padding:40px 0;text-align:center;color:var(--muted)}
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.fig{border-left:3px solid var(--accent);padding-left:12px}
+.fig small{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.fig b{font-family:var(--mono);font-weight:500;font-size:22px;font-variant-numeric:tabular-nums}
+.fig span{display:block;font-size:12px;color:var(--muted)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.story p{margin:0 0 8px}
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:8px 20px;font-size:15px}
+dt{color:var(--muted)}
+dd{margin:0;text-align:right;overflow-wrap:anywhere}
+dd.mono{font-family:var(--mono);font-size:14px}
+.links{display:flex;gap:10px;flex-wrap:wrap}
+.signal{border-style:dashed}
+.signal .soon{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+details summary{cursor:pointer;color:var(--muted);font-size:14px}
+table{border-collapse:collapse;width:100%;margin-top:10px;font-size:14px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left}
+td:last-child,th:last-child{text-align:right;font-family:var(--mono)}
+.tablewrap{max-height:320px;overflow:auto}
+.empty{padding:60px 0;text-align:center;color:var(--muted)}
+@media (max-width:760px){.hero{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head><body>
+<div class="wrap">
+  <nav>
+    <a class="mark" href="./">Hype<span>wise</span></a>
+    <div class="links" style="gap:18px">
+      <a href="./" data-i18n="nav.home">Home</a>
+      <a href="board.html" data-i18n="nav.prices">Prices</a>
+      <select id="lang" class="langsel" aria-label="Language"></select>
+    </div>
+  </nav>
+  <a class="back" href="board.html">← <span data-i18n="d.back">All sneakers</span></a>
+  <div id="view"><div class="empty" data-i18n="d.loading">Loading…</div></div>
+  <footer><p data-i18n="foot1"></p><p data-i18n="foot2"></p></footer>
+</div>
+
+<script src="i18n.js"></script>
+<script src="strings.js"></script>
+<script src="app.js"></script>
+<script>
+HW.mount();
+var D = window.HWD, $ = function (id) { return document.getElementById(id); };
+var sku = new URLSearchParams(location.search).get("sku") || "";
+var shoe = null, range = "all", demo = false;
+
+function dateFmt(ms, long) { return new Date(ms).toLocaleDateString(HW.locale(), long ? { day: "numeric", month: "long", year: "numeric" } : { month: "short", day: "numeric" }); }
+
+function subset() {
+  var p = shoe.prices, t = shoe.times;
+  if (range === "all") return { prices: p, times: t };
+  var days = range === "7" ? 7 : 30, from = t[t.length - 1] - days * D.DAY, pr = [], tm = [];
+  for (var i = 0; i < p.length; i++) if (t[i] >= from) { pr.push(p[i]); tm.push(t[i]); }
+  return { prices: pr, times: tm };
+}
+
+function niceStep(raw) { var e = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / e; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * e; }
+
+function drawChart() {
+  var box = $("chart"), s = subset(), p = s.prices, t = s.times;
+  if (p.length < 2) { box.innerHTML = '<div class="nochart">' + D.esc(HW.t("d.nochart")) + "</div>"; return; }
+  var w = Math.max(280, box.clientWidth), h = Math.round(Math.max(230, Math.min(400, w * 0.5)));
+  var m = { l: 58, r: 14, t: 14, b: 30 }, iw = w - m.l - m.r, ih = h - m.t - m.b;
+  var mn = Math.min.apply(null, p), mx = Math.max.apply(null, p);
+  if (mx === mn) { mn *= 0.95; mx *= 1.05; }
+  var step = niceStep((mx - mn) / 4), y0 = Math.floor(mn / step) * step, y1 = Math.ceil(mx / step) * step;
+  var t0 = t[0], t1 = t[t.length - 1], tr = (t1 - t0) || 1;
+  var X = function (v) { return m.l + (v - t0) / tr * iw; }, Y = function (v) { return m.t + ih - (v - y0) / (y1 - y0) * ih; };
+  var grid = "", ticks = "";
+  for (var v = y0; v <= y1 + 1e-9; v += step) {
+    grid += '<line x1="' + m.l + '" x2="' + (w - m.r) + '" y1="' + Y(v).toFixed(1) + '" y2="' + Y(v).toFixed(1) + '" stroke="var(--line)"/>';
+    ticks += '<text x="' + (m.l - 8) + '" y="' + (Y(v) + 4).toFixed(1) + '" text-anchor="end">' + D.money(v) + "</text>";
+  }
+  var nx = Math.min(5, Math.max(2, Math.floor(iw / 90))), xl = "";
+  for (var i = 0; i < nx; i++) {
+    var tv = t0 + tr * i / (nx - 1), anchor = i === 0 ? "start" : i === nx - 1 ? "end" : "middle";
+    xl += '<text x="' + X(tv).toFixed(1) + '" y="' + (h - 8) + '" text-anchor="' + anchor + '">' + dateFmt(tv) + "</text>";
+  }
+  var pts = p.map(function (v, k) { return [X(t[k]), Y(v)]; });
+  var line = pts.map(function (q, k) { return (k ? "L" : "M") + q[0].toFixed(1) + " " + q[1].toFixed(1); }).join(" ");
+  var area = line + " L" + pts[pts.length - 1][0].toFixed(1) + " " + (m.t + ih) + " L" + pts[0][0].toFixed(1) + " " + (m.t + ih) + " Z";
+  var dots = p.length <= 60 ? pts.map(function (q) { return '<circle cx="' + q[0].toFixed(1) + '" cy="' + q[1].toFixed(1) + '" r="3.5" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>'; }).join("") : "";
+  var lp = pts[pts.length - 1];
+  box.innerHTML = '<svg viewBox="0 0 ' + w + " " + h + '" width="' + w + '" height="' + h + '" role="img" aria-label="' + D.esc(HW.t("d.chart")) + '">' +
+    '<defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--accent);stop-opacity:.28"/><stop offset="1" style="stop-color:var(--accent);stop-opacity:0"/></linearGradient></defs>' +
+    grid + ticks + xl + '<path d="' + area + '" fill="url(#ag)"/><path d="' + line + '" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>' + dots +
+    '<circle cx="' + lp[0].toFixed(1) + '" cy="' + lp[1].toFixed(1) + '" r="5.5" fill="var(--accent2)" stroke="var(--surface)" stroke-width="2"/>' +
+    '<line id="gl" y1="' + m.t + '" y2="' + (m.t + ih) + '" stroke="var(--muted)" stroke-dasharray="3 3" style="display:none"/>' +
+    '<circle id="gd" r="6" fill="var(--accent)" stroke="var(--surface)" stroke-width="2" style="display:none"/>' +
+    '<rect id="hit" x="' + m.l + '" y="' + m.t + '" width="' + iw + '" height="' + ih + '" fill="transparent" style="touch-action:pan-y"/></svg><div class="tip" id="tip" style="display:none"></div>';
+  var hit = $("hit"), gl = $("gl"), gd = $("gd"), tip = $("tip");
+  function show(ev) {
+    var r = box.getBoundingClientRect(), x = ev.clientX - r.left, best = 0;
+    for (var k = 1; k < pts.length; k++) if (Math.abs(pts[k][0] - x) < Math.abs(pts[best][0] - x)) best = k;
+    var q = pts[best];
+    gl.setAttribute("x1", q[0]); gl.setAttribute("x2", q[0]); gl.style.display = "";
+    gd.setAttribute("cx", q[0]); gd.setAttribute("cy", q[1]); gd.style.display = "";
+    var prev = best > 0 ? (p[best] - p[best - 1]) / p[best - 1] * 100 : null;
+    tip.innerHTML = D.esc(dateFmt(t[best], true)) + "<b>" + D.money(p[best]) + "</b>" + (prev === null ? "" : '<span style="opacity:.8">' + D.pct(prev, HW.locale()) + " " + D.esc(HW.t("d.vsprev")) + "</span>");
+    tip.style.display = ""; tip.style.left = Math.min(Math.max(q[0], 80), w - 80) + "px"; tip.style.top = q[1] + "px";
+  }
+  hit.addEventListener("pointermove", show); hit.addEventListener("pointerdown", show);
+  hit.addEventListener("pointerleave", function () { gl.style.display = "none"; gd.style.display = "none"; tip.style.display = "none"; });
+}
+
+function story(st) {
+  var loc = HW.locale(), L = [];
+  if (st.n < 2) return [HW.f("st.one", { price: D.money(st.last), date: dateFmt(st.tlast, true) }).replace(/\.\.$/, ".")];
+  L.push(HW.f("st.intro", { n: st.n, d1: dateFmt(st.tfirst, true), d2: dateFmt(st.tlast, true) }));
+  var tot = (st.last - st.first) / st.first * 100, abs = Math.abs(tot).toLocaleString(loc, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%";
+  L.push(HW.f(Math.abs(tot) < 1 ? "st.flat" : tot > 0 ? "st.up" : "st.down", { pct: abs, p1: D.money(st.first), p2: D.money(st.last) }));
+  L.push(HW.f("st.hl", { max: D.money(st.max), dmax: dateFmt(st.tmax, true), min: D.money(st.min), dmin: dateFmt(st.tmin, true) }));
+  if (st.n >= 3) {
+    var p = shoe.prices, base = (p[p.length - 2] + p[p.length - 3]) / 2, r = (st.last - base) / base * 100;
+    L.push(HW.t(r > 1.5 ? "st.rup" : r < -1.5 ? "st.rdown" : "st.rflat"));
+  }
+  if (st.n < 6) L.push(HW.t("st.few"));
+  return L.map(function (x) { return x.replace(/\.\.$/, "."); });
+}
+
+function row(k, v, mono) { return "<dt>" + D.esc(HW.t(k)) + "</dt><dd" + (mono ? ' class="mono"' : "") + ">" + D.esc(v) + "</dd>"; }
+
+function view() {
+  var loc = HW.locale(), x = shoe, st = D.stats(x), c7 = D.change(x, 7), tit = D.parseTitle(x.title, x.brand);
+  document.title = tit.name + " · Hypewise";
+  var fitKey = { men: "fit.men", women: "fit.women", kids: "fit.kids", unisex: "fit.unisex" }[x.gender] || (tit.fit ? "fit." + tit.fit : "fit.na");
+  var all = (st.last - st.first) / st.first * 100, hasAll = st.n > 1 && st.tlast - st.tfirst > 5 * 36e5;
+  var cls = function (v) { return v === null ? "flat" : v > 0.05 ? "up" : v < -0.05 ? "down" : "flat"; };
+  var q = encodeURIComponent(x.sku);
+  var stockx = x.link || ("https://stockx.com/search?s=" + q);
+  $("view").innerHTML =
+    '<div style="display:flex;flex-direction:column;gap:24px">' +
+    '<section class="hero"><div>' + D.shoeImage(x, "l") + (x.image ? "" : '<p class="fine note">' + D.esc(HW.t("d.imgnote")) + "</p>") + "</div><div>" +
+    '<a class="eyebrow" href="board.html?brand=' + encodeURIComponent(x.brand) + '">' + D.esc(x.brand) + "</a><h1>" + D.esc(tit.name) + '</h1><span class="sku">' + D.esc(x.sku) + "</span>" +
+    '<div class="bigprice">' + D.money(st.last) + '</div><div class="pills">' +
+    '<div class="pill"><small>' + D.esc(HW.t("d.chg7")) + '</small><b class="' + cls(c7) + '">' + (c7 === null ? "–" : D.pct(c7, loc)) + "</b></div>" +
+    '<div class="pill"><small>' + D.esc(HW.t("d.chgAll")) + '</small><b class="' + cls(hasAll ? all : null) + '">' + (hasAll ? D.pct(all, loc) : "–") + "</b></div></div></div></section>" +
+    '<section class="card"><div class="chart-head"><h2>' + D.esc(HW.t("d.chart")) + '</h2><div class="ranges">' +
+    ["7", "30", "all"].map(function (r) { var lab = HW.t(r === "7" ? "d.r7" : r === "30" ? "d.r30" : "d.rAll"); return '<button type="button" class="chip" data-r="' + r + '" aria-pressed="' + (r === range) + '">' + D.esc(lab) + "</button>"; }).join("") +
+    '</div></div><div id="chart"></div>' +
+    '<details><summary>' + D.esc(HW.t("d.table")) + '</summary><div class="tablewrap"><table><thead><tr><th>' + D.esc(HW.t("d.date")) + "</th><th>" + D.esc(HW.t("d.pricecol")) + "</th></tr></thead><tbody>" +
+    x.prices.map(function (v, i) { return "<tr><td>" + D.esc(dateFmt(x.times[i], true)) + "</td><td>" + D.money(v) + "</td></tr>"; }).reverse().join("") + "</tbody></table></div></details></section>" +
+    '<section class="figs">' +
+    '<div class="fig"><small>' + D.esc(HW.t("d.low")) + "</small><b>" + D.money(st.min) + "</b><span>" + D.esc(dateFmt(st.tmin, true)) + "</span></div>" +
+    '<div class="fig"><small>' + D.esc(HW.t("d.high")) + "</small><b>" + D.money(st.max) + "</b><span>" + D.esc(dateFmt(st.tmax, true)) + "</span></div>" +
+    '<div class="fig"><small>' + D.esc(HW.t("d.avg")) + "</small><b>" + D.money(st.avg) + "</b><span>&nbsp;</span></div>" +
+    '<div class="fig"><small>' + D.esc(HW.t("d.reads")) + "</small><b>" + st.n + "</b><span>&nbsp;</span></div></section>" +
+    '<section class="two"><div class="card story"><h2>' + D.esc(HW.t("d.story")) + "</h2>" + story(st).map(function (s) { return "<p>" + D.esc(s) + "</p>"; }).join("") + "</div>" +
+    '<div class="card"><h2>' + D.esc(HW.t("d.specs")) + "</h2><dl>" +
+    row("d.brand", x.brand) + row("d.model", tit.name) + row("d.year", x.year || tit.year || "–") + row("d.fit", HW.t(fitKey)) + row("d.cat", HW.t("d.catv")) + row("d.sku", x.sku, true) +
+    row("d.src", HW.t("d.srcv")) + row("d.cur", "USD") + row("d.first", dateFmt(st.tfirst, true)) + row("d.last", dateFmt(st.tlast, true)) + "</dl></div></section>" +
+    '<section class="two"><div class="card"><h2>' + D.esc(HW.t("d.other")) + '</h2><p class="fine" style="font-size:14px">' + D.esc(HW.t("d.otherp")) + '</p><div class="links">' +
+    '<a class="btn ghost" target="_blank" rel="noopener noreferrer" href="' + D.esc(stockx) + '">StockX</a>' +
+    '<a class="btn ghost" target="_blank" rel="noopener noreferrer" href="https://www.goat.com/search?query=' + q + '">GOAT</a>' +
+    '<a class="btn ghost" target="_blank" rel="noopener noreferrer" href="https://www.ebay.com/sch/i.html?_nkw=' + q + '">eBay</a></div></div>' +
+    '<div class="card signal"><span class="soon">' + D.esc(HW.t("sig.soon")) + "</span><h2>" + D.esc(HW.t("d.sig")) + '</h2><p class="fine" style="font-size:14px">' + D.esc(HW.t("d.sigp")) + "</p></div></section></div>";
+  Array.prototype.forEach.call(document.querySelectorAll(".ranges .chip"), function (b) {
+    var r = b.dataset.r;
+    if (r !== "all") { var days = Number(r), n = x.times.filter(function (tm) { return tm >= x.times[x.times.length - 1] - days * D.DAY; }).length; if (n < 2) b.disabled = true; }
+    b.addEventListener("click", function () { range = r; Array.prototype.forEach.call(document.querySelectorAll(".ranges .chip"), function (o) { o.setAttribute("aria-pressed", String(o === b)); }); drawChart(); });
+  });
+  drawChart();
+}
+
+function notFound() { $("view").innerHTML = '<div class="empty">' + D.esc(HW.t("d.notfound")) + "</div>"; }
+var rz; window.addEventListener("resize", function () { clearTimeout(rz); rz = setTimeout(function () { if (shoe) drawChart(); }, 120); });
+document.addEventListener("hw-lang", function () { if (shoe) view(); else if ($("view").querySelector(".empty")) notFound(); });
+
+(async function () {
+  if (!sku) return notFound();
+  try { shoe = await D.loadOne(sku); }
+  catch (e) { console.warn("Supabase unreachable, showing sample data", e); demo = true; shoe = D.demoData().filter(function (d) { return d.sku === sku; })[0] || null; }
+  if (shoe) view(); else notFound();
+})();
+</script>
+</body></html>
