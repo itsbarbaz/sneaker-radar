@@ -1,7 +1,7 @@
 <!doctype html>
-<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Hypewise</title>
-<meta name="description" content="Hypewise segue i prezzi di rivendita delle sneaker negli Stati Uniti e ti mostra quando comprare, aspettare o vendere.">
+<meta name="description" content="Hypewise tracks US sneaker resale prices and shows you when to buy, wait or sell.">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&display=swap">
 <style>
@@ -28,6 +28,7 @@ nav .links a:hover{color:var(--ink)}
 .btn{display:inline-block;font-family:var(--display);font-weight:600;font-size:16px;text-decoration:none;padding:12px 20px;border-radius:6px;background:var(--accent);color:var(--on-accent)!important;border:2px solid var(--accent)}
 .btn.ghost{background:transparent;color:var(--ink)!important;border-color:var(--ink)}
 nav .btn{padding:8px 14px;font-size:14px}
+.langsel{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
 
 .hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:48px;align-items:center}
 .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 14px}
@@ -88,31 +89,32 @@ footer p{margin:0;max-width:80ch}
   <nav>
     <a class="mark" href="./">Hype<span>wise</span></a>
     <div class="links">
-      <a href="#come">Come funziona</a>
-      <a href="#segnale">Il segnale</a>
-      <a href="#copertura">Cosa seguiamo</a>
-      <a class="btn" href="board.html">Apri la bacheca</a>
+      <a href="#come" data-i18n="nav.how">How it works</a>
+      <a href="#segnale" data-i18n="nav.signal">The signal</a>
+      <a href="#copertura" data-i18n="nav.cover">What we track</a>
+      <select id="lang" class="langsel" aria-label="Language"></select>
+      <a class="btn" href="board.html" data-i18n="nav.open">Open the board</a>
     </div>
   </nav>
 
   <section class="hero">
     <div>
-      <p class="eyebrow">Prezzi di rivendita delle sneaker, USA</p>
-      <h1>Compra con la <em>testa.</em></h1>
-      <p class="lead">Hypewise segue ogni giorno i prezzi di rivendita delle sneaker più richieste negli Stati Uniti. Vedi se un modello sale, scende o resta fermo, in dollari, senza dover aprire dieci siti.</p>
+      <p class="eyebrow" data-i18n="hero.eyebrow">Sneaker resale prices, USA</p>
+      <h1 data-i18n-html="hero.h1">Buy with your <em>head.</em></h1>
+      <p class="lead" data-i18n="hero.lead"></p>
       <div class="cta">
-        <a class="btn" href="board.html">Apri la bacheca</a>
-        <a class="btn ghost" href="#come">Come funziona</a>
+        <a class="btn" href="board.html" data-i18n="nav.open">Open the board</a>
+        <a class="btn ghost" href="#come" data-i18n="hero.cta2">How it works</a>
       </div>
     </div>
 
     <aside class="card" aria-label="Esempio di scheda scarpa">
-      <div class="tag"><span>Scheda di esempio</span><span>30 giorni</span></div>
+      <div class="tag"><span data-i18n="card.tag"></span><span data-i18n="card.tag2"></span></div>
       <div>
         <h3>Jordan 4 Retro Black Cat</h3>
         <span class="sku">Jordan · CU1110-010</span>
       </div>
-      <div class="px"><b>$285</b><span>-4,2% in 7 giorni</span></div>
+      <div class="px"><b>$285</b><span data-i18n="card.chg"></span></div>
       <svg viewBox="0 0 320 90" role="img" aria-label="Grafico di esempio del prezzo negli ultimi 30 giorni">
         <line x1="0" y1="20" x2="320" y2="20" stroke="var(--line)" stroke-width="1"/>
         <line x1="0" y1="45" x2="320" y2="45" stroke="var(--line)" stroke-width="1"/>
@@ -121,61 +123,63 @@ footer p{margin:0;max-width:80ch}
         <circle cx="314" cy="64" r="4" fill="var(--down)"/>
       </svg>
       <div class="verdict">
-        <div class="v">Aspetta</div>
-        <p>Il prezzo sta ancora scendendo da 2 settimane. Meglio aspettare che si stabilizzi.</p>
+        <div class="v" data-i18n="card.v"></div>
+        <p data-i18n="card.vp"></p>
       </div>
-      <p class="fine">Esempio illustrativo. Prezzi e grafico non sono dati reali.</p>
+      <p class="fine" data-i18n="card.fine"></p>
     </aside>
   </section>
 
   <section class="band" id="come">
     <div>
-      <h2>Come funziona</h2>
-      <p class="intro">Tre passaggi, tutti automatici. Ogni giorno i dati si aggiornano da soli.</p>
+      <h2 data-i18n="how.h"></h2>
+      <p class="intro" data-i18n="how.intro"></p>
     </div>
     <div class="cols">
-      <div class="col"><span class="n">PASSO 1</span><h3>Raccogliamo i prezzi</h3><p>Leggiamo i prezzi medi di mercato in dollari di 50 modelli tra i più richiesti. Ogni modello viene aggiornato ogni 1-2 giorni.</p></div>
-      <div class="col"><span class="n">PASSO 2</span><h3>Controlliamo ogni scheda</h3><p>Scartiamo i risultati con modello o marchio sbagliato, calzini e accessori, dati vecchi e prezzi fuori scala. Teniamo solo le scarpe di cui possiamo fidarci.</p></div>
-      <div class="col"><span class="n">PASSO 3</span><h3>Ti mostriamo l'andamento</h3><p>Per ogni scarpa trovi il prezzo di oggi, la variazione degli ultimi 7 giorni e l'andamento nel tempo. Così capisci a colpo d'occhio cosa si muove.</p></div>
+      <div class="col"><span class="n" data-i18n="s1.n"></span><h3 data-i18n="s1.h"></h3><p data-i18n="s1.p"></p></div>
+      <div class="col"><span class="n" data-i18n="s2.n"></span><h3 data-i18n="s2.h"></h3><p data-i18n="s2.p"></p></div>
+      <div class="col"><span class="n" data-i18n="s3.n"></span><h3 data-i18n="s3.h"></h3><p data-i18n="s3.p"></p></div>
     </div>
   </section>
 
   <section class="band" id="segnale">
     <div>
-      <h2>Il segnale<span class="soon">in arrivo</span></h2>
-      <p class="intro">Su ogni scarpa Hypewise leggerà il grafico e ti darà un'indicazione chiara, con il motivo scritto sotto. Non una frase a caso: ogni segnale spiega su cosa si basa.</p>
+      <h2><span data-i18n="sig.h"></span><span class="soon" data-i18n="sig.soon"></span></h2>
+      <p class="intro" data-i18n="sig.intro"></p>
     </div>
     <div class="verd">
-      <div class="card cop"><span class="name">Cop</span><p>Il prezzo è vicino al minimo recente e la discesa sta rallentando. Può essere un buon momento per comprare.</p></div>
-      <div class="card wait"><span class="name">Aspetta</span><p>Il prezzo sta ancora scendendo, o i segnali sono contrastanti. Meglio guardare ancora qualche giorno.</p></div>
-      <div class="card sell"><span class="name">Sell</span><p>Il prezzo è vicino al massimo recente e la salita sta rallentando. Può essere un buon momento per vendere.</p></div>
+      <div class="card cop"><span class="name" data-i18n="cop.name"></span><p data-i18n="cop.p"></p></div>
+      <div class="card wait"><span class="name" data-i18n="wait.name"></span><p data-i18n="wait.p"></p></div>
+      <div class="card sell"><span class="name" data-i18n="sell.name"></span><p data-i18n="sell.p"></p></div>
     </div>
-    <p class="fine">Sono stime automatiche basate sui prezzi passati, pensate per aiutarti a ragionare. Non sono consigli finanziari e non vanno prese alla lettera. Se i dati sono pochi, Hypewise lo dice invece di dare un consiglio.</p>
+    <p class="fine" data-i18n="sig.fine"></p>
   </section>
 
   <section class="band" id="copertura">
     <div>
-      <h2>Cosa seguiamo</h2>
-      <p class="intro">Per ora ci concentriamo sulle sneaker, scelte tra i modelli che negli Stati Uniti si scambiano di più.</p>
+      <h2 data-i18n="cov.h"></h2>
+      <p class="intro" data-i18n="cov.intro"></p>
     </div>
     <div class="chips">
       <span>Jordan</span><span>Nike</span><span>adidas</span><span>New Balance</span><span>ASICS</span><span>Saucony</span><span>Salomon</span><span>HOKA</span><span>On</span><span>Vans</span><span>Converse</span>
-      <span class="later">Abbigliamento: in programma</span>
+      <span class="later" data-i18n="cov.later"></span>
     </div>
     <div class="two">
-      <div><h3>Se rivendi</h3><p>Vedi dove il prezzo si sta muovendo prima di comprare scorte, e controlli se il prezzo che ti viene offerto è in linea con il mercato.</p></div>
-      <div><h3>Se compri per te</h3><p>Capisci se stai pagando un prezzo alto o basso rispetto agli ultimi giorni, senza essere esperto di mercato.</p></div>
+      <div><h3 data-i18n="who1.h"></h3><p data-i18n="who1.p"></p></div>
+      <div><h3 data-i18n="who2.h"></h3><p data-i18n="who2.p"></p></div>
     </div>
   </section>
 
   <section class="final">
-    <h2>Guarda cosa si muove oggi.</h2>
-    <a class="btn" href="board.html">Apri la bacheca</a>
+    <h2 data-i18n="final.h"></h2>
+    <a class="btn" href="board.html" data-i18n="nav.open">Open the board</a>
   </section>
 
   <footer>
-    <p>I prezzi sono stime di mercato in USD calcolate da dati StockX forniti tramite KicksDB, e possono differire dai prezzi reali al momento dell'acquisto. Hypewise non fornisce consulenza finanziaria.</p>
-    <p>Hypewise non è affiliato né sponsorizzato da StockX, Nike, Jordan, adidas o altri marchi citati. I nomi appartengono ai rispettivi proprietari.</p>
+    <p data-i18n="foot1"></p>
+    <p data-i18n="foot2"></p>
   </footer>
 </div>
+<script src="i18n.js"></script>
+<script>HW.mount();</script>
 </body></html>
