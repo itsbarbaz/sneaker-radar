@@ -3,7 +3,7 @@
 <title>Hypewise Prices</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <script>try{var t=localStorage.getItem("hw-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=4">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: floating pill nav, big gradient title, price ticker, three glass figures, filter pills, then one block per brand with a grid of glass sneaker cards. */
@@ -41,7 +41,7 @@ input[type=search]{flex:1;min-width:200px;padding:11px 18px}
 <div class="wrap">
   <nav>
     <div class="nav-left">
-      <button id="theme" class="theme" type="button" aria-pressed="false"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 13a9 9 0 1 1-10-10 7 7 0 0 0 10 10z"/></svg><span class="knob"></span></button>
+      <button id="theme" class="theme" type="button"></button>
       <a class="mark" href="./">Hype<span>wise</span></a>
     </div>
     <div class="links">
@@ -77,12 +77,12 @@ input[type=search]{flex:1;min-width:200px;padding:11px 18px}
   <footer><p data-i18n="b.foot"></p><p data-i18n="l.brandsnote"></p></footer>
 </div>
 
-<script src="i18n.js"></script>
-<script src="strings.js"></script>
-<script src="app.js"></script>
-<script src="ui.js"></script>
+<script src="i18n.js?v=4"></script>
+<script src="strings.js?v=4"></script>
+<script src="app.js?v=4"></script>
+<script src="ui.js?v=4"></script>
 <script>
-HW.mount(); UI.initTheme(); UI.sync();
+HW.mount(); UI.initTheme(); UI.backdrop(); UI.banner(); UI.sync();
 var D = window.HWD, ALL = "__all__", PAGE = 8, state = { items: [], brand: ALL, demo: false, ready: false, shown: {} };
 var $ = function (id) { return document.getElementById(id); };
 var fromUrl = new URLSearchParams(location.search).get("brand"); if (fromUrl) state.brand = fromUrl;

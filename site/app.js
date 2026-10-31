@@ -146,13 +146,14 @@
   function vbadge(x, label, tip) { return verified(x) ? '<span class="verified" title="' + esc(tip) + '">' + CHECK + esc(label) + "</span>" : ""; }
 
   /* Copertina: foto ufficiale se c'è, altrimenti sfumatura generata nei colori del marchio. */
+  var SHOE = '<svg class="shoe" viewBox="0 0 240 120" aria-hidden="true"><defs><linearGradient id="sg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity=".55"/></linearGradient></defs><path d="M8 84c0-6 3-10 9-12l34-12c10-4 16-12 20-22 3-8 10-12 18-8l18 9c10 5 22 8 34 9l40 4c18 2 32 12 36 26 1 4 0 8-3 10H14c-4 0-6-3-6-8z" fill="url(#sg)"/><path d="M6 88h224c4 0 6 6 4 12-2 6-8 10-14 10H20c-8 0-14-8-14-22z" fill="#fff" fill-opacity=".92"/><path d="M96 38l10 16M110 44l9 15M124 49l8 14" stroke="rgba(20,10,60,.45)" stroke-width="3.5" stroke-linecap="round"/><path d="M158 76c12 0 24-2 34-6" stroke="rgba(20,10,60,.25)" stroke-width="4" stroke-linecap="round" fill="none"/></svg>';
   function cover(x, size, badge) {
     var c = brandColors(x.brand), img = "";
     if (x.image) {
       var url = String(x.image).replace(/w=\d+/, "w=" + (size === "l" ? 900 : 480)).replace(/h=\d+/, "h=" + (size === "l" ? 640 : 340));
       img = '<img src="' + esc(url) + '" alt="' + esc(x.title) + '" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">';
     }
-    return '<div class="cover" style="--c1:' + c[0] + ";--c2:" + c[1] + '"><span class="big" aria-hidden="true">' + esc(abbr(x.brand)) + "</span>" + img + (badge ? '<div class="tag">' + badge + "</div>" : "") + "</div>";
+    return '<div class="cover" style="--c1:' + c[0] + ";--c2:" + c[1] + '"><span class="big" aria-hidden="true">' + esc(abbr(x.brand)) + "</span>" + SHOE + img + (badge ? '<div class="tag">' + badge + "</div>" : "") + "</div>";
   }
 
   function spark(p, t) {
