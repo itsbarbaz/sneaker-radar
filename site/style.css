@@ -191,3 +191,30 @@ dd{font-weight:700}dt{color:var(--ink);opacity:.72}
 .card h2{font-size:22px;font-weight:800}
 .two h3{display:flex;align-items:center;gap:12px;font-size:21px;font-weight:800}
 .two p{color:color-mix(in srgb,var(--ink) 82%,transparent)!important;font-size:16px!important;font-weight:500}
+
+/* footer grande */
+.bigfoot{display:flex;flex-direction:column;gap:28px;padding:36px 0 8px;border-top:1px solid var(--line);font-size:14px;color:var(--ink)}
+.fgrid{display:grid;grid-template-columns:1.5fr repeat(4,1fr);gap:32px}
+.fabout p{margin:10px 0 16px;max-width:30ch;color:color-mix(in srgb,var(--ink) 78%,transparent)}
+.bigfoot h4{font:700 13px var(--display);letter-spacing:.08em;text-transform:uppercase;margin:0 0 12px;color:var(--accent)}
+.bigfoot ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+.bigfoot ul a{text-decoration:none;color:color-mix(in srgb,var(--ink) 80%,transparent);font-weight:500}
+.bigfoot ul a:hover{color:var(--accent2);text-shadow:0 0 12px color-mix(in srgb,var(--accent2) 50%,transparent)}
+.soc{display:flex;gap:10px}
+.soc .s{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--muted);opacity:.75;cursor:default}
+.soc .s svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.fnotes{display:flex;flex-direction:column;gap:8px;padding-top:22px;border-top:1px solid var(--line)}
+.fnotes p{margin:0;max-width:90ch;font-size:12.5px;line-height:1.55;color:var(--muted)}
+.fbar{display:flex;gap:18px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--muted)}
+.fbar .reg{padding:4px 12px;border:1px solid var(--line);border-radius:999px}
+.fbar .top{margin-left:auto;text-decoration:none;font-weight:600;color:var(--ink)}
+.fbar .top:hover{color:var(--accent)}
+@media (max-width:860px){.fgrid{grid-template-columns:1fr 1fr}.fabout{grid-column:1/-1}}
+/* pagina legale */
+.legal{max-width:760px;display:flex;flex-direction:column;gap:40px}
+.legal section{scroll-margin-top:20px}
+.legal h1{font-size:clamp(34px,6vw,54px);margin:0}
+.legal h2{font-size:26px;margin:0 0 10px}
+.legal p,.legal li{font-size:16px;line-height:1.7;color:color-mix(in srgb,var(--ink) 88%,transparent)}
+.legal .upd{font:500 12px var(--mono);color:var(--muted)}
+.bigfoot nav{display:block;padding:0;border:0;border-radius:0;background:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}

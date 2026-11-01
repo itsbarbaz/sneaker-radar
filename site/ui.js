@@ -67,6 +67,35 @@
     var w = document.getElementById("bigword"), k = 0;
     if (!reduce) setInterval(function () { w.classList.add("off"); setTimeout(function () { k = (k + 1) % BRANDS.length; w.textContent = BRANDS[k]; w.classList.remove("off"); }, 600); }, 3600);
   }
+
+  /* Footer classico: colonne di link, social (in arrivo), note legali */
+  var SOCIAL = {
+    X: '<path d="M4 4l16 16M20 4L4 20"/>',
+    Instagram: '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".8" fill="currentColor"/>',
+    TikTok: '<path d="M14 3v11a4 4 0 1 1-4-4"/><path d="M14 3c.5 2.6 2.2 4 5 4"/>',
+    YouTube: '<rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10 9.5l5 2.5-5 2.5z" fill="currentColor"/>'
+  };
+  function footer() {
+    var old = document.querySelector(".wrap > footer"); if (!old || document.getElementById("hw-footer")) return;
+    var notes = old.innerHTML, t = function (k) { return HWD.esc(HW.t(k)); }, L = function (k) { return '<span data-i18n="' + k + '">' + t(k) + "</span>"; };
+    var f = document.createElement("footer"); f.id = "hw-footer"; f.className = "bigfoot";
+    var brands = BRANDS.map(function (b) { return '<li><a href="board.html?brand=' + encodeURIComponent(b) + '">' + HWD.esc(b) + "</a></li>"; }).join("");
+    var soc = Object.keys(SOCIAL).map(function (n) {
+      return '<span class="s" title="' + HWD.esc(n) + ' · ' + t("ft.soon") + '" aria-label="' + HWD.esc(n) + '" role="img"><svg viewBox="0 0 24 24" aria-hidden="true">' + SOCIAL[n] + "</svg></span>";
+    }).join("");
+    function col(title, links) {
+      return '<nav aria-label="' + t(title) + '"><h4>' + L(title) + "</h4><ul>" + links + "</ul></nav>";
+    }
+    function li(href, key) { return '<li><a href="' + href + '">' + L(key) + "</a></li>"; }
+    f.innerHTML = '<div class="fgrid"><div class="fabout"><a class="mark" href="./">Hype<span>wise</span></a><p>' + L("ft.tag") + '</p><div class="soc" aria-label="' + t("ft.follow") + '">' + soc + "</div></div>" +
+      col("ft.brands", brands) +
+      col("ft.product", li("board.html", "ft.prices") + li("./#come", "ft.how") + li("./#segnale", "ft.signal")) +
+      col("ft.company", li("legal.html#about", "ft.about") + li("legal.html#contact", "ft.contact")) +
+      col("ft.legal", li("legal.html#privacy", "ft.privacy") + li("legal.html#terms", "ft.terms") + li("legal.html#disclaimer", "ft.disc") + li("legal.html#cookies", "ft.cookies")) + "</div>" +
+      '<div class="fnotes">' + notes + '</div><div class="fbar"><span>' + L("ft.rights") + '</span><span class="reg">' + L("ft.region") + '</span><a href="#" class="top">↑ ' + L("ft.top") + "</a></div>";
+    old.replaceWith(f);
+    f.querySelector(".top").addEventListener("click", function (e) { e.preventDefault(); scrollTo({ top: 0, behavior: "smooth" }); });
+  }
   function countUp(el, to, fmt, ms) {
     fmt = fmt || function (v) { return Math.round(v).toLocaleString(); };
     if (reduce || !isFinite(to)) { el.textContent = fmt(to); return; }
@@ -81,5 +110,5 @@
     }).join("");
     el.innerHTML = '<div class="track">' + one + one + "</div>"; el.hidden = false;
   }
-  window.UI = { initTheme: initTheme, countUp: countUp, ticker: ticker, sync: sync, banner: banner, backdrop: backdrop };
+  window.UI = { initTheme: initTheme, countUp: countUp, ticker: ticker, sync: sync, banner: banner, backdrop: backdrop, footer: footer };
 })();
