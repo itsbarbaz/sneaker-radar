@@ -206,6 +206,47 @@ def render(rows, when, out_png):
     img.convert("RGB").save(out_png, "PNG", optimize=True)
 
 
+def render_portrait(rows, when, out_png):
+    """Formato verticale 1080x1350 per Instagram."""
+    global W, H
+    ow, oh = W, H
+    W, H = 1080, 1350
+    try:
+        img = background()
+    finally:
+        W, H = ow, oh
+    pw_, ph_ = 1080, 1350
+    d = ImageDraw.Draw(img)
+    f_logo = font("ExtraBold", 54)
+    d.text((70, 70), "Hype", font=f_logo, fill=(154, 124, 255))
+    d.text((70 + d.textlength("Hype", font=f_logo), 70), "wise", font=f_logo, fill=(59, 232, 160))
+    d.text((pw_ - 70, 84), when.strftime("%b %d, %Y").replace(" 0", " "), font=font("Medium", 30), fill=(205, 199, 236), anchor="ra")
+    d.text((70, 170), "Biggest sneaker", font=font("ExtraBold", 84), fill="white")
+    d.text((70, 262), "price moves today", font=font("ExtraBold", 84), fill=(59, 232, 160))
+    d.text((70, 372), "US resale market · average price in USD", font=font("Medium", 30), fill=(205, 199, 236))
+    y0, rh, gap = 424, 150, 8
+    f_name, f_price, f_chg = font("SemiBold", 34), font("Bold", 44), font("Bold", 34)
+    for i, r in enumerate(rows):
+        y = y0 + i * (rh + gap)
+        card = Image.new("RGBA", (pw_ - 140, rh), (255, 255, 255, 0))
+        ImageDraw.Draw(card).rounded_rectangle((0, 0, pw_ - 141, rh - 1), radius=28, fill=(255, 255, 255, 22), outline=(255, 255, 255, 40), width=2)
+        img.alpha_composite(card, (70, y))
+        img.alpha_composite(badge(86, r["brand"]), (92, y + 32))
+        d.text((204, y + 44), fit(d, clean_title(r["title"]), f_name, 780), font=f_name, fill="white", anchor="lm")
+        d.text((204, y + 100), "${:,.0f}".format(r["last"]), font=f_price, fill=(205, 199, 236), anchor="lm")
+        up = r["chg"] > 0
+        col = (59, 232, 160) if up else (255, 107, 146)
+        txt = ("+" if up else "−") + "{:.1f}%".format(abs(r["chg"]))
+        tw = d.textlength(txt, font=f_chg) + 72
+        x1 = pw_ - 92; x0 = x1 - tw
+        d.rounded_rectangle((x0, y + 82, x1, y + 126), radius=22, fill=tuple(int(c * 0.22 + 10 * 0.78) for c in col))
+        d.polygon([(x0 + 18, y + 112), (x0 + 38, y + 112), (x0 + 28, y + 94)] if up else [(x0 + 18, y + 96), (x0 + 38, y + 96), (x0 + 28, y + 114)], fill=col)
+        d.text((x1 - 18, y + 104), txt, font=f_chg, fill=col, anchor="rm")
+    d.text((70, ph_ - 80), SITE, font=font("Bold", 30), fill=(154, 124, 255), anchor="lm")
+    d.text((70, ph_ - 40), "Estimates from market data · not financial advice", font=font("Medium", 24), fill=(163, 157, 194), anchor="lm")
+    img.convert("RGB").save(out_png, "PNG", optimize=True)
+
+
 def caption(rows, when):
     lines = ["Biggest sneaker price moves today (US resale):", ""]
     for r in rows:
@@ -230,6 +271,7 @@ def main():
     os.makedirs(a.out, exist_ok=True)
     when = datetime.now(timezone.utc)
     render(rows, when, os.path.join(a.out, "today.png"))
+    render_portrait(rows, when, os.path.join(a.out, "today-ig.png"))
     with open(os.path.join(a.out, "caption.txt"), "w", encoding="utf-8") as f:
         f.write(caption(rows, when))
     print("Creata immagine con %d scarpe" % len(rows))
