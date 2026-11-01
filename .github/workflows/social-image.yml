@@ -23,6 +23,8 @@ jobs:
       - run: pip install pillow
       - name: Create image
         run: python scripts/social_image.py --out out
+      - name: Install ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
       - name: Create video
         run: python scripts/social_video.py --out out
       - name: Publish to social branch
