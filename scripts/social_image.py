@@ -94,7 +94,18 @@ def load_demo():
 
 
 # ---------------------------------------------------------------- calcolo
-def movers(items, top=TOP_N):
+MODE = "daily"
+HEAD = {"daily": ("Biggest sneaker", "price moves today"), "weekly": ("Wildest sneaker", "moves this week")}
+
+
+def pick_mode(arg, when):
+    """auto = alterna: giorni dispari = settimanale, pari = giornaliero."""
+    if arg in ("daily", "weekly"):
+        return arg
+    return "weekly" if when.timetuple().tm_yday % 2 else "daily"
+
+
+def movers(items, top=TOP_N, hours=12):
     res = []
     for it in items:
         pts = it["pts"]
@@ -106,10 +117,12 @@ def movers(items, top=TOP_N):
         t_last, last = pts[-1]
         ref = None
         for t, p in reversed(pts[:-1]):          # lettura piu' vicina a 24 ore prima
-            if t_last - t >= 12 * 3600:
+            if t_last - t >= hours * 3600:
                 ref = p
                 break
         if ref is None:
+            if hours > 12:
+                continue  # storico troppo corto per la variazione settimanale
             ref = pts[-2][1]
         chg = (last - ref) / ref * 100
         if abs(chg) < 0.05:
@@ -174,9 +187,9 @@ def render(rows, when, out_png):
     d.text((80 + d.textlength("Hype", font=f_logo), 62), "wise", font=f_logo, fill=(59, 232, 160))
     d.text((W - 80, 74), when.strftime("%B %d, %Y").replace(" 0", " "), font=font("Medium", 30), fill=(205, 199, 236), anchor="ra")
     # titolo
-    d.text((80, 128), "Biggest sneaker", font=font("ExtraBold", 74), fill="white")
-    d.text((80, 208), "price moves today", font=font("ExtraBold", 74), fill=(59, 232, 160))
-    d.text((80, 300), "US resale market · average price in USD", font=font("Medium", 28), fill=(205, 199, 236))
+    d.text((80, 128), HEAD[MODE][0], font=font("ExtraBold", 74), fill="white")
+    d.text((80, 208), HEAD[MODE][1], font=font("ExtraBold", 74), fill=(59, 232, 160))
+    d.text((80, 300), ("US resale market · 7-day change" if MODE == "weekly" else "US resale market · average price in USD"), font=font("Medium", 28), fill=(205, 199, 236))
     # righe
     y0, rh, gap = 362, 72, 12
     f_name, f_price, f_chg = font("SemiBold", 34), font("Bold", 38), font("Bold", 30)
@@ -221,9 +234,9 @@ def render_portrait(rows, when, out_png):
     d.text((70, 70), "Hype", font=f_logo, fill=(154, 124, 255))
     d.text((70 + d.textlength("Hype", font=f_logo), 70), "wise", font=f_logo, fill=(59, 232, 160))
     d.text((pw_ - 70, 84), when.strftime("%b %d, %Y").replace(" 0", " "), font=font("Medium", 30), fill=(205, 199, 236), anchor="ra")
-    d.text((70, 170), "Biggest sneaker", font=font("ExtraBold", 84), fill="white")
-    d.text((70, 262), "price moves today", font=font("ExtraBold", 84), fill=(59, 232, 160))
-    d.text((70, 372), "US resale market · average price in USD", font=font("Medium", 30), fill=(205, 199, 236))
+    d.text((70, 170), HEAD[MODE][0], font=font("ExtraBold", 84), fill="white")
+    d.text((70, 262), HEAD[MODE][1], font=font("ExtraBold", 84), fill=(59, 232, 160))
+    d.text((70, 372), ("US resale market · 7-day change" if MODE == "weekly" else "US resale market · average price in USD"), font=font("Medium", 30), fill=(205, 199, 236))
     y0, rh, gap = 424, 150, 8
     f_name, f_price, f_chg = font("SemiBold", 34), font("Bold", 44), font("Bold", 34)
     for i, r in enumerate(rows):
@@ -248,7 +261,7 @@ def render_portrait(rows, when, out_png):
 
 
 def caption(rows, when):
-    lines = ["Biggest sneaker price moves today (US resale):", ""]
+    lines = [("Wildest sneaker price moves this week (US resale):" if MODE == "weekly" else "Biggest sneaker price moves today (US resale):"), ""]
     for r in rows:
         arrow = "▲" if r["chg"] > 0 else "▼"
         lines.append("%s %s  $%s  %s%.1f%%" % (arrow, clean_title(r["title"]), "{:,.0f}".format(r["last"]),
@@ -262,14 +275,19 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--demo", action="store_true")
     ap.add_argument("--out", default="social")
+    ap.add_argument("--mode", choices=["auto", "daily", "weekly"], default="auto")
     a = ap.parse_args()
     items = load_demo() if a.demo else load_real()
-    rows = movers(items)
+    global MODE
+    when = datetime.now(timezone.utc)
+    MODE = pick_mode(a.mode, when)
+    rows = movers(items, hours=7 * 24 - 12) if MODE == "weekly" else movers(items)
+    if MODE == "weekly" and len(rows) < 3:
+        MODE = "daily"; rows = movers(items)   # poco storico: ripiega sul giornaliero
     if len(rows) < 3:
         print("Pochi movimenti da mostrare (%d): nessuna immagine creata." % len(rows))
         sys.exit(0)
     os.makedirs(a.out, exist_ok=True)
-    when = datetime.now(timezone.utc)
     render(rows, when, os.path.join(a.out, "today.png"))
     render_portrait(rows, when, os.path.join(a.out, "today-ig.png"))
     with open(os.path.join(a.out, "caption.txt"), "w", encoding="utf-8") as f:

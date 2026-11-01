@@ -45,9 +45,9 @@ def frame(bg, rows, when, t):
     lay = Image.new("RGBA", (VW, 520), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
     ld.text((60, 20), "Hype", font=fl, fill=VIOLET); ld.text((60 + ld.textlength("Hype", font=fl), 20), "wise", font=fl, fill=GREEN)
     ld.text((VW - 60, 36), when.strftime("%b %d, %Y").replace(" 0", " "), font=S.font("Medium", 32), fill=MUTED, anchor="ra")
-    ld.text((60, 150), "Biggest sneaker", font=S.font("ExtraBold", 96), fill="white")
-    ld.text((60, 262), "price moves today", font=S.font("ExtraBold", 96), fill=GREEN)
-    ld.text((60, 392), "US resale · average price in USD", font=S.font("Medium", 34), fill=MUTED)
+    ld.text((60, 150), S.HEAD[S.MODE][0], font=S.font("ExtraBold", 96), fill="white")
+    ld.text((60, 262), S.HEAD[S.MODE][1], font=S.font("ExtraBold", 96), fill=GREEN)
+    ld.text((60, 392), ("US resale market · 7-day change" if S.MODE == "weekly" else "US resale · average price in USD"), font=S.font("Medium", 34), fill=MUTED)
     img.alpha_composite(with_alpha(lay, a_in), (0, 150 + off))
     y0 = 640
     for i, r in enumerate(rows):
@@ -69,12 +69,18 @@ def frame(bg, rows, when, t):
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--demo", action="store_true"); ap.add_argument("--out", default="social")
+    ap.add_argument("--mode", choices=["auto", "daily", "weekly"], default="auto")
     ap.add_argument("--still", type=float, help="salva solo un fotogramma a t secondi (test)")
     a = ap.parse_args()
-    rows = S.movers(S.load_demo() if a.demo else S.load_real())
+    items = S.load_demo() if a.demo else S.load_real()
+    when = datetime.now(timezone.utc)
+    S.MODE = S.pick_mode(a.mode, when)
+    rows = S.movers(items, hours=7 * 24 - 12) if S.MODE == "weekly" else S.movers(items)
+    if S.MODE == "weekly" and len(rows) < 3:
+        S.MODE = "daily"; rows = S.movers(items)
     if len(rows) < 3:
         print("Pochi movimenti: nessun video."); return
-    os.makedirs(a.out, exist_ok=True); when = datetime.now(timezone.utc); bg = make_bg()
+    os.makedirs(a.out, exist_ok=True); bg = make_bg()
     if a.still is not None:
         frame(bg, rows, when, a.still).save(os.path.join(a.out, "still.png")); return
     out = os.path.join(a.out, "today.mp4"); tmp = os.path.join(a.out, "tmp-render.mp4")
