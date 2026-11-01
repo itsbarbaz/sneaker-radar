@@ -3,7 +3,7 @@
 <title>Hypewise</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <script>try{var t=localStorage.getItem("hw-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<link rel="stylesheet" href="style.css?v=11">
+<link rel="stylesheet" href="style.css?v=12">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>/* Layout: back link, hero (photo + big price), chart card with live readout, four figures, story + specs, links + signal. */
 .back{display:inline-flex;gap:6px;font-size:14px;font-weight:600;color:var(--muted);text-decoration:none;width:max-content}
@@ -67,6 +67,19 @@ td:last-child,th:last-child{text-align:right;font-family:var(--mono)}
   @keyframes ping{0%{transform:scale(1);opacity:.5}100%{transform:scale(3.2);opacity:0}}
 }
 @media (max-width:760px){.hero{grid-template-columns:minmax(0,1fr);gap:22px}}
+
+.verdict-big{display:flex;justify-content:center;padding:6px 0}
+.verdict-big .neon-sign{font-size:clamp(26px,5vw,38px);padding:12px 34px;letter-spacing:.18em}
+.verdict-big.cop .neon-sign{border-color:var(--up);text-shadow:0 0 4px #fff,0 0 12px var(--up),0 0 28px var(--up),0 0 52px var(--up);box-shadow:0 0 16px var(--up),inset 0 0 16px color-mix(in srgb,var(--up) 40%,transparent)}
+.verdict-big.sell .neon-sign{border-color:var(--down);text-shadow:0 0 4px #fff,0 0 12px var(--down),0 0 28px var(--down),0 0 52px var(--down);box-shadow:0 0 16px var(--down),inset 0 0 16px color-mix(in srgb,var(--down) 40%,transparent)}
+.verdict-big.wait .neon-sign{border-color:var(--wait);text-shadow:0 0 4px #fff,0 0 12px var(--wait),0 0 28px var(--wait);box-shadow:0 0 16px var(--wait),inset 0 0 16px color-mix(in srgb,var(--wait) 40%,transparent)}
+.meter{position:relative;height:12px;border-radius:999px;background:linear-gradient(90deg,var(--down),var(--wait) 50%,var(--up))}
+.meter .mk{position:absolute;top:50%;width:22px;height:22px;border-radius:50%;background:var(--solid);border:4px solid var(--ink);transform:translate(-50%,-50%);transition:left .8s cubic-bezier(.3,1.3,.5,1)}
+.mlab{display:flex;justify-content:space-between;font:600 12px var(--display);color:var(--muted)}
+.why{font-size:15px;margin:6px 0 0}
+.whylist{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:15px;line-height:1.5}
+.conf{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0;font-size:13px;color:var(--muted)}
+.conf b{color:var(--ink)}
 </style>
 </head><body>
 <div class="wrap">
@@ -85,10 +98,10 @@ td:last-child,th:last-child{text-align:right;font-family:var(--mono)}
   <div id="view"><div class="empty" data-i18n="d.loading">Loading…</div></div>
   <footer><p data-i18n="foot1"></p><p data-i18n="foot2"></p></footer>
 </div>
-<script src="i18n.js?v=11"></script>
-<script src="strings.js?v=11"></script>
-<script src="app.js?v=11"></script>
-<script src="ui.js?v=11"></script>
+<script src="i18n.js?v=12"></script>
+<script src="strings.js?v=12"></script>
+<script src="app.js?v=12"></script>
+<script src="ui.js?v=12"></script>
 <script>
 HW.mount(); UI.initTheme(); UI.backdrop(); UI.banner(); UI.footer();
 var D = window.HWD, $ = function (id) { return document.getElementById(id); };
@@ -187,6 +200,20 @@ function story(st) {
 function hl(t) { return t.replace(/(\$[\d,]+(?:\.\d+)?|[+\-−]?\d+(?:[.,]\d+)?\s?%)/g, '<span class="hl">$1</span>'); }
 function row(k, v, mono) { return "<dt>" + D.esc(HW.t(k)) + "</dt><dd" + (mono ? ' class="mono"' : "") + ">" + D.esc(v) + "</dd>"; }
 
+
+function sigCard(x) {
+  var s = D.signal(x), ico = '<span class="ico sm" style="--a:#a98bff;--b:#6a3df0"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8a6 6 0 0 1 0 8.4M7.8 16.2a6 6 0 0 1 0-8.4M19 5a10 10 0 0 1 0 14M5 19A10 10 0 0 1 5 5"/></svg></span>';
+  var head = '<h2 class="h2i">' + ico + D.esc(HW.t("d.sig")) + "</h2>";
+  if (s.verdict === "none") return head + '<p class="fine" style="font-size:14px">' + D.esc(HW.f("sg.none", { n: s.n })) + '</p><p class="fine">' + D.esc(HW.t("sg.disc")) + "</p>";
+  var name = HW.t(s.verdict === "cop" ? "cop.name" : s.verdict === "sell" ? "sell.name" : "wait.name");
+  var at = Math.max(4, Math.min(96, 50 + s.score * 12));
+  return head + '<div class="verdict-big ' + s.verdict + '"><span class="neon-sign' + (s.verdict === "wait" ? " v" : "") + '">' + D.esc(name) + "</span></div>" +
+    '<div class="meter" aria-hidden="true"><span class="mk" style="left:' + at + '%"></span></div>' +
+    '<div class="mlab"><span>' + D.esc(HW.t("sell.name")) + "</span><span>" + D.esc(HW.t("wait.name")) + "</span><span>" + D.esc(HW.t("cop.name")) + "</span></div>" +
+    '<h3 class="why">' + D.esc(HW.t("sg.why")) + "</h3><ul class=\"whylist\">" + s.why.map(function (k) { return "<li>" + D.esc(HW.t(k)) + "</li>"; }).join("") + "</ul>" +
+    '<p class="conf"><span>' + D.esc(HW.t("sg.conf")) + ': <b>' + D.esc(HW.t("conf." + s.conf)) + "</b></span><span>" + s.n + " " + D.esc(HW.t("d.reads").toLowerCase()) + '</span></p><p class="fine">' + D.esc(HW.t("sg.disc")) + "</p>";
+}
+
 function view() {
   var loc = HW.locale(), x = shoe, st = D.stats(x), c7 = D.change(x, 7), tit = D.parseTitle(x.title, x.brand);
   document.title = tit.name + " · Hypewise";
@@ -219,7 +246,7 @@ function view() {
     '<a class="btn ghost" target="_blank" rel="noopener noreferrer" href="' + D.esc(stockx) + '">StockX ↗</a>' +
     '<a class="btn ghost" target="_blank" rel="noopener noreferrer" href="https://www.goat.com/search?query=' + q + '">GOAT ↗</a>' +
     '<a class="btn ghost" target="_blank" rel="noopener noreferrer" href="https://www.ebay.com/sch/i.html?_nkw=' + q + '">eBay ↗</a></div></div>' +
-    '<div class="card glass signal"><span class="soon">' + D.esc(HW.t("sig.soon")) + '</span><h2 class="h2i"><span class="ico sm" style="--a:#a98bff;--b:#6a3df0"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8a6 6 0 0 1 0 8.4M7.8 16.2a6 6 0 0 1 0-8.4M19 5a10 10 0 0 1 0 14M5 19A10 10 0 0 1 5 5"/></svg></span>' + D.esc(HW.t("d.sig")) + '</h2><p class="fine" style="font-size:14px">' + D.esc(HW.t("d.sigp")) + "</p></div></section></div>";
+    '<div class="card glass signal">' + sigCard(x) + '</div></section></div>';
   Array.prototype.forEach.call(document.querySelectorAll(".ranges .chip"), function (b) {
     var r = b.dataset.r;
     if (r !== "all") { var days = Number(r), n = x.times.filter(function (tm) { return tm >= x.times[x.times.length - 1] - days * D.DAY; }).length; if (n < 2) b.disabled = true; }

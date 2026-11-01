@@ -50,6 +50,35 @@
     return { n: p.length, last: p[p.length - 1], first: p[0], min: p[lo], max: p[hi], tmin: t[lo], tmax: t[hi], avg: sum / p.length, tfirst: t[0], tlast: t[t.length - 1] };
   }
 
+
+  /* ---------- Segnale Compra / Aspetta / Vendi (regole semplici, spiegabili) ---------- */
+  function signal(x) {
+    var p = x.prices || [], t = x.times || [], n = p.length;
+    if (n < 8 || t[n - 1] - t[0] < 7 * DAY) return { verdict: "none", n: n };
+    var st = stats(x), rng = st.max - st.min, last = st.last;
+    var pos = rng > 0 ? (last - st.min) / rng : 0.5;
+    var dev = (last - st.avg) / st.avg * 100, t7 = change(x, 7);
+    var rets = []; for (var i = 1; i < n; i++) rets.push((p[i] - p[i - 1]) / p[i - 1] * 100);
+    var m = rets.reduce(function (s, v) { return s + v; }, 0) / rets.length;
+    var vol = Math.sqrt(rets.reduce(function (s, v) { return s + (v - m) * (v - m); }, 0) / rets.length);
+    var score = 0, why = [];
+    if (pos <= 0.25) { score += 2; why.push("r.low"); } else if (pos <= 0.4) { score += 1; why.push("r.lowmid"); }
+    else if (pos >= 0.9) { score -= 2; why.push("r.high"); } else if (pos >= 0.75) { score -= 1; why.push("r.highmid"); }
+    else why.push("r.mid");
+    if (dev <= -5) { score += 1.5; why.push("r.below"); } else if (dev <= -2) { score += 0.5; }
+    else if (dev >= 5) { score -= 1.5; why.push("r.above"); } else if (dev >= 2) { score -= 0.5; }
+    if (t7 !== null) {
+      if (t7 <= -5) { score -= 1; why.push("r.fall"); }
+      else if (t7 >= 5) { why.push("r.rise"); if (pos >= 0.75) score -= 0.5; }
+      else why.push("r.flat");
+    }
+    if (vol >= 6) why.push("r.vol");
+    var verdict = score >= 2 ? "cop" : score <= -2 ? "sell" : "wait";
+    var conf = n >= 40 && vol < 6 ? "high" : n >= 20 ? "med" : "low";
+    if (vol >= 6 && conf === "high") conf = "med";
+    return { verdict: verdict, score: score, pos: pos, dev: dev, t7: t7, vol: vol, n: n, conf: conf, why: why };
+  }
+
   /* ---------- Supabase ---------- */
   async function api(path) {
     var r = await fetch(SUPABASE_URL + "/rest/v1/" + path, { headers: { apikey: SUPABASE_ANON_KEY, Authorization: "Bearer " + SUPABASE_ANON_KEY } });
@@ -169,6 +198,6 @@
     return '<svg class="spark" viewBox="0 0 ' + w + " " + h + '" aria-hidden="true"><path d="' + d + '" fill="none" stroke="' + c + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="' + last[0].toFixed(1) + '" cy="' + last[1].toFixed(1) + '" r="2.8" fill="' + c + '"/></svg>';
   }
 
-  window.HWD = { esc: esc, normBrand: normBrand, brandRank: brandRank, BRAND_ORDER: BRAND_ORDER, parseTitle: parseTitle, money: money, pct: pct, change: change, stats: stats,
+  window.HWD = { esc: esc, normBrand: normBrand, brandRank: brandRank, BRAND_ORDER: BRAND_ORDER, parseTitle: parseTitle, money: money, pct: pct, change: change, stats: stats, signal: signal,
     loadAll: loadAll, loadOne: loadOne, demoData: demoData, bmark: bmark, bchip: bchip, verified: verified, vbadge: vbadge, cover: cover, brandColors: brandColors, spark: spark, DAY: DAY };
 })();
