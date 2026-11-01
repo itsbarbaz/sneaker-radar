@@ -3,7 +3,7 @@
 <title>Hypewise Prices</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <script>try{var t=localStorage.getItem("hw-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<link rel="stylesheet" href="style.css?v=10">
+<link rel="stylesheet" href="style.css?v=11">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: floating pill nav, big gradient title, price ticker, three glass figures, filter pills, then one block per brand with a grid of glass sneaker cards. */
@@ -71,6 +71,40 @@ h1{font-weight:800;font-size:clamp(38px,7vw,68px);line-height:1;margin:0}
   .frow .chips::-webkit-scrollbar{display:none}
   .frow select{align-self:flex-start}
 }
+
+.bpick{display:none;align-items:stretch;gap:8px}
+.bpick button{flex:none;width:48px;border-radius:16px;border:1px solid var(--line);background:var(--solid);color:var(--ink);font:700 26px/1 var(--display);cursor:pointer}
+.bpick button:active{background:var(--grad);color:#fff}
+.bpick select{flex:1;min-width:0;height:48px;border-radius:16px;font:700 16px var(--display);padding:0 14px;background:var(--solid)}
+.brandsec>header{flex-wrap:wrap}
+.brandsec header .more{margin-left:auto}
+.scard .cover{aspect-ratio:4/3}
+.scard{border-radius:22px}
+.grid{gap:18px}
+.scard .body b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+@media (max-width:860px){
+  #brands{display:none}
+  .bpick{display:flex}
+  .frow{flex-direction:column;align-items:stretch}
+  .frow select#sort{align-self:stretch;width:100%;height:44px}
+}
+@media (max-width:560px){
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .scard{padding:6px;gap:8px;border-radius:18px}
+  .scard .cover{aspect-ratio:1/1;padding:8px}
+  .scard .cover .big{font-size:90px}
+  .scard .cover .verified{font-size:10px;padding:3px 7px}
+  .scard .cover .verified svg{width:12px;height:12px}
+  .scard .body{padding:0 6px 8px}
+  .scard b{font-size:13px}
+  .scard .sku{font-size:10px}
+  .scard .pr{margin-top:6px;flex-wrap:wrap;gap:6px}
+  .scard .price{font-size:19px}
+  .scard .chg{font-size:11px;padding:3px 8px}
+  .scard svg.spark{display:none}
+  .scard .open{display:none}
+  .brandsec>header .cnt{display:none}
+}
 </style>
 </head><body data-title="b.title">
 <div class="wrap">
@@ -100,6 +134,11 @@ h1{font-weight:800;font-size:clamp(38px,7vw,68px);line-height:1;margin:0}
     </label>
     <div class="frow">
       <div class="chips" id="brands" role="group" data-i18n-aria="b.brand"></div>
+      <div class="bpick" id="bpick">
+        <button type="button" id="bprev" data-i18n-aria="b.prev">‹</button>
+        <select id="bsel" data-i18n-aria="b.brandpick"></select>
+        <button type="button" id="bnext" data-i18n-aria="b.next">›</button>
+      </div>
       <select id="sort" data-i18n-aria="b.sortlabel">
         <option value="move" data-i18n="b.sort.move"></option>
         <option value="price" data-i18n="b.sort.price"></option>
@@ -122,10 +161,10 @@ h1{font-weight:800;font-size:clamp(38px,7vw,68px);line-height:1;margin:0}
   <footer><p data-i18n="b.foot"></p><p data-i18n="l.brandsnote"></p></footer>
 </div>
 
-<script src="i18n.js?v=10"></script>
-<script src="strings.js?v=10"></script>
-<script src="app.js?v=10"></script>
-<script src="ui.js?v=10"></script>
+<script src="i18n.js?v=11"></script>
+<script src="strings.js?v=11"></script>
+<script src="app.js?v=11"></script>
+<script src="ui.js?v=11"></script>
 <script>
 HW.mount(); UI.initTheme(); UI.backdrop(); UI.banner(); UI.footer(); UI.sync();
 var D = window.HWD, ALL = "__all__", PAGE = 8, state = { items: [], brand: ALL, demo: false, ready: false, shown: {} };
@@ -165,9 +204,14 @@ function render() {
   firstRender = false;
 }
 
+function pickSync(brands, counts) {
+  var sel = $("bsel"); sel.innerHTML = [ALL].concat(brands).map(function (x) { return '<option value="' + D.esc(x) + '">' + D.esc(x === ALL ? HW.t("b.all") : x + " (" + counts[x] + ")") + "</option>"; }).join("");
+  sel.value = state.brand; state.order = [ALL].concat(brands);
+}
 function chips() {
   var counts = {}; state.items.forEach(function (x) { counts[x.brand] = (counts[x.brand] || 0) + 1; });
   var brands = Object.keys(counts).sort(function (a, b) { return D.brandRank(a) - D.brandRank(b) || a.localeCompare(b); });
+  pickSync(brands, counts);
   $("brands").innerHTML = [ALL].concat(brands).map(function (b) {
     return '<button type="button" class="chip" aria-pressed="' + (b === state.brand) + '" data-b="' + D.esc(b) + '">' + D.esc(b === ALL ? HW.t("b.all") : b) +
       (b === ALL ? "" : '<span class="n">' + counts[b] + "</span>") + "</button>";
@@ -197,6 +241,11 @@ $("qclear").addEventListener("click", function () { $("q").value = ""; $("qclear
 (function () { var k = 0, ph = ["f.ph1", "f.ph2", "f.ph3", "f.ph4"]; function set() { $("q").placeholder = HW.t(ph[k]); } set(); document.addEventListener("hw-lang", set);
   if (!matchMedia("(prefers-reduced-motion: reduce)").matches) setInterval(function () { if (document.activeElement !== $("q") && !$("q").value) { k = (k + 1) % ph.length; set(); } }, 2800); })();
 $("sort").addEventListener("change", render);
+function goBrand(v) { state.brand = v; state.shown = {}; chips(); render(); }
+$("bsel").addEventListener("change", function () { goBrand(this.value); });
+function step(d) { var o = state.order || [ALL], i = o.indexOf(state.brand); goBrand(o[(i + d + o.length) % o.length]); }
+$("bprev").addEventListener("click", function () { step(-1); });
+$("bnext").addEventListener("click", function () { step(1); });
 document.addEventListener("hw-lang", function () { if (state.ready) setup(state.items, state.demo, false); });
 
 (async function () {

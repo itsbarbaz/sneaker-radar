@@ -145,3 +145,8 @@ HW.add("es", {"b.how":"Cómo leer esta página","b.more":"Leer más"});
 HW.add("fr", {"b.how":"Comment lire cette page","b.more":"Lire la suite"});
 HW.add("it", {"b.how":"Come leggere questa pagina","b.more":"Leggi di più"});
 HW.add("ru", {"b.how":"Как читать страницу","b.more":"Читать дальше"});
+HW.add("en", {"nav.menu":"Menu","b.brandpick":"Brand","b.prev":"Previous brand","b.next":"Next brand"});
+HW.add("es", {"nav.menu":"Menú","b.brandpick":"Marca","b.prev":"Marca anterior","b.next":"Marca siguiente"});
+HW.add("fr", {"nav.menu":"Menu","b.brandpick":"Marque","b.prev":"Marque précédente","b.next":"Marque suivante"});
+HW.add("it", {"nav.menu":"Menu","b.brandpick":"Marca","b.prev":"Marca precedente","b.next":"Marca successiva"});
+HW.add("ru", {"nav.menu":"Меню","b.brandpick":"Бренд","b.prev":"Предыдущий бренд","b.next":"Следующий бренд"});

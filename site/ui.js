@@ -20,6 +20,16 @@
     b.setAttribute("aria-label", HW.t("theme.label") + ": " + HW.t("theme." + m));
     Array.prototype.forEach.call(document.querySelectorAll(".tmenu li button"), function (o) { o.setAttribute("aria-checked", String(o.dataset.m === m)); o.lastChild.textContent = HW.t("theme." + o.dataset.m); });
   }
+
+  function navMenu() {
+    var nav = document.querySelector(".wrap > nav"); if (!nav || nav.querySelector(".burger")) return;
+    var b = document.createElement("button"); b.type = "button"; b.className = "burger"; b.setAttribute("aria-expanded", "false");
+    b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
+    function lab() { b.setAttribute("aria-label", HW.t("nav.menu")); } lab(); document.addEventListener("hw-lang", lab);
+    b.addEventListener("click", function (e) { e.stopPropagation(); var o = nav.classList.toggle("open"); b.setAttribute("aria-expanded", String(o)); });
+    nav.querySelector(".links").addEventListener("click", function (e) { if (e.target.closest("a")) nav.classList.remove("open"); });
+    nav.insertBefore(b, nav.querySelector(".links"));
+  }
   function initTheme() {
     var old = document.getElementById("theme"), t = saved();
     if (t !== "auto") root.setAttribute("data-theme", t);
@@ -34,7 +44,7 @@
       ul.addEventListener("click", function (e) { var o = e.target.closest("button"); if (o) { setMode(o.dataset.m); close(); btn.focus(); } });
       document.addEventListener("click", close); document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
     }
-    sync(); document.addEventListener("hw-lang", function () { sync(); banner(true); });
+    navMenu(); sync(); document.addEventListener("hw-lang", function () { sync(); banner(true); });
   }
   /* Banner viola con messaggi che cambiano */
   var bi = 0, btimer = null;
