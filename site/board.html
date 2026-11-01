@@ -3,7 +3,7 @@
 <title>Hypewise Prices</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <script>try{var t=localStorage.getItem("hw-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<link rel="stylesheet" href="style.css?v=6">
+<link rel="stylesheet" href="style.css?v=7">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: floating pill nav, big gradient title, price ticker, three glass figures, filter pills, then one block per brand with a grid of glass sneaker cards. */
@@ -13,9 +13,20 @@ h1{font-weight:800;font-size:clamp(38px,7vw,68px);line-height:1;margin:0}
 .stat{padding:18px 20px}
 .stat b{display:block;font-family:var(--display);font-weight:700;font-size:clamp(30px,4vw,40px);line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .stat small{display:block;margin-top:6px;color:var(--muted);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.08em}
-.tools{display:flex;flex-direction:column;gap:12px}
-.tools .row1{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-input[type=search]{flex:1;min-width:200px;padding:11px 18px}
+.finder{position:sticky;top:10px;z-index:8;padding:16px;display:flex;flex-direction:column;gap:12px;border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+.sbox{position:relative;display:flex;align-items:center;gap:12px;height:66px;padding:0 18px;border-radius:999px;background:var(--solid);border:2px solid transparent;
+  background-image:linear-gradient(var(--solid),var(--solid)),linear-gradient(110deg,var(--accent),var(--accent2),var(--accent));background-origin:border-box;background-clip:padding-box,border-box;background-size:100% 100%,200% 100%;box-shadow:var(--glow);transition:transform .25s,box-shadow .25s}
+.sbox:focus-within{transform:scale(1.015);box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 22%,transparent),var(--glow)}
+.sbox .mag{width:26px;height:26px;flex:none;stroke:var(--accent);fill:none;stroke-width:2.4;stroke-linecap:round;transition:transform .3s}
+.sbox:focus-within .mag{transform:rotate(-12deg) scale(1.15);stroke:var(--accent2)}
+.sbox input{flex:1;min-width:0;border:0;background:transparent;box-shadow:none;padding:0;font:600 clamp(17px,2.4vw,22px) var(--display);color:var(--ink);outline:none;-webkit-appearance:none;appearance:none}
+.sbox input::placeholder{color:var(--muted);opacity:.8}
+.sbox .qc{border:0;background:var(--tint);color:var(--ink);font:600 13px var(--body);padding:6px 12px;border-radius:999px;cursor:pointer}
+.sbox .res{font:500 12px var(--mono);color:var(--muted);white-space:nowrap}
+.frow{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+.frow .chips{flex:1;min-width:0}
+@media (prefers-reduced-motion:no-preference){.sbox{animation:sheen 6s linear infinite}@keyframes sheen{to{background-position:0 0,200% 0}}}
+@media (max-width:640px){.sbox .res{display:none}.sbox{height:58px}.finder{top:6px}}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chips .chip .n{opacity:.6;margin-left:6px;font-family:var(--mono);font-size:11px}
 .brandsec{display:flex;flex-direction:column;gap:18px;scroll-margin-top:16px}
@@ -25,7 +36,13 @@ input[type=search]{flex:1;min-width:200px;padding:11px 18px}
 .brandsec header .more{margin-left:auto}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
 .scard{display:flex;flex-direction:column;gap:14px;text-decoration:none;padding:10px;min-width:0;transition:border-color .2s,box-shadow .2s,transform .2s}
-.scard:hover{border-color:var(--accent);box-shadow:var(--glow);transform:translateY(-4px)}
+.scard{position:relative}
+.scard:hover,.scard:focus-visible{border-color:var(--accent2);box-shadow:0 0 0 3px var(--accent2),0 24px 50px -16px color-mix(in srgb,var(--accent2) 60%,transparent);transform:translateY(-6px);background:color-mix(in srgb,var(--accent2) 9%,var(--surface))}
+.scard .open{position:absolute;right:20px;top:20px;z-index:2;display:inline-flex;gap:6px;align-items:center;padding:7px 14px;border-radius:999px;background:var(--accent2);color:#06281a;font:700 12px var(--display);opacity:0;transform:translateY(-6px) scale(.9);transition:.22s}
+.scard:hover .open,.scard:focus-visible .open{opacity:1;transform:none}
+.scard .cover{transition:transform .35s}
+.scard:hover .cover{transform:scale(1.03)}
+.scard:hover .price{color:var(--accent2)}
 .scard .body{display:flex;flex-direction:column;gap:2px;min-width:0;padding:0 8px 8px}
 .scard b{font-family:var(--display);font-weight:600;font-size:16px;line-height:1.3;letter-spacing:-.02em;overflow-wrap:anywhere}
 .scard .sku{font-family:var(--mono);font-size:11px;color:var(--muted)}
@@ -61,16 +78,21 @@ input[type=search]{flex:1;min-width:200px;padding:11px 18px}
   <div class="explain glass"><p data-i18n="b.explain"></p></div>
   <section class="stats" id="stats" data-i18n-aria="b.summary"></section>
 
-  <div class="tools">
-    <div class="row1">
-      <input type="search" id="q" data-i18n-ph="b.search" data-i18n-aria="b.search">
+  <div class="finder glass">
+    <label class="sbox" for="q">
+      <svg class="mag" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input type="search" id="q" autocomplete="off" data-i18n-aria="f.title">
+      <button type="button" id="qclear" class="qc" hidden data-i18n="f.clear">Clear</button>
+      <span class="res" id="res"></span>
+    </label>
+    <div class="frow">
+      <div class="chips" id="brands" role="group" data-i18n-aria="b.brand"></div>
       <select id="sort" data-i18n-aria="b.sortlabel">
         <option value="move" data-i18n="b.sort.move"></option>
         <option value="price" data-i18n="b.sort.price"></option>
         <option value="name" data-i18n="b.sort.name"></option>
       </select>
     </div>
-    <div class="chips" id="brands" role="group" data-i18n-aria="b.brand"></div>
     <p class="fine" id="stamp"></p>
   </div>
 
@@ -78,10 +100,10 @@ input[type=search]{flex:1;min-width:200px;padding:11px 18px}
   <footer><p data-i18n="b.foot"></p><p data-i18n="l.brandsnote"></p></footer>
 </div>
 
-<script src="i18n.js?v=6"></script>
-<script src="strings.js?v=6"></script>
-<script src="app.js?v=6"></script>
-<script src="ui.js?v=6"></script>
+<script src="i18n.js?v=7"></script>
+<script src="strings.js?v=7"></script>
+<script src="app.js?v=7"></script>
+<script src="ui.js?v=7"></script>
 <script>
 HW.mount(); UI.initTheme(); UI.backdrop(); UI.banner(); UI.sync();
 var D = window.HWD, ALL = "__all__", PAGE = 8, state = { items: [], brand: ALL, demo: false, ready: false, shown: {} };
@@ -96,6 +118,7 @@ function render() {
   var rows = state.items.filter(function (x) { return !q || (x.title + " " + x.sku).toLowerCase().indexOf(q) > -1; })
     .map(function (x) { return Object.assign({}, x, { price: x.prices[x.prices.length - 1], chg: D.change(x, 7) }); });
   var out = $("list");
+  $("res").textContent = HW.f("f.res", { n: rows.length });
   if (!rows.length) { out.innerHTML = '<div class="empty">' + D.esc(HW.t(state.items.length ? "b.nomatch" : "b.nodata")) + "</div>"; return; }
   var by = {}; rows.forEach(function (x) { (by[x.brand] = by[x.brand] || []).push(x); });
   var brands = Object.keys(by).sort(function (a, b) { return D.brandRank(a) - D.brandRank(b) || a.localeCompare(b); });
@@ -111,7 +134,7 @@ function render() {
       (rest > 0 ? '<button type="button" class="chip more" data-more="' + D.esc(b) + '">' + D.esc(HW.f(state.brand === ALL && !searching && !state.shown[b] ? "b.showall" : "b.showmore", { n: list.length })) + "</button>" : "") +
       '</header><div class="grid">' + vis.map(function (x) {
         var none = x.chg === null, cls = none ? "flat" : x.chg > 0.05 ? "up" : x.chg < -0.05 ? "down" : "flat", i = firstRender ? Math.min(delay++, 16) : 0;
-        return '<a class="scard glass' + (firstRender ? " rise" : "") + '" style="--i:' + i + '" href="shoe.html?sku=' + encodeURIComponent(x.sku) + '">' + D.cover(x, "s", D.vbadge(x, vt, vtip)) +
+        return '<a class="scard glass' + (firstRender ? " rise" : "") + '" style="--i:' + i + '" href="shoe.html?sku=' + encodeURIComponent(x.sku) + '"><span class="open">' + D.esc(HW.t("f.open")) + ' →</span>' + D.cover(x, "s", D.vbadge(x, vt, vtip)) +
           '<div class="body"><b>' + D.esc(x.title) + '</b><span class="sku">' + D.esc(x.sku) + "</span>" +
           '<div class="pr"><span class="price">' + D.money(x.price) + '</span><span class="chg ' + cls + '">' + (none ? D.esc(HW.t("b.collecting")) : D.pct(x.chg, loc)) + "</span></div>" +
           D.spark(x.prices, x.times) + "</div></a>";
@@ -147,7 +170,10 @@ function setup(items, demo, animate) {
 
 $("brands").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; state.brand = b.dataset.b; state.shown = {}; chips(); render(); });
 $("list").addEventListener("click", function (e) { var b = e.target.closest("[data-more]"); if (!b) return; var n = b.dataset.more; state.shown[n] = (state.shown[n] || (state.brand !== ALL ? 24 : PAGE)) + 48; render(); });
-$("q").addEventListener("input", function () { state.shown = {}; render(); });
+$("q").addEventListener("input", function () { state.shown = {}; $("qclear").hidden = !$("q").value; render(); });
+$("qclear").addEventListener("click", function () { $("q").value = ""; $("qclear").hidden = true; state.shown = {}; render(); $("q").focus(); });
+(function () { var k = 0, ph = ["f.ph1", "f.ph2", "f.ph3", "f.ph4"]; function set() { $("q").placeholder = HW.t(ph[k]); } set(); document.addEventListener("hw-lang", set);
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) setInterval(function () { if (document.activeElement !== $("q") && !$("q").value) { k = (k + 1) % ph.length; set(); } }, 2800); })();
 $("sort").addEventListener("change", render);
 document.addEventListener("hw-lang", function () { if (state.ready) setup(state.items, state.demo, false); });
 

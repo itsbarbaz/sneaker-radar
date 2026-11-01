@@ -4,7 +4,7 @@
 <meta name="description" content="Hypewise tracks US sneaker resale prices and shows you when to buy, wait or sell.">
 <meta name="claude:viewport-fit-sides" content="cover">
 <script>try{var t=localStorage.getItem("hw-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<link rel="stylesheet" href="style.css?v=6">
+<link rel="stylesheet" href="style.css?v=7">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: aurora hero (headline + live sample card), price ticker, three how-it-works tiles, signal cards, brands row, closing call to action. */
@@ -15,9 +15,14 @@ h1{font-weight:800;font-size:clamp(44px,8vw,88px);line-height:.98;margin:0;lette
 h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .lead{font-size:clamp(17px,2vw,20px);color:var(--muted);max-width:50ch;margin:22px 0 28px}
 .cta{display:flex;gap:12px;flex-wrap:wrap}
-.sample{padding:14px 22px 22px;display:flex;flex-direction:column;gap:16px;position:relative}
+.sample{background:var(--solid);-webkit-backdrop-filter:none;backdrop-filter:none;padding:14px 22px 22px;display:flex;flex-direction:column;gap:16px;position:relative}
 .hero{position:relative}
+html,body{overflow-x:clip}
 .orb{position:absolute;border-radius:50%;filter:blur(60px);z-index:-1;pointer-events:none}
+.comic{position:absolute;z-index:-1;right:230px;top:-70px;width:min(640px,58vw);height:auto;transform:rotate(-9deg);filter:drop-shadow(0 30px 40px rgba(60,20,160,.35));pointer-events:none}
+@media (prefers-reduced-motion:no-preference){.comic{animation:hop 5.5s ease-in-out infinite}.comic .pow{transform-box:fill-box;transform-origin:center;animation:pop 2.6s ease-in-out infinite}.comic .speed{animation:dash 1.6s linear infinite}
+@keyframes hop{50%{transform:rotate(-6deg) translateY(-16px)}}@keyframes pop{50%{transform:scale(1.14) rotate(-6deg)}}@keyframes dash{50%{transform:translateX(-14px);opacity:.2}}}
+@media (max-width:860px){.comic{width:115%;right:-20%;top:140px;opacity:.28}}
 .orb.a{width:340px;height:340px;right:0;top:-40px;background:var(--aur1)}
 .orb.b{width:300px;height:300px;left:0;bottom:-60px;background:var(--aur2)}
 .eyebrow b.rot{display:inline-block;min-width:7ch;color:var(--ink);transition:opacity .35s,transform .35s}
@@ -74,6 +79,27 @@ h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;back
   </nav>
 
   <section class="hero"><span class="orb a"></span><span class="orb b"></span>
+    <svg class="comic" viewBox="0 0 640 440" aria-hidden="true">
+  <defs><pattern id="ht" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><circle cx="2.5" cy="2.5" r="2" fill="#15112b" opacity=".35"/></pattern>
+  <linearGradient id="up" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8f6bff"/><stop offset="1" stop-color="#5a2fe0"/></linearGradient></defs>
+  <g class="speed" stroke="var(--ink)" stroke-width="7" stroke-linecap="round" opacity=".55"><path d="M10 150h70M0 205h100M24 260h60"/></g>
+  <g stroke="var(--ink)" stroke-width="9" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M120 326L140 118Q143 82 176 76L262 62Q290 58 304 82L330 140Q356 190 420 204L520 226Q580 240 580 292L574 330Z" fill="url(#up)"/>
+    <path d="M120 326L140 118Q143 82 176 76L262 62Q290 58 304 82L330 140Q356 190 420 204L520 226Q580 240 580 292L574 330Z" fill="url(#ht)" stroke="none"/>
+    <path d="M420 204L520 226Q580 240 580 292L574 330L396 330Q430 270 420 204Z" fill="#fff"/>
+    <path d="M176 76Q222 44 304 82Q282 118 226 122Q180 122 176 76Z" fill="#15112b"/>
+    <path d="M250 96L360 190M232 118L338 214M270 80L378 170" fill="none" stroke="#fff" stroke-width="12"/>
+    <path d="M250 96L360 190M232 118L338 214M270 80L378 170" fill="none" stroke="#15112b" stroke-width="3"/>
+    <circle cx="196" cy="250" r="34" fill="#3be8a0"/>
+    <path d="M196 226l8 17 19 2-14 13 4 19-17-9-17 9 4-19-14-13 19-2z" fill="#fff" stroke-width="4"/>
+    <path d="M66 330Q60 300 100 296L560 290Q612 292 606 336Q598 392 540 394L110 398Q64 396 66 330Z" fill="#fff"/>
+    <path d="M78 352L598 346" stroke="#3be8a0" stroke-width="16" fill="none"/>
+    <path d="M70 330Q64 306 104 302" fill="none" stroke-width="5" opacity="0"/>
+  </g>
+  <g fill="#15112b" opacity=".18"><path d="M90 385h470v14H90z"/></g>
+  <g class="pow"><path d="M60 40l22 30 36-18-12 38 40 6-34 24 26 28-40-2-4 38-24-30-30 24 4-40-38-6 32-22-24-34 36 8z" fill="#ffd84a" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round"/>
+  <text x="104" y="106" text-anchor="middle" font-family="Sora,system-ui" font-weight="800" font-size="24" fill="#15112b" transform="rotate(-8 104 100)">HYPE!</text></g>
+</svg>
     <div class="rise">
       <p class="eyebrow"><span data-i18n="hero.track">Tracking</span> <b class="rot" id="rot">Jordan</b></p>
       <h1 data-i18n-html="hero.h1">Buy with your <em>head.</em></h1>
@@ -137,10 +163,10 @@ h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;back
 
   <footer><p data-i18n="foot1"></p><p data-i18n="foot2"></p></footer>
 </div>
-<script src="i18n.js?v=6"></script>
-<script src="strings.js?v=6"></script>
-<script src="app.js?v=6"></script>
-<script src="ui.js?v=6"></script>
+<script src="i18n.js?v=7"></script>
+<script src="strings.js?v=7"></script>
+<script src="app.js?v=7"></script>
+<script src="ui.js?v=7"></script>
 <script>
 HW.mount(); UI.initTheme(); UI.backdrop(); UI.banner();
 var D = window.HWD, BR = ["Jordan","Nike","adidas","New Balance","ASICS","Saucony","Salomon","HOKA","On","Vans","Converse"];
