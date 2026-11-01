@@ -23,6 +23,8 @@ jobs:
       - run: pip install pillow
       - name: Create image
         run: python scripts/social_image.py --out out
+      - name: Create video
+        run: python scripts/social_video.py --out out
       - name: Publish to social branch
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -33,7 +35,7 @@ jobs:
             mkdir /tmp/social && cd /tmp/social && git init -b social && git remote add origin "$REPO"
           }
           cd /tmp/social
-          cp "$GITHUB_WORKSPACE/out/today.png" "$GITHUB_WORKSPACE/out/today-ig.png" "$GITHUB_WORKSPACE/out/caption.txt" .
+          cp "$GITHUB_WORKSPACE/out/today.png" "$GITHUB_WORKSPACE/out/today-ig.png" "$GITHUB_WORKSPACE/out/today.mp4" "$GITHUB_WORKSPACE/out/caption.txt" .
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
