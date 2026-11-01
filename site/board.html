@@ -3,7 +3,7 @@
 <title>Hypewise Prices</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <script>try{var t=localStorage.getItem("hw-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<link rel="stylesheet" href="style.css?v=9">
+<link rel="stylesheet" href="style.css?v=10">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: floating pill nav, big gradient title, price ticker, three glass figures, filter pills, then one block per brand with a grid of glass sneaker cards. */
@@ -53,6 +53,24 @@ h1{font-weight:800;font-size:clamp(38px,7vw,68px);line-height:1;margin:0}
 .scard .chg.down{background:color-mix(in srgb,var(--down) 16%,transparent)}
 .scard svg.spark{margin-top:8px;max-width:100%}
 .empty{padding:60px 0;color:var(--muted);text-align:center}
+
+.explain{display:block;padding:0;font-size:14px}
+.explain summary{display:flex;align-items:center;gap:12px;list-style:none;cursor:pointer;padding:10px 16px;font-weight:600;font-size:14px}
+.explain summary::-webkit-details-marker{display:none}
+.explain .ii{flex:none;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--grad);color:#fff;font:700 12px var(--display)}
+.explain summary em{margin-left:auto;font-style:normal;font-size:12px;color:var(--accent);font-weight:700}
+.explain summary em::after{content:" ▾"}
+.explain[open] summary em::after{content:" ▴"}
+.explain p{margin:0;padding:0 18px 14px 50px;line-height:1.6;color:color-mix(in srgb,var(--ink) 85%,transparent)}
+.explain::before{content:none}
+.chip{white-space:nowrap}
+@media (max-width:860px){
+  .finder{position:static}
+  .frow{flex-direction:column;align-items:stretch;gap:10px}
+  .frow .chips{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .frow .chips::-webkit-scrollbar{display:none}
+  .frow select{align-self:flex-start}
+}
 </style>
 </head><body data-title="b.title">
 <div class="wrap">
@@ -73,11 +91,6 @@ h1{font-weight:800;font-size:clamp(38px,7vw,68px);line-height:1;margin:0}
     <p class="sub" data-i18n="b.sub"></p>
   </header>
 
-  <div class="ticker" id="ticker" hidden aria-label="Top movers"></div>
-  <div class="demo" id="demo" data-i18n="b.demo" hidden></div>
-  <div class="explain glass"><p data-i18n="b.explain"></p></div>
-  <section class="stats" id="stats" data-i18n-aria="b.summary"></section>
-
   <div class="finder glass">
     <label class="sbox" for="q">
       <svg class="mag" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
@@ -96,14 +109,23 @@ h1{font-weight:800;font-size:clamp(38px,7vw,68px);line-height:1;margin:0}
     <p class="fine" id="stamp"></p>
   </div>
 
-  <div id="list" aria-live="polite"></div>
+  <div class="ticker" id="ticker" hidden aria-label="Top movers"></div>
+  <details class="explain glass">
+    <summary><span class="ii">i</span><span data-i18n="b.how">How to read this page</span><em data-i18n="b.more">Read more</em></summary>
+    <p data-i18n="b.explain"></p>
+  </details>
+
+  <div class="demo" id="demo" data-i18n="b.demo" hidden></div>
+  <section class="stats" id="stats" data-i18n-aria="b.summary"></section>
+
+<div id="list" aria-live="polite"></div>
   <footer><p data-i18n="b.foot"></p><p data-i18n="l.brandsnote"></p></footer>
 </div>
 
-<script src="i18n.js?v=9"></script>
-<script src="strings.js?v=9"></script>
-<script src="app.js?v=9"></script>
-<script src="ui.js?v=9"></script>
+<script src="i18n.js?v=10"></script>
+<script src="strings.js?v=10"></script>
+<script src="app.js?v=10"></script>
+<script src="ui.js?v=10"></script>
 <script>
 HW.mount(); UI.initTheme(); UI.backdrop(); UI.banner(); UI.footer(); UI.sync();
 var D = window.HWD, ALL = "__all__", PAGE = 8, state = { items: [], brand: ALL, demo: false, ready: false, shown: {} };
