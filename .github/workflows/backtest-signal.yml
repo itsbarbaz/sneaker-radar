@@ -15,5 +15,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+      - run: pip install pillow
       - run: python3 scripts/backtest_signal.py dati.json
       - run: node scripts/backtest_signal.js dati.json 7 | tee -a "$GITHUB_STEP_SUMMARY"
