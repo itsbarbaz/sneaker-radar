@@ -17,8 +17,25 @@ def chg(pts, days):
             return (last - p) / p * 100
     return None
 
-def pick(items, now):
-    best, bs = None, 0
+def swing(pts):
+    """Misura quanto il grafico sale E scende: ampiezza 30 giorni e numero di inversioni nette."""
+    ps = [p for _, p in pts[-30:]] if False else [p for t, p in pts if pts[-1][0] - t <= 30 * DAY]
+    if len(ps) < 6: return 0, 0, 0
+    avg = statistics.mean(ps); rng = (max(ps) - min(ps)) / avg * 100
+    thr = (max(ps) - min(ps)) * 0.18; turns, direction, ext = 0, 0, ps[0]
+    for v in ps[1:]:
+        if direction == 0:
+            if abs(v - ext) >= thr: direction = 1 if v > ext else -1; ext = v
+        elif direction == 1:
+            if v > ext: ext = v
+            elif ext - v >= thr: turns += 1; direction = -1; ext = v
+        else:
+            if v < ext: ext = v
+            elif v - ext >= thr: turns += 1; direction = 1; ext = v
+    return rng, turns, avg
+
+def candidates(items, now):
+    out = []
     for it in items:
         pts = it["pts"]
         if len(pts) < 8 or now - pts[-1][0] > 36 * 3600 or pts[-1][0] - pts[0][0] < 10 * DAY:
@@ -29,10 +46,22 @@ def pick(items, now):
         c7 = chg(pts, 7)
         if c7 is None or not (4 <= abs(c7) <= 30) or pts[-1][1] < 90:
             continue
-        score = abs(c7) * (1.3 if it["brand"] in POPULAR else 1.0)
-        if score > bs:
-            best, bs = it, score
-    return best
+        rng, turns, _ = swing(pts)
+        if rng < 8 or turns < 2:
+            continue
+        score = (rng + 3 * abs(c7) + 6 * min(turns, 4)) * (1.3 if it["brand"] in POPULAR else 1.0)
+        out.append((score, it, rng, turns, c7))
+    out.sort(key=lambda r: -r[0])
+    return out
+
+def pick(items, now, sku=None):
+    cands = candidates(items, now)
+    for sc, it, rng, turns, c7 in cands[:10]:
+        print("  candidato: %-55s sku=%s  range30=%.0f%%  inversioni=%d  7g=%+.1f%%  score=%.0f" % (it["title"][:55], it["sku"], rng, turns, c7, sc))
+    if sku:
+        for sc, it, *_ in cands:
+            if str(it["sku"]).lower() == sku.lower(): return it
+    return cands[0][1] if cands else None
 
 def render(it, out_png, when):
     pts = [(t, p) for t, p in it["pts"] if it["pts"][-1][0] - t <= 30 * DAY]
@@ -90,7 +119,7 @@ def caption(r):
         r["title"], "{:,.0f}".format(r["last"]), "+" if r["c7"] > 0 else "−", abs(r["c7"]), "{:,.0f}".format(r["lo"]), "{:,.0f}".format(r["hi"]), S.SITE)
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--demo", action="store_true"); ap.add_argument("--out", default="social"); a = ap.parse_args()
+    ap = argparse.ArgumentParser(); ap.add_argument("--demo", action="store_true"); ap.add_argument("--out", default="social"); ap.add_argument("--sku", default=""); a = ap.parse_args()
     now = datetime.now(timezone.utc).timestamp()
     if a.demo:
         import random; random.seed(2); pts = []; v = 245
@@ -98,7 +127,7 @@ def main():
         items = [{"title": "Jordan 4 Retro Black Cat", "brand": "Jordan", "sku": "CU1110-010", "pts": pts}]
     else:
         items = S.load_real()
-    it = pick(items, now)
+    it = pick(items, now, a.sku or None)
     if not it:
         print("Nessuna scarpa adatta per lo spotlight oggi."); return
     os.makedirs(a.out, exist_ok=True)
