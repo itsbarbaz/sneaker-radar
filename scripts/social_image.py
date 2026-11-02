@@ -115,6 +115,8 @@ def movers(items, top=TOP_N, hours=12):
         if any(not (0.5 <= ps[i] / ps[i - 1] <= 1.5) for i in range(1, len(ps))):
             continue  # salto sospetto: non lo mostriamo
         t_last, last = pts[-1]
+        if hours <= 12 and datetime.now(timezone.utc).timestamp() - t_last > 36 * 3600:
+            continue  # nessuna lettura recente: non e' una mossa "di oggi"
         ref = None
         for t, p in reversed(pts[:-1]):          # lettura piu' vicina a 24 ore prima
             if t_last - t >= hours * 3600:
