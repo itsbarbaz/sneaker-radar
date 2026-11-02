@@ -99,7 +99,7 @@
     function li(href, key) { return '<li><a href="' + href + '">' + L(key) + "</a></li>"; }
     f.innerHTML = '<div class="fgrid"><div class="fabout"><a class="mark" href="./">Hype<span>wise</span></a><p>' + L("ft.tag") + '</p><div class="soc" aria-label="' + t("ft.follow") + '">' + soc + "</div></div>" +
       col("ft.brands", brands) +
-      col("ft.product", li("board.html", "ft.prices") + li("./#come", "ft.how") + li("./#segnale", "ft.signal")) +
+      col("ft.product", li("board.html", "ft.prices") + li("./#come", "ft.how") + li("./#segnale", "ft.signal") + li("method.html", "ft.method") + li("movers.html", "ft.movers")) +
       col("ft.company", li("legal.html#about", "ft.about") + li("legal.html#contact", "ft.contact")) +
       col("ft.legal", li("legal.html#privacy", "ft.privacy") + li("legal.html#terms", "ft.terms") + li("legal.html#disclaimer", "ft.disc") + li("legal.html#cookies", "ft.cookies")) + "</div>" +
       '<div class="fnotes">' + notes + '</div><div class="fbar"><span>' + L("ft.rights") + '</span><span class="reg">' + L("ft.region") + '</span><a href="#" class="top">↑ ' + L("ft.top") + "</a></div>";

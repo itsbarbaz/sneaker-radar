@@ -171,3 +171,8 @@ HW.add("es", {"sh.x":"Compartir en X","sh.copy":"Copiar enlace","sh.copied":"¡C
 HW.add("fr", {"sh.x":"Partager sur X","sh.copy":"Copier le lien","sh.copied":"Copié !"});
 HW.add("it", {"sh.x":"Condividi su X","sh.copy":"Copia link","sh.copied":"Copiato!"});
 HW.add("ru", {"sh.x":"Поделиться в X","sh.copy":"Копировать ссылку","sh.copied":"Скопировано!"});
+HW.add("en", {"ft.method":"How the signal works","ft.movers":"Price movers"});
+HW.add("es", {"ft.method":"Cómo funciona la señal","ft.movers":"Mayores cambios"});
+HW.add("fr", {"ft.method":"Comment fonctionne le signal","ft.movers":"Plus gros mouvements"});
+HW.add("it", {"ft.method":"Come funziona il segnale","ft.movers":"Maggiori variazioni"});
+HW.add("ru", {"ft.method":"Как работает сигнал","ft.movers":"Крупные движения"});
