@@ -1,2 +1,5 @@
 __pycache__/
 *.pyc
+site/m/
+site/sitemap.xml
+site/robots.txt

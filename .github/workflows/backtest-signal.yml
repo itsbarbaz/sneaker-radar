@@ -1,0 +1,19 @@
+name: Backtest signal
+
+# Manuale: confronta il segnale Cop/Wait/Sell con cio' che e' successo davvero ai prezzi (sola lettura).
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: python3 scripts/backtest_signal.py dati.json
+      - run: node scripts/backtest_signal.js dati.json 7 | tee -a "$GITHUB_STEP_SUMMARY"

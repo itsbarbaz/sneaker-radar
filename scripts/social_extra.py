@@ -76,9 +76,19 @@ def signal(out):
     txt(d, (80, 842), SITE, S.font("Bold", 30), (150, 120, 255)); txt(d, (1520, 842), "Estimates only, not financial advice", S.font("Medium", 24), (160, 155, 195), "ra")
     im.convert("RGB").save(out)
 
+def og(out):
+    im = bg(1200, 630); d = ImageDraw.Draw(im)
+    logo(d, 70, 110, 96)
+    txt(d, (74, 250), "Sneaker prices, history", S.font("ExtraBold", 54)); txt(d, (74, 316), "& Cop / Wait / Sell signals", S.font("ExtraBold", 54), (52, 235, 160))
+    txt(d, (76, 410), "Daily US resale data. Estimates, not financial advice.", S.font("Medium", 28), (205, 200, 235))
+    glow_shoe(im, 930, 330, 420, -8)
+    txt(d, (76, 560), SITE, S.font("Bold", 28), (150, 120, 255))
+    im.convert("RGB").save(out)
+
+
 if __name__ == "__main__":
     o = sys.argv[1] if len(sys.argv) > 1 else "."; os.makedirs(o, exist_ok=True)
     avatar(o + "/x-avatar.png"); banner(o + "/x-banner.png")
     card(o + "/post-intro.png", "BUILDING IN PUBLIC", "Sneaker prices,", "tracked daily.", ["Open project on GitHub.", "Charts, history and a Cop/Wait/Sell signal.", "Feedback welcome."])
     card(o + "/post-github.png", "OPEN PROJECT", "Follow the build", "on GitHub.", ["github.com/itsbarbaz/sneaker-radar", "Also on Reddit - come say hi.", "Investors & partners: get in touch."])
-    signal(o + "/post-signal.png")
+    signal(o + "/post-signal.png"); og(o + "/og-image.png")

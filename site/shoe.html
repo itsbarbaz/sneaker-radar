@@ -1,9 +1,15 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Hypewise</title>
+<meta name="description" content="Daily US sneaker resale prices, price history and a Cop/Wait/Sell signal. Estimates only, not financial advice.">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Hypewise">
+<meta property="og:title" content="Hypewise"><meta property="og:description" content="Daily US sneaker resale prices, price history and a Cop/Wait/Sell signal. Estimates only, not financial advice.">
+<meta property="og:url" content="https://itsbarbaz.github.io/sneaker-radar/shoe.html"><meta property="og:image" content="https://itsbarbaz.github.io/sneaker-radar/og-image.png">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://itsbarbaz.github.io/sneaker-radar/og-image.png">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="claude:viewport-fit-sides" content="cover">
 <script>try{var t=localStorage.getItem("hw-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<link rel="stylesheet" href="style.css?v=13">
+<link rel="stylesheet" href="style.css?v=14">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>/* Layout: back link, hero (photo + big price), chart card with live readout, four figures, story + specs, links + signal. */
 .back{display:inline-flex;gap:6px;font-size:14px;font-weight:600;color:var(--muted);text-decoration:none;width:max-content}
@@ -127,11 +133,11 @@ td:last-child,th:last-child{text-align:right;font-family:var(--mono)}
   <div id="view"><div class="empty" data-i18n="d.loading">Loading…</div></div>
   <footer><p data-i18n="foot1"></p><p data-i18n="foot2"></p></footer>
 </div>
-<script src="i18n.js?v=13"></script>
-<script src="strings.js?v=13"></script>
-<script src="app.js?v=13"></script>
-<script src="signal.js?v=13"></script>
-<script src="ui.js?v=13"></script>
+<script src="i18n.js?v=14"></script>
+<script src="strings.js?v=14"></script>
+<script src="app.js?v=14"></script>
+<script src="signal.js?v=14"></script>
+<script src="ui.js?v=14"></script>
 <script>
 HW.mount(); UI.initTheme(); UI.backdrop(); UI.banner(); UI.footer();
 var D = window.HWD, $ = function (id) { return document.getElementById(id); };
@@ -296,7 +302,9 @@ function view() {
     '<section class="two"><div class="card glass"><h2 class="h2i"><span class="ico sm" style="--a:#ff8a5c;--b:#d1365c"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h13l-3-3M17 17H4l3 3"/></svg></span>' + D.esc(HW.t("d.other")) + '</h2><p class="fine" style="font-size:14px">' + D.esc(HW.t("d.otherp")) + '</p><div class="links">' +
     '<a class="btn ghost" target="_blank" rel="noopener noreferrer" href="' + D.esc(stockx) + '">StockX ↗</a>' +
     '<a class="btn ghost" target="_blank" rel="noopener noreferrer" href="https://www.goat.com/search?query=' + q + '">GOAT ↗</a>' +
-    '<a class="btn ghost" target="_blank" rel="noopener noreferrer" href="https://www.ebay.com/sch/i.html?_nkw=' + q + '">eBay ↗</a></div></div>' +
+    '<a class="btn ghost" target="_blank" rel="noopener noreferrer" href="https://www.ebay.com/sch/i.html?_nkw=' + q + '">eBay ↗</a>' +
+    '<a class="btn ghost" target="_blank" rel="noopener noreferrer" href="https://twitter.com/intent/tweet?text=' + encodeURIComponent(tit.name + " - price history on Hypewise") + '&url=' + encodeURIComponent(location.href) + '">' + D.esc(HW.t("sh.x")) + '</a>' +
+    '<button type="button" class="btn ghost" data-copy="1">' + D.esc(HW.t("sh.copy")) + '</button></div></div>' +
     '<div class="card glass signal" id="sigcard">' + sigCard(x) + '</div></section></div>';
   Array.prototype.forEach.call(document.querySelectorAll(".ranges .chip"), function (b) {
     var r = b.dataset.r;
@@ -317,5 +325,10 @@ document.addEventListener("hw-lang", function () { if (shoe) { counted = true; v
   catch (e) { console.warn("Supabase unreachable, showing sample data", e); demo = true; shoe = D.demoData().filter(function (d) { return d.sku === sku; })[0] || null; }
   if (shoe) view(); else notFound();
 })();
+document.addEventListener("click", function (e) {
+  var b = e.target.closest && e.target.closest("[data-copy]"); if (!b) return;
+  var done = function () { var o = b.textContent; b.textContent = HW.t("sh.copied"); setTimeout(function () { b.textContent = HW.t("sh.copy"); }, 1600); };
+  try { navigator.clipboard.writeText(location.href).then(done, done); } catch (er) { done(); }
+});
 </script>
 </body></html>
