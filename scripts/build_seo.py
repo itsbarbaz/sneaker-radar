@@ -52,14 +52,13 @@ def shell(depth, title, desc, path, body):
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="%(b)s/og-image.png">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <script>try{var t=localStorage.getItem("hw-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<link rel="stylesheet" href="style.css?v=17">
+<link rel="stylesheet" href="style.css?v=18">
 <style>%(css)s</style>
-<script data-goatcounter="https://hypewise.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head><body>
 %(nav)s
 <main class="seo">%(body)s</main>
 <footer></footer></div>
-<script src="i18n.js?v=17"></script><script src="strings.js?v=17"></script><script src="app.js?v=17"></script><script src="ui.js?v=17"></script>
+<script src="i18n.js?v=18"></script><script src="strings.js?v=18"></script><script src="app.js?v=18"></script><script src="ui.js?v=18"></script>
 <script>HW.mount(); UI.initTheme(); UI.backdrop(); UI.banner(); UI.footer();</script>
 </body></html>""" % {"base": "../" if depth else "./", "t": e(title), "d": e(desc), "u": url, "b": BASE, "css": CSS, "nav": NAVHTML, "body": body}
 

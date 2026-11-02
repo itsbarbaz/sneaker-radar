@@ -198,6 +198,25 @@
     return '<svg class="spark" viewBox="0 0 ' + w + " " + h + '" aria-hidden="true"><path d="' + d + '" fill="none" stroke="' + c + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="' + last[0].toFixed(1) + '" cy="' + last[1].toFixed(1) + '" r="2.8" fill="' + c + '"/></svg>';
   }
 
+  /* Contatore di visite anonimo: nessun cookie, nessun IP, solo pagina, provenienza, lingua e larghezza schermo. */
+  (function track() {
+    try {
+      var h = location.hostname, q = new URLSearchParams(location.search);
+      if (q.get("nocount") === "1") localStorage.setItem("hw-nocount", "1");
+      if (q.get("nocount") === "0") localStorage.removeItem("hw-nocount");
+      if (localStorage.getItem("hw-nocount") === "1") return;
+      if (h === "localhost" || h === "127.0.0.1" || navigator.webdriver || /bot|crawl|spider|headless|preview/i.test(navigator.userAgent)) return;
+      var sid = sessionStorage.getItem("hw-sid"), first = false;
+      if (!sid) { sid = Math.random().toString(36).slice(2, 12) + Date.now().toString(36); sessionStorage.setItem("hw-sid", sid); first = true; }
+      var ref = null;
+      if (first) { try { ref = document.referrer ? new URL(document.referrer).hostname.replace(/^www\./, "") : "direct"; } catch (e) { ref = "direct"; } if (ref === h) ref = "direct"; }
+      var path = location.pathname.replace(/\/index\.html$/, "/") + (q.get("sku") ? "?sku=" + q.get("sku") : "");
+      fetch(SUPABASE_URL + "/rest/v1/site_visits", { method: "POST", keepalive: true,
+        headers: { apikey: SUPABASE_ANON_KEY, Authorization: "Bearer " + SUPABASE_ANON_KEY, "Content-Type": "application/json", Prefer: "return=minimal" },
+        body: JSON.stringify({ path: path.slice(0, 200), ref: ref, lang: (document.documentElement.lang || navigator.language || "").slice(0, 10), w: window.innerWidth, sid: sid }) }).catch(function () {});
+    } catch (e) {}
+  })();
+
   window.HWD = { esc: esc, normBrand: normBrand, brandRank: brandRank, BRAND_ORDER: BRAND_ORDER, parseTitle: parseTitle, money: money, pct: pct, change: change, stats: stats, signal: signal,
     loadAll: loadAll, loadOne: loadOne, demoData: demoData, bmark: bmark, bchip: bchip, verified: verified, vbadge: vbadge, cover: cover, brandColors: brandColors, spark: spark, DAY: DAY };
 })();
