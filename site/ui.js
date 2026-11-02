@@ -56,14 +56,18 @@
       el.innerHTML = '<span class="dot" aria-hidden="true"></span><p id="bn-text" aria-live="polite"></p><button type="button" aria-label="">×</button>';
       (document.querySelector(".wrap") || document.body).prepend(el);
       el.querySelector("button").addEventListener("click", function () { el.remove(); clearInterval(btimer); try { sessionStorage.setItem("hw-bn", "1"); } catch (e) {} });
-      if (!reduce) btimer = setInterval(function () { bi = (bi + 1) % 3; swap(); }, 5200);
+      if (!reduce) btimer = setInterval(function () { bi = (bi + 1) % 4; swap(); }, 5200);
     }
     el.querySelector("button").setAttribute("aria-label", HW.t("bn.close"));
     if (refresh || true) swap(true);
   }
   function swap(now) {
     var p = document.getElementById("bn-text"); if (!p) return;
-    function set() { p.textContent = HW.t("bn." + (bi + 1)); p.classList.remove("out"); }
+    function set() {
+      var txt = HW.t("bn." + (bi + 1));
+      if (bi === 3) p.innerHTML = '<a href="https://x.com/gethypewise" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">' + HWD.esc(txt) + " →</a>"; else p.textContent = txt;
+      p.classList.remove("out");
+    }
     if (now || reduce) return set();
     p.classList.add("out"); setTimeout(set, 280);
   }
@@ -83,6 +87,7 @@
     X: '<path d="M4 4l16 16M20 4L4 20"/>',
     Instagram: '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".8" fill="currentColor"/>',
     TikTok: '<path d="M14 3v11a4 4 0 1 1-4-4"/><path d="M14 3c.5 2.6 2.2 4 5 4"/>',
+    Email: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M4 7l8 6 8-6"/>',
     YouTube: '<rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10 9.5l5 2.5-5 2.5z" fill="currentColor"/>'
   };
   function footer() {
@@ -90,7 +95,9 @@
     var notes = old.innerHTML, t = function (k) { return HWD.esc(HW.t(k)); }, L = function (k) { return '<span data-i18n="' + k + '">' + t(k) + "</span>"; };
     var f = document.createElement("footer"); f.id = "hw-footer"; f.className = "bigfoot";
     var brands = BRANDS.map(function (b) { return '<li><a href="board.html?brand=' + encodeURIComponent(b) + '">' + HWD.esc(b) + "</a></li>"; }).join("");
-    var soc = Object.keys(SOCIAL).map(function (n) {
+    var LIVE = { X: ["https://x.com/gethypewise", "ft.xlink"], Email: ["mailto:hypewise.team@gmail.com", "ft.email"] };
+    var soc = Object.keys(SOCIAL).filter(function (n) { return n !== "YouTube"; }).map(function (n) {
+      if (LIVE[n]) return '<a class="s live" href="' + LIVE[n][0] + '" target="_blank" rel="noopener" title="' + t(LIVE[n][1]) + '" aria-label="' + t(LIVE[n][1]) + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + SOCIAL[n] + "</svg></a>";
       return '<span class="s" title="' + HWD.esc(n) + ' · ' + t("ft.soon") + '" aria-label="' + HWD.esc(n) + '" role="img"><svg viewBox="0 0 24 24" aria-hidden="true">' + SOCIAL[n] + "</svg></span>";
     }).join("");
     function col(title, links) {

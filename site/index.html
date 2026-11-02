@@ -10,7 +10,7 @@
 <meta name="description" content="Hypewise tracks US sneaker resale prices and shows you when to buy, wait or sell.">
 <meta name="claude:viewport-fit-sides" content="cover">
 <script>try{var t=localStorage.getItem("hw-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<link rel="stylesheet" href="style.css?v=15">
+<link rel="stylesheet" href="style.css?v=16">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: aurora hero (headline + live sample card), price ticker, three how-it-works tiles, signal cards, brands row, closing call to action. */
@@ -65,6 +65,20 @@ html,body{overflow-x:clip}
 .stat small{color:var(--muted);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.08em}
 @media (max-width:860px){.hero{grid-template-columns:minmax(0,1fr);gap:36px}}
 @media (prefers-reduced-motion:no-preference){.sample .ln{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 2s .4s ease forwards}}
+
+.community{padding:clamp(22px,4vw,40px);margin:34px 0;position:relative;overflow:hidden;border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line))}
+.community::before{content:"";position:absolute;inset:-40% -10% auto auto;width:420px;height:420px;border-radius:50%;background:var(--aur1);filter:blur(70px);opacity:.7;pointer-events:none}
+.community>*{position:relative}
+.community h2{margin:10px 0 10px;font-size:clamp(26px,4.6vw,42px);line-height:1.05;letter-spacing:-.03em}
+.community p{max-width:62ch;color:var(--muted);margin:0 0 12px}
+.cm-actions{display:flex;flex-wrap:wrap;gap:12px;margin:20px 0 6px}
+.cm-actions .btn{display:inline-flex;align-items:center;gap:9px}
+.cm-actions svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cm-mail{font-size:14px;margin-top:14px;color:var(--muted)}.cm-mail a{color:var(--text);font-weight:700}
+.cm-soon{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:18px;font-size:13px;color:var(--muted)}
+.cm-soon .pill{padding:6px 12px;border-radius:999px;border:1px dashed var(--line);background:var(--surface);font-weight:600;color:var(--text)}
+.sample .v.cop{color:var(--up)}.sample .v.sell{color:var(--down)}
+.sample .cover img{object-fit:cover}
 </style>
 </head><body>
 <div class="wrap">
@@ -139,6 +153,20 @@ html,body{overflow-x:clip}
     </div>
   </section>
 
+  <section class="community glass scroll-rise" id="crece">
+    <p class="eyebrow"><span data-i18n="cm.eyebrow">Help us grow</span></p>
+    <h2 data-i18n="cm.h"></h2>
+    <p data-i18n="cm.p1"></p>
+    <p data-i18n="cm.p2"></p>
+    <div class="cm-actions">
+      <a class="btn" href="https://x.com/gethypewise" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4l16 16M20 4L4 20"/></svg><span data-i18n="cm.x"></span></a>
+      <a class="btn ghost" href="mailto:hypewise.team@gmail.com"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M4 7l8 6 8-6"/></svg><span data-i18n="cm.mailbtn"></span></a>
+      <a class="btn ghost" href="https://github.com/itsbarbaz/sneaker-radar" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-4 1-4-2-6-2m12 4v-3.5a3 3 0 0 0-.8-2.3c2.7-.3 5.5-1.3 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.3 4.3 0 0 0-.1-3.2s-1-.3-3.3 1.2a11.400 11.400 0 0 0-6 0C6.800 3.700 5.800 4 5.800 4a4.300 4.300 0 0 0-.1 3.200A4.600 4.600 0 0 0 4.400 10.400c0 4.700 2.800 5.700 5.500 6A3 3 0 0 0 9 18.700V21"/></svg><span data-i18n="cm.gh"></span></a>
+    </div>
+    <p class="cm-mail"><span data-i18n="cm.doubt"></span> <a href="mailto:hypewise.team@gmail.com">hypewise.team@gmail.com</a></p>
+    <div class="cm-soon"><span data-i18n="cm.soonl"></span><span class="pill" data-i18n="cm.rd"></span><span class="pill" data-i18n="cm.ig"></span><span class="pill" data-i18n="cm.tt"></span></div>
+  </section>
+
   <section class="final glass">
     <h2 data-i18n="final.h"></h2>
     <a class="btn" href="board.html" data-i18n="nav.open">Open the board</a>
@@ -146,10 +174,11 @@ html,body{overflow-x:clip}
 
   <footer><p data-i18n="foot1"></p><p data-i18n="foot2"></p></footer>
 </div>
-<script src="i18n.js?v=15"></script>
-<script src="strings.js?v=15"></script>
-<script src="app.js?v=15"></script>
-<script src="ui.js?v=15"></script>
+<script src="i18n.js?v=16"></script>
+<script src="strings.js?v=16"></script>
+<script src="app.js?v=16"></script>
+<script src="signal.js?v=16"></script>
+<script src="ui.js?v=16"></script>
 <script>
 HW.mount(); UI.initTheme(); UI.backdrop(); UI.banner(); UI.footer();
 var D = window.HWD, BR = ["Jordan","Nike","adidas","New Balance","ASICS","Saucony","Salomon","HOKA","On","Vans","Converse"];
@@ -169,6 +198,30 @@ document.getElementById("samplecover").innerHTML = D.cover({ brand: "Jordan", ti
         .filter(function (m) { return m.chg !== null; }).sort(function (a, b) { return Math.abs(b.chg) - Math.abs(a.chg); }).slice(0, 14);
       UI.ticker(document.getElementById("ticker"), mv, function (v) { return D.pct(v, HW.locale()); });
     }
+    function liveHero() {
+      var cand = items.filter(function (x) { return x.image && x.prices.length >= 8; }), best = null, bc = 0;
+      cand.forEach(function (x) { var c = D.change(x, 7); if (c !== null && Math.abs(c) <= 30 && Math.abs(c) > bc) { best = x; bc = Math.abs(c); } });
+      if (!best) best = cand[0]; if (!best) return;
+      var x = best, tit = D.parseTitle(x.title, x.brand), c7 = D.change(x, 7), n = x.prices.length, last = x.prices[n - 1];
+      var from = x.times[n - 1] - 30 * 864e5, P = [], T = [];
+      x.prices.forEach(function (v, i) { if (x.times[i] >= from) { P.push(v); T.push(x.times[i]); } });
+      var mn = Math.min.apply(null, P), mx = Math.max.apply(null, P), rg = (mx - mn) || 1, t0 = T[0], tr = (T[T.length - 1] - t0) || 1;
+      var pts = P.map(function (v, i) { return [4 + (T[i] - t0) / tr * 312, 76 - (v - mn) / rg * 62]; });
+      var d = pts.map(function (q, i) { return (i ? "L" : "M") + q[0].toFixed(1) + " " + q[1].toFixed(1); }).join(" ");
+      var lp = pts[pts.length - 1], col = P[P.length - 1] >= P[0] ? "var(--up)" : "var(--down)";
+      var s = HWSignal.signal(x), vname = HW.t(s.verdict === "cop" ? "cop.name" : s.verdict === "sell" ? "sell.name" : "wait.name");
+      var aside = document.querySelector(".sample");
+      aside.setAttribute("aria-label", "Live sneaker card");
+      aside.innerHTML = '<div>' + D.cover(x, "l", "") + '</div><div class="tag"><span>' + D.esc(HW.t("card.live")) + '</span><span>' + D.esc(HW.t("card.tag2")) + '</span></div>' +
+        '<div><h3>' + D.esc(tit.name) + '</h3><span class="sku">' + D.esc(x.brand) + " · " + D.esc(x.sku) + '</span></div>' +
+        '<div class="px"><b>' + D.esc(D.money(last)) + '</b>' + (c7 === null ? "" : '<span style="color:' + (c7 >= 0 ? "var(--up)" : "var(--down)") + '">' + D.esc(D.pct(c7, HW.locale())) + " · 7d</span>") + '</div>' +
+        '<svg viewBox="0 0 320 90" role="img" aria-label="30-day price chart"><defs><linearGradient id="hg2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" style="stop-color:var(--accent)"/><stop offset="1" style="stop-color:var(--accent2)"/></linearGradient></defs>' +
+        '<line x1="0" y1="20" x2="320" y2="20" stroke="var(--line)" stroke-dasharray="2 5"/><line x1="0" y1="45" x2="320" y2="45" stroke="var(--line)" stroke-dasharray="2 5"/><line x1="0" y1="70" x2="320" y2="70" stroke="var(--line)" stroke-dasharray="2 5"/>' +
+        '<path class="ln" pathLength="1" d="' + d + '" fill="none" stroke="url(#hg2)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="' + lp[0].toFixed(1) + '" cy="' + lp[1].toFixed(1) + '" r="4.5" fill="' + col + '"/></svg>' +
+        (s.verdict === "none" ? "" : '<div class="verdict"><div class="v ' + s.verdict + '">' + D.esc(vname) + ' · beta</div></div>') +
+        '<p class="fine">' + D.esc(HW.t("card.fine2")) + '</p>';
+    }
+    try { liveHero(); document.addEventListener("hw-lang", function () { try { liveHero(); } catch (e) {} }); } catch (e) { console.warn("live hero failed", e); }
     tick();
   } catch (e) { console.warn("live data unavailable", e); }
 })();

@@ -238,3 +238,5 @@ html,body{overflow-x:clip;max-width:100%}
   .wrap{gap:32px}
   h1{overflow-wrap:anywhere}
 }
+
+.soc .s.live{opacity:1;cursor:pointer;color:var(--accent);transition:transform .2s,box-shadow .2s}.soc .s.live:hover{transform:translateY(-3px);box-shadow:0 8px 22px color-mix(in srgb,var(--accent) 35%,transparent)}
