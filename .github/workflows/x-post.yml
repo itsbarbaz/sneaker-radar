@@ -1,0 +1,49 @@
+name: Post on X
+
+# Pubblica su X l'immagine del giorno. Resta SPENTO finche' non attivi tutto:
+#  1) Settings > Secrets and variables > Actions > Secrets: X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET
+#  2) Variables: X_AUTOPOST = true  (e, se vuoi, X_POST_KIND = spotlight oppure movers)
+on:
+  workflow_run:
+    workflows: ["Social image"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "1 = prova senza pubblicare"
+        default: "1"
+
+permissions:
+  contents: write
+
+jobs:
+  post:
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && vars.X_AUTOPOST == 'true') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          ref: social
+          path: social
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install tweepy
+      - name: Post
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+          X_POST_KIND: ${{ vars.X_POST_KIND || 'spotlight' }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || '0' }}
+        run: python scripts/post_to_x.py social
+      - name: Save the posting date
+        run: |
+          cd social
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add x_last.txt 2>/dev/null || true
+          git commit -m "X posted $(date -u +%F)" || exit 0
+          git push
