@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Today's posts · Hypewise</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<script>try{var t=localStorage.getItem("hw-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="stylesheet" href="style.css?v=18">
+<style>
+.pp{max-width:720px;margin:0 auto;padding:24px 16px 60px}.pp h1{font-size:clamp(26px,6vw,40px);margin:6px 0}
+.pp .card{margin:18px 0;padding:14px;border:1px solid var(--line);border-radius:20px;background:var(--surface)}
+.pp img,.pp video{width:100%;height:auto;border-radius:14px;display:block;background:#0b0a16}
+.pp textarea{width:100%;min-height:150px;margin:10px 0;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--solid);color:inherit;font:15px/1.4 var(--sans,system-ui)}
+.pp .row{display:flex;gap:10px;flex-wrap:wrap}.pp .note{color:var(--muted);font-size:14px}
+</style></head><body><main class="pp">
+<p class="note"><a href="./">← Hypewise</a></p>
+<h1>Today's posts</h1>
+<p class="note">Private helper page: press and hold an image to save it, copy the text, then post. Check the numbers before you publish.</p>
+<div id="out"></div>
+</main>
+<script>
+var RAW="https://raw.githubusercontent.com/itsbarbaz/sneaker-radar/social/", bust="?t="+Date.now();
+var blocks=[["Sneaker spotlight (chart)","spotlight.png","spotlight.txt","img"],["Biggest moves (X format)","today.png","caption.txt","img"],["Instagram format","today-ig.png","caption.txt","img"],["Video (Reel / TikTok / Shorts)","today.mp4","caption.txt","video"]];
+var out=document.getElementById("out");
+blocks.forEach(function(b,i){
+  var media=b[3]==="video"?'<video src="'+RAW+b[1]+bust+'" controls playsinline></video>':'<img src="'+RAW+b[1]+bust+'" alt="">';
+  var d=document.createElement("div");d.className="card";
+  d.innerHTML='<h2 style="margin:0 0 10px;font-size:18px">'+b[0]+'</h2>'+media+'<textarea id="t'+i+'" readonly>Loading…</textarea><div class="row"><button class="btn" data-i="'+i+'">Copy text</button><a class="btn ghost" href="'+RAW+b[1]+'" download target="_blank" rel="noopener">Open file</a></div>';
+  out.appendChild(d);
+  fetch(RAW+b[2]+bust).then(function(r){return r.text()}).then(function(t){document.getElementById("t"+i).value=t}).catch(function(){document.getElementById("t"+i).value="(text not available)"});
+});
+out.addEventListener("click",function(e){var b=e.target.closest("button[data-i]");if(!b)return;var ta=document.getElementById("t"+b.dataset.i);ta.select();try{navigator.clipboard.writeText(ta.value)}catch(er){document.execCommand("copy")}var o=b.textContent;b.textContent="Copied!";setTimeout(function(){b.textContent=o},1400)});
+</script></body></html>
