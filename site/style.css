@@ -249,3 +249,7 @@ html,body{overflow-x:clip;max-width:100%}
 .heart[aria-pressed="true"] svg,.favbtn[aria-pressed="true"] svg{fill:#ff3d6e;stroke:#ff3d6e}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
 .actions .btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+
+/* the top bar (and its theme menu) must stay above anything that follows */
+nav{position:relative;z-index:50}
+.tmenu ul{z-index:60}
