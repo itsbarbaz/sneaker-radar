@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Compare sneakers · Hypewise</title>
+<meta name="description" content="Compare two sneakers side by side: resale price, trend and the Cop/Wait/Sell signal. Estimates only, not financial advice.">
+<link rel="canonical" href="https://itsbarbaz.github.io/sneaker-radar/compare.html">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Hypewise">
+<meta property="og:title" content="Compare sneakers · Hypewise"><meta property="og:description" content="Two sneakers, one chart: price, trend and signal side by side.">
+<meta property="og:image" content="https://itsbarbaz.github.io/sneaker-radar/og-image.png"><meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<script>try{var t=localStorage.getItem("hw-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="stylesheet" href="style.css?v=19">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Apple-style: lots of air, huge numbers, quiet colour. */
+.cmp{display:flex;flex-direction:column;gap:56px;padding-bottom:40px}
+.cmp h1{font-weight:800;font-size:clamp(40px,8vw,80px);line-height:1;margin:0;letter-spacing:-.04em}
+.cmp .lead{font-size:clamp(17px,2.4vw,22px);color:var(--muted);max-width:34ch;margin:14px 0 0;line-height:1.4}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.slot{position:relative;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.slot .cover{aspect-ratio:16/11}
+.slot .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px}
+.slot h2{font-size:clamp(18px,2.6vw,26px);margin:0;line-height:1.15;letter-spacing:-.02em;text-wrap:balance}
+.slot .sku{font:13px var(--mono);color:var(--muted)}
+.slot .big{font:800 clamp(40px,8vw,76px)/1 var(--display);letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+.slot .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.pick{position:relative}
+.pick input{width:100%;padding:13px 16px;border-radius:14px;border:1px solid var(--line);background:var(--tint);color:var(--ink);font:500 15px var(--body,inherit)}
+.pick input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.pick ul{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 6px);margin:0;padding:6px;list-style:none;background:var(--solid);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);max-height:300px;overflow:auto}
+.pick li{padding:10px 12px;border-radius:10px;cursor:pointer;font-size:14px;display:flex;justify-content:space-between;gap:12px}
+.pick li:hover,.pick li[aria-selected="true"]{background:var(--tint)}
+.pick li small{color:var(--muted);font:12px var(--mono);white-space:nowrap}
+.empty-slot{min-height:260px;justify-content:center;align-items:stretch;text-align:center;color:var(--muted)}
+.chartbox{padding:24px;display:flex;flex-direction:column;gap:16px}
+.chartbox header{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.chartbox h2{margin:0;font-size:22px}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+#cc{position:relative;width:100%}
+#cc svg{display:block;width:100%;height:auto;overflow:visible}
+#cc text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+.ctip{position:absolute;pointer-events:none;background:var(--solid);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:14px;padding:10px 14px;font-size:12px;color:var(--muted);transform:translate(-50%,-110%);white-space:nowrap}
+.ctip b{display:block;font:700 16px var(--display);color:var(--ink)}
+.tbl{display:flex;flex-direction:column}
+.tbl .tr{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;align-items:center;padding:20px 8px;border-bottom:1px solid var(--line)}
+.tbl .tr:last-child{border-bottom:0}
+.tbl .k{font:600 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:center}
+.tbl .v{font:700 clamp(20px,4vw,34px) var(--display);letter-spacing:-.03em;text-align:center;font-variant-numeric:tabular-nums}
+.tbl .v small{display:block;font:500 12px var(--mono);color:var(--muted);letter-spacing:0;margin-top:4px}
+.tbl .v.cop{color:var(--up)}.tbl .v.sell{color:var(--down)}.tbl .v.wait{color:var(--wait)}
+.tbl .v.up{color:var(--up)}.tbl .v.down{color:var(--down)}
+.msg{padding:50px 10px;text-align:center;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){#cc .ln{stroke-dasharray:1;stroke-dashoffset:1;animation:cdraw 1.2s cubic-bezier(.4,0,.2,1) forwards}@keyframes cdraw{to{stroke-dashoffset:0}}}
+@media (max-width:620px){.duo{gap:10px}.slot{padding:10px}.tbl .tr{grid-template-columns:1fr 1fr;row-gap:6px}.tbl .k{grid-column:1/-1;order:-1}}
+</style></head><body>
+<div class="wrap">
+  <nav>
+    <div class="nav-left"><button id="theme" class="theme" type="button"></button><a class="mark" href="./">Hype<span>wise</span></a></div>
+    <div class="links"><a href="./" data-i18n="nav.home">Home</a><a href="board.html" data-i18n="nav.prices">Prices</a><select id="lang" class="langsel" aria-label="Language"></select></div>
+  </nav>
+  <main class="cmp">
+    <header class="rise">
+      <h1 class="grad-text" data-i18n="cmp.h1">Compare</h1>
+      <p class="lead" data-i18n="cmp.sub">Two sneakers. One chart. See which way each one is moving.</p>
+    </header>
+    <section class="duo" id="duo"></section>
+    <section class="glass chartbox" id="chartbox" hidden>
+      <header><div><h2 data-i18n="cmp.chart">Price history</h2><p class="fine" id="cnote" style="margin:6px 0 0"></p></div>
+        <div class="seg"><button type="button" class="chip" data-m="pct" aria-pressed="true" data-i18n="cmp.pct">% change</button><button type="button" class="chip" data-m="price" aria-pressed="false" data-i18n="cmp.price">Price</button></div></header>
+      <div class="legend" id="legend"></div>
+      <div id="cc"></div>
+    </section>
+    <section class="glass" id="table" hidden style="padding:16px 24px"></section>
+    <p class="fine" data-i18n="sg.disc"></p>
+  </main>
+  <footer><p data-i18n="foot1"></p><p data-i18n="foot2"></p></footer>
+</div>
+<script src="i18n.js?v=19"></script>
+<script src="strings.js?v=19"></script>
+<script src="app.js?v=19"></script>
+<script src="signal.js?v=19"></script>
+<script src="favs.js?v=19"></script>
+<script src="ui.js?v=19"></script>
+<script>
+HW.mount(); UI.initTheme(); UI.backdrop(); UI.banner(); UI.footer();
+var D = window.HWD, $ = function (id) { return document.getElementById(id); };
+var COL = ["var(--accent)", "#ff8a5c"], items = [], sel = [null, null], mode = "pct", q = new URLSearchParams(location.search);
+
+function name(x) { return D.parseTitle(x.title, x.brand).name; }
+function dfmt(ms) { return new Date(ms).toLocaleDateString(HW.locale(), { month: "short", day: "numeric" }); }
+function pushUrl() { var p = new URLSearchParams(); if (sel[0]) p.set("a", sel[0].sku); if (sel[1]) p.set("b", sel[1].sku); try { history.replaceState(null, "", location.pathname + (p.toString() ? "?" + p : "")); } catch (e) {} }
+
+function slot(i) {
+  var x = sel[i], c = COL[i], box = '<div class="pick"><input type="search" autocomplete="off" data-i="' + i + '" placeholder="' + D.esc(HW.t("cmp.search")) + '" aria-label="' + D.esc(HW.t("cmp.pickN")) + '"><ul hidden></ul></div>';
+  if (!x) return '<div class="glass slot empty-slot"><div><span class="dot" style="background:' + c + '"></span>' + D.esc(HW.t("cmp.pickN")) + "</div>" + box + "</div>";
+  var st = D.stats(x);
+  return '<div class="glass slot rise"><div class="photo">' + D.cover(x, "s") + '</div><div><span class="dot" style="background:' + c + '"></span><span class="sku">' + D.esc(x.brand) + " · " + D.esc(x.sku) + "</span></div><h2>" + D.esc(name(x)) + '</h2><div class="big">' + D.money(st.last) + '</div><div class="row"><a class="btn ghost" href="shoe.html?sku=' + encodeURIComponent(x.sku) + '">' + D.esc(HW.t("f.open")) + " →</a></div>" + box + "</div>";
+}
+function renderSlots() { $("duo").innerHTML = slot(0) + slot(1); sync(); }
+
+function sync() { renderSlots2(); }
+function renderSlots2() { drawChart(); drawTable(); pushUrl(); }
+
+function drawChart() {
+  var a = sel[0], b = sel[1], box = $("chartbox");
+  if (!a || !b) { box.hidden = true; return; }
+  box.hidden = false;
+  var start = Math.max(a.times[0], b.times[0]), end = Math.min(a.times[a.times.length - 1], b.times[b.times.length - 1]);
+  $("legend").innerHTML = [a, b].map(function (x, i) { return '<span><i style="background:' + COL[i] + '"></i>' + D.esc(name(x)) + "</span>"; }).join("");
+  if (end - start < 36e5) { $("cc").innerHTML = '<div class="msg">' + D.esc(HW.t("cmp.nooverlap")) + "</div>"; $("cnote").textContent = ""; return; }
+  $("cnote").textContent = mode === "pct" ? HW.f("cmp.note", { d: dfmt(start) }) : "";
+  var S = [a, b].map(function (x) {
+    var p = [], t = [], base = null;
+    for (var i = 0; i < x.times.length; i++) if (x.times[i] >= start - 1) { if (base === null) base = x.prices[i]; p.push(mode === "pct" ? (x.prices[i] - base) / base * 100 : x.prices[i]); t.push(x.times[i]); }
+    return { p: p, t: t };
+  });
+  var all = S[0].p.concat(S[1].p), mn = Math.min.apply(null, all), mx = Math.max.apply(null, all);
+  if (mx === mn) { mx += 1; mn -= 1; }
+  var pad = (mx - mn) * 0.08; mn -= pad; mx += pad;
+  var w = Math.max(280, $("cc").clientWidth), h = Math.round(Math.max(260, Math.min(440, w * 0.45))), m = { l: 56, r: 14, t: 14, b: 30 }, iw = w - m.l - m.r, ih = h - m.t - m.b, tr = (end - start) || 1;
+  var X = function (v) { return m.l + (v - start) / tr * iw; }, Y = function (v) { return m.t + ih - (v - mn) / (mx - mn) * ih; };
+  var fmt = function (v) { return mode === "pct" ? (v > 0 ? "+" : "") + v.toFixed(0) + "%" : D.money(v); };
+  var grid = "";
+  for (var i = 0; i <= 4; i++) { var v = mn + (mx - mn) * i / 4; grid += '<line x1="' + m.l + '" x2="' + (w - m.r) + '" y1="' + Y(v).toFixed(1) + '" y2="' + Y(v).toFixed(1) + '" stroke="var(--line)" stroke-dasharray="2 5"/><text x="' + (m.l - 8) + '" y="' + (Y(v) + 4).toFixed(1) + '" text-anchor="end">' + fmt(v) + "</text>"; }
+  if (mode === "pct" && mn < 0 && mx > 0) grid += '<line x1="' + m.l + '" x2="' + (w - m.r) + '" y1="' + Y(0).toFixed(1) + '" y2="' + Y(0).toFixed(1) + '" stroke="var(--muted)" stroke-opacity=".5"/>';
+  var xl = "";
+  for (var k = 0; k < 4; k++) { var tv = start + tr * k / 3; xl += '<text x="' + X(tv).toFixed(1) + '" y="' + (h - 8) + '" text-anchor="' + (k === 0 ? "start" : k === 3 ? "end" : "middle") + '">' + dfmt(tv) + "</text>"; }
+  var paths = S.map(function (s, i) {
+    var d = s.p.map(function (v, j) { return (j ? "L" : "M") + X(s.t[j]).toFixed(1) + " " + Y(v).toFixed(1); }).join(" ");
+    var lx = X(s.t[s.t.length - 1]), ly = Y(s.p[s.p.length - 1]);
+    return '<path class="ln" pathLength="1" d="' + d + '" fill="none" stroke="' + COL[i] + '" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><circle cx="' + lx.toFixed(1) + '" cy="' + ly.toFixed(1) + '" r="5" fill="' + COL[i] + '" stroke="var(--solid)" stroke-width="2.5"/>';
+  }).join("");
+  $("cc").innerHTML = '<svg viewBox="0 0 ' + w + " " + h + '" width="' + w + '" height="' + h + '" role="img" aria-label="' + D.esc(HW.t("cmp.chart")) + '">' + grid + xl + paths +
+    '<line id="cl" y1="' + m.t + '" y2="' + (m.t + ih) + '" stroke="var(--muted)" stroke-dasharray="3 4" style="display:none"/><rect id="ch" x="' + m.l + '" y="' + m.t + '" width="' + iw + '" height="' + ih + '" fill="transparent" style="touch-action:pan-y"/></svg><div class="ctip" id="ct" style="display:none"></div>';
+  var hit = $("ch"), line = $("cl"), tip = $("ct");
+  function at(s, t) { var best = 0; for (var j = 1; j < s.t.length; j++) if (Math.abs(s.t[j] - t) < Math.abs(s.t[best] - t)) best = j; return best; }
+  function move(ev) {
+    var r = $("cc").getBoundingClientRect(), x = Math.min(Math.max(ev.clientX - r.left, m.l), w - m.r), t = start + (x - m.l) / iw * tr;
+    var rows = S.map(function (s, i) { var j = at(s, t); return '<span style="color:' + COL[i] + '">●</span> ' + D.esc(name([a, b][i])) + ": <b style=\"display:inline\">" + (mode === "pct" ? D.pct(s.p[j], HW.locale()) : D.money(s.p[j])) + "</b>"; });
+    line.setAttribute("x1", x); line.setAttribute("x2", x); line.style.display = "";
+    tip.innerHTML = D.esc(dfmt(t)) + "<br>" + rows.join("<br>"); tip.style.display = ""; tip.style.left = Math.min(Math.max(x, 110), w - 110) + "px"; tip.style.top = (m.t + 40) + "px";
+  }
+  hit.addEventListener("pointermove", move); hit.addEventListener("pointerdown", move);
+  hit.addEventListener("pointerleave", function () { line.style.display = "none"; tip.style.display = "none"; });
+}
+
+function drawTable() {
+  var a = sel[0], b = sel[1], t = $("table");
+  if (!a || !b) { t.hidden = true; return; }
+  t.hidden = false;
+  var loc = HW.locale();
+  function pc(v) { return v === null ? "–" : D.pct(v, loc); }
+  function cl(v) { return v === null ? "" : v > 0.05 ? " up" : v < -0.05 ? " down" : ""; }
+  var info = [a, b].map(function (x) {
+    var st = D.stats(x), s = HWSignal.signal(x), all = x.times[x.times.length - 1] - x.times[0] > 5 * 36e5 ? (st.last - st.first) / st.first * 100 : null;
+    return { st: st, c7: D.change(x, 7), all: all, s: s };
+  });
+  function tr(key, cell) { return '<div class="tr"><div class="v">' + cell(0) + '</div><div class="k">' + D.esc(HW.t(key)) + '</div><div class="v">' + cell(1) + "</div></div>"; }
+  var out = tr("cmp.now", function (i) { return D.money(info[i].st.last); }) +
+    tr("d.chg7", function (i) { return '<span class="' + cl(info[i].c7).trim() + '">' + pc(info[i].c7) + "</span>"; }) +
+    tr("d.chgAll", function (i) { return '<span class="' + cl(info[i].all).trim() + '">' + pc(info[i].all) + "</span>"; }) +
+    tr("d.low", function (i) { return D.money(info[i].st.min); }) +
+    tr("d.high", function (i) { return D.money(info[i].st.max); }) +
+    tr("d.reads", function (i) { return String(info[i].st.n); }) +
+    tr("sg.mini", function (i) {
+      var s = info[i].s; if (s.verdict === "none") return "–";
+      return '<span class="' + s.verdict + '">' + D.esc(HW.t(s.verdict === "cop" ? "cop.name" : s.verdict === "sell" ? "sell.name" : "wait.name")) + "</span><small>" + D.esc(HW.t("sg.conf")) + " " + s.conf + "%</small>";
+    });
+  t.innerHTML = '<div class="tbl">' + out + "</div>";
+}
+
+/* pickers */
+function find(sku) { for (var i = 0; i < items.length; i++) if (items[i].sku === sku) return items[i]; return null; }
+function results(txt) {
+  var s = txt.trim().toLowerCase(); if (s.length < 2) return [];
+  return items.filter(function (x) { return (x.title + " " + x.sku).toLowerCase().indexOf(s) > -1; }).slice(0, 8);
+}
+document.addEventListener("input", function (e) {
+  var inp = e.target.closest && e.target.closest(".pick input"); if (!inp) return;
+  var ul = inp.parentNode.querySelector("ul"), r = results(inp.value);
+  ul.hidden = !r.length;
+  ul.innerHTML = r.map(function (x) { return '<li role="option" data-sku="' + D.esc(x.sku) + '" data-i="' + inp.dataset.i + '"><span>' + D.esc(name(x)) + "</span><small>" + D.money(x.prices[x.prices.length - 1]) + "</small></li>"; }).join("");
+});
+document.addEventListener("click", function (e) {
+  var li = e.target.closest && e.target.closest(".pick li");
+  if (li) { sel[Number(li.dataset.i)] = find(li.dataset.sku); renderSlots(); return; }
+  if (!(e.target.closest && e.target.closest(".pick"))) Array.prototype.forEach.call(document.querySelectorAll(".pick ul"), function (u) { u.hidden = true; });
+});
+Array.prototype.forEach.call(document.querySelectorAll("[data-m]"), function (b) {
+  b.addEventListener("click", function () { mode = b.dataset.m; Array.prototype.forEach.call(document.querySelectorAll("[data-m]"), function (o) { o.setAttribute("aria-pressed", String(o === b)); }); drawChart(); });
+});
+var rz; addEventListener("resize", function () { clearTimeout(rz); rz = setTimeout(drawChart, 120); });
+document.addEventListener("hw-lang", function () { renderSlots(); });
+
+(async function () {
+  try { items = await D.loadAll(); } catch (e) { console.warn("Supabase unreachable, showing sample data", e); items = D.demoData(); }
+  sel = [find(q.get("a") || ""), find(q.get("b") || "")];
+  if (!sel[1] && sel[0]) { /* suggest the closest by brand */ }
+  renderSlots();
+})();
+</script></body></html>

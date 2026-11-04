@@ -9,7 +9,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="claude:viewport-fit-sides" content="cover">
 <script>try{var t=localStorage.getItem("hw-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<link rel="stylesheet" href="style.css?v=18">
+<link rel="stylesheet" href="style.css?v=19">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>/* Layout: back link, hero (photo + big price), chart card with live readout, four figures, story + specs, links + signal. */
 .back{display:inline-flex;gap:6px;font-size:14px;font-weight:600;color:var(--muted);text-decoration:none;width:max-content}
@@ -133,11 +133,12 @@ td:last-child,th:last-child{text-align:right;font-family:var(--mono)}
   <div id="view"><div class="empty" data-i18n="d.loading">Loading…</div></div>
   <footer><p data-i18n="foot1"></p><p data-i18n="foot2"></p></footer>
 </div>
-<script src="i18n.js?v=18"></script>
-<script src="strings.js?v=18"></script>
-<script src="app.js?v=18"></script>
-<script src="signal.js?v=18"></script>
-<script src="ui.js?v=18"></script>
+<script src="i18n.js?v=19"></script>
+<script src="strings.js?v=19"></script>
+<script src="app.js?v=19"></script>
+<script src="signal.js?v=19"></script>
+<script src="favs.js?v=19"></script>
+<script src="ui.js?v=19"></script>
 <script>
 HW.mount(); UI.initTheme(); UI.backdrop(); UI.banner(); UI.footer();
 var D = window.HWD, $ = function (id) { return document.getElementById(id); };
@@ -287,7 +288,7 @@ function view() {
     '<div class="rise" style="--i:1"><a class="eyebrow" href="board.html?brand=' + encodeURIComponent(x.brand) + '">' + D.bmark(x.brand, 30) + "<span>" + D.esc(x.brand) + "</span></a><h1>" + D.esc(tit.name) + '</h1><span class="sku">' + D.esc(x.sku) + "</span>" +
     '<div class="bigprice grad-text" id="bp" data-v="' + st.last + '">' + D.money(st.last) + '</div><div class="pills">' +
     '<div class="pill glass"><small>' + D.esc(HW.t("d.chg7")) + '</small><b class="' + cls(c7) + '">' + (c7 === null ? "–" : arrow(c7) + D.pct(c7, loc)) + "</b></div>" +
-    '<div class="pill glass"><small>' + D.esc(HW.t("d.chgAll")) + '</small><b class="' + cls(hasAll ? all : null) + '">' + (hasAll ? arrow(all) + D.pct(all, loc) : "–") + "</b></div></div>" + sigHero(x) + "</div></section>" +
+    '<div class="pill glass"><small>' + D.esc(HW.t("d.chgAll")) + '</small><b class="' + cls(hasAll ? all : null) + '">' + (hasAll ? arrow(all) + D.pct(all, loc) : "–") + "</b></div></div>" + '<div class="actions">' + HWF.button(x.sku) + '<a class="btn ghost" href="compare.html?a=' + encodeURIComponent(x.sku) + '">⇄ ' + D.esc(HW.t("cmp.btn")) + "</a></div>" + sigHero(x) + "</div></section>" +
     '<section class="glass chartcard rise" style="--i:2"><div class="chart-head"><div><h2>' + D.esc(HW.t("d.chart")) + '</h2><div class="readout" id="readout"></div></div><div class="ranges seg">' +
     ["7", "30", "all"].map(function (r) { var lab = HW.t(r === "7" ? "d.r7" : r === "30" ? "d.r30" : "d.rAll"); return '<button type="button" class="chip" data-r="' + r + '" aria-pressed="' + (r === range) + '">' + D.esc(lab) + "</button>"; }).join("") +
     '</div></div><p class="fine" style="font-size:14px">' + D.esc(HW.t("d.explain")) + '</p><div id="chart"></div>' +

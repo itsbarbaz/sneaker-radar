@@ -10,7 +10,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="claude:viewport-fit-sides" content="cover">
 <script>try{var t=localStorage.getItem("hw-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<link rel="stylesheet" href="style.css?v=18">
+<link rel="stylesheet" href="style.css?v=19">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: floating pill nav, big gradient title, price ticker, three glass figures, filter pills, then one block per brand with a grid of glass sneaker cards. */
@@ -151,6 +151,7 @@ h1{font-weight:800;font-size:clamp(38px,7vw,68px);line-height:1;margin:0}
         <select id="bsel" data-i18n-aria="b.brandpick"></select>
         <button type="button" id="bnext" data-i18n-aria="b.next">›</button>
       </div>
+      <button type="button" id="savedf" class="chip" aria-pressed="false"><span data-i18n="fav.filter">Saved</span> <span class="n" id="savedn">0</span></button>
       <select id="sigf" data-i18n-aria="sg.mini">
         <option value="all" data-i18n="sf.all"></option>
         <option value="cop" data-i18n="cop.name"></option>
@@ -179,11 +180,12 @@ h1{font-weight:800;font-size:clamp(38px,7vw,68px);line-height:1;margin:0}
   <footer><p data-i18n="b.foot"></p><p data-i18n="l.brandsnote"></p></footer>
 </div>
 
-<script src="i18n.js?v=18"></script>
-<script src="strings.js?v=18"></script>
-<script src="app.js?v=18"></script>
-<script src="signal.js?v=18"></script>
-<script src="ui.js?v=18"></script>
+<script src="i18n.js?v=19"></script>
+<script src="strings.js?v=19"></script>
+<script src="app.js?v=19"></script>
+<script src="signal.js?v=19"></script>
+<script src="favs.js?v=19"></script>
+<script src="ui.js?v=19"></script>
 <script>
 HW.mount(); UI.initTheme(); UI.backdrop(); UI.banner(); UI.footer(); UI.sync();
 var D = window.HWD, ALL = "__all__", PAGE = 8, state = { items: [], brand: ALL, demo: false, ready: false, shown: {} };
@@ -197,10 +199,11 @@ function render() {
   var q = $("q").value.trim().toLowerCase(), sort = $("sort").value, loc = HW.locale(), searching = !!q;
   var rows = state.items.filter(function (x) { return !q || (x.title + " " + x.sku).toLowerCase().indexOf(q) > -1; })
     .map(function (x) { return Object.assign({}, x, { price: x.prices[x.prices.length - 1], chg: D.change(x, 7), sig: HWSignal.signal(x) }); })
-    .filter(function (x) { var f = $("sigf").value; return f === "all" || x.sig.verdict === f; });
+    .filter(function (x) { var f = $("sigf").value; return f === "all" || x.sig.verdict === f; })
+    .filter(function (x) { return !state.saved || HWF.has(x.sku); });
   var out = $("list");
   $("res").textContent = HW.f("f.res", { n: rows.length });
-  if (!rows.length) { out.innerHTML = '<div class="empty">' + D.esc(HW.t(state.items.length ? "b.nomatch" : "b.nodata")) + "</div>"; return; }
+  if (!rows.length) { out.innerHTML = '<div class="empty">' + D.esc(HW.t(state.saved && !q ? "fav.empty" : state.items.length ? "b.nomatch" : "b.nodata")) + "</div>"; return; }
   var by = {}; rows.forEach(function (x) { (by[x.brand] = by[x.brand] || []).push(x); });
   var brands = Object.keys(by).sort(function (a, b) { return D.brandRank(a) - D.brandRank(b) || a.localeCompare(b); });
   if (state.brand !== ALL) brands = brands.filter(function (b) { return b === state.brand; });
@@ -215,7 +218,7 @@ function render() {
       (rest > 0 ? '<button type="button" class="chip more" data-more="' + D.esc(b) + '">' + D.esc(HW.f(state.brand === ALL && !searching && !state.shown[b] ? "b.showall" : "b.showmore", { n: list.length })) + "</button>" : "") +
       '</header><div class="grid">' + vis.map(function (x) {
         var none = x.chg === null, cls = none ? "flat" : x.chg > 0.05 ? "up" : x.chg < -0.05 ? "down" : "flat", i = firstRender ? Math.min(delay++, 16) : 0;
-        return '<a class="scard glass' + (firstRender ? " rise" : "") + '" style="--i:' + i + '" href="shoe.html?sku=' + encodeURIComponent(x.sku) + '"><span class="open">' + D.esc(HW.t("f.open")) + ' →</span>' + D.cover(x, "s", D.vbadge(x, vt, vtip) + (x.sig.verdict !== "none" ? '<span class="sp ' + x.sig.verdict + '">' + D.esc(HW.t(x.sig.verdict === "cop" ? "cop.name" : x.sig.verdict === "sell" ? "sell.name" : "wait.name")) + "</span>" : "")) +
+        return '<a class="scard glass' + (firstRender ? " rise" : "") + '" style="--i:' + i + '" href="shoe.html?sku=' + encodeURIComponent(x.sku) + '"><span class="open">' + D.esc(HW.t("f.open")) + ' →</span>' + HWF.heart(x.sku) + D.cover(x, "s", D.vbadge(x, vt, vtip) + (x.sig.verdict !== "none" ? '<span class="sp ' + x.sig.verdict + '">' + D.esc(HW.t(x.sig.verdict === "cop" ? "cop.name" : x.sig.verdict === "sell" ? "sell.name" : "wait.name")) + "</span>" : "")) +
           '<div class="body"><b>' + D.esc(x.title) + '</b><span class="sku">' + D.esc(x.sku) + "</span>" +
           '<div class="pr"><span class="price">' + D.money(x.price) + '</span><span class="chg ' + cls + '">' + (none ? D.esc(HW.t("b.collecting")) : D.pct(x.chg, loc)) + "</span></div>" +
           D.spark(x.prices, x.times) + "</div></a>";
@@ -261,6 +264,10 @@ $("qclear").addEventListener("click", function () { $("q").value = ""; $("qclear
 (function () { var k = 0, ph = ["f.ph1", "f.ph2", "f.ph3", "f.ph4"]; function set() { $("q").placeholder = HW.t(ph[k]); } set(); document.addEventListener("hw-lang", set);
   if (!matchMedia("(prefers-reduced-motion: reduce)").matches) setInterval(function () { if (document.activeElement !== $("q") && !$("q").value) { k = (k + 1) % ph.length; set(); } }, 2800); })();
 $("sort").addEventListener("change", render);
+function savedSync() { $("savedn").textContent = HWF.list().length; $("savedf").setAttribute("aria-pressed", String(!!state.saved)); }
+$("savedf").addEventListener("click", function () { state.saved = !state.saved; state.shown = {}; savedSync(); render(); });
+document.addEventListener("hw-favs", function () { savedSync(); if (state.saved) render(); });
+savedSync();
 $("sigf").addEventListener("change", function () { state.shown = {}; render(); });
 function goBrand(v) { state.brand = v; state.shown = {}; chips(); render(); }
 $("bsel").addEventListener("change", function () { goBrand(this.value); });

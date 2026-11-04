@@ -240,3 +240,12 @@ html,body{overflow-x:clip;max-width:100%}
 }
 
 .soc .s.live{opacity:1;cursor:pointer;color:var(--accent);transition:transform .2s,box-shadow .2s}.soc .s.live:hover{transform:translateY(-3px);box-shadow:0 8px 22px color-mix(in srgb,var(--accent) 35%,transparent)}
+
+/* ---- Saved sneakers + compare shortcuts ---- */
+.heart{position:absolute;z-index:3;left:20px;top:20px;width:36px;height:36px;display:grid;place-items:center;padding:0;border-radius:50%;border:1px solid var(--line);background:color-mix(in srgb,var(--solid) 82%,transparent);backdrop-filter:blur(8px);color:var(--ink);cursor:pointer;transition:transform .18s,background .18s}
+.heart svg,.favbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round}
+.heart:hover{transform:scale(1.1)}
+.heart[aria-pressed="true"],.favbtn[aria-pressed="true"] svg{color:#ff3d6e}
+.heart[aria-pressed="true"] svg,.favbtn[aria-pressed="true"] svg{fill:#ff3d6e;stroke:#ff3d6e}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.actions .btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none}
