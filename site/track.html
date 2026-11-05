@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Signal record · Hypewise</title>
+<meta name="description" content="Every Cop and Sell signal Hypewise gives, logged with date and price and checked after 7 and 30 days. Hits and misses, all public. Estimates only, not financial advice.">
+<link rel="canonical" href="https://itsbarbaz.github.io/sneaker-radar/track.html">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Hypewise">
+<meta property="og:title" content="Signal record · Hypewise"><meta property="og:description" content="We log every Cop and Sell signal and check what happened next. Hits and misses, all public.">
+<meta property="og:image" content="https://itsbarbaz.github.io/sneaker-radar/og-image.png"><meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<script>try{var t=localStorage.getItem("hw-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="stylesheet" href="style.css?v=21">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+.rec{display:flex;flex-direction:column;gap:48px;padding-bottom:40px}
+.rec h1{font-weight:800;font-size:clamp(40px,8vw,80px);line-height:1;margin:0;letter-spacing:-.04em}
+.rec .lead{font-size:clamp(17px,2.4vw,22px);color:var(--muted);max-width:40ch;margin:14px 0 0;line-height:1.4}
+.since{font:600 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:18px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+.tile{padding:22px}
+.tile small{display:block;font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tile b{display:block;font:800 clamp(34px,6vw,56px)/1 var(--display);letter-spacing:-.04em;margin:10px 0 4px;font-variant-numeric:tabular-nums}
+.tile span{font-size:13px;color:var(--muted)}
+.byv{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.vcard{padding:22px;display:flex;flex-direction:column;gap:12px}
+.vcard h2{margin:0;font-size:22px}
+.vcard.cop h2{color:var(--up)}.vcard.sell h2{color:var(--down)}
+.bar{display:flex;height:12px;border-radius:99px;overflow:hidden;background:var(--tint)}
+.bar i{display:block;height:100%}.bar .h{background:var(--up)}.bar .f{background:var(--muted);opacity:.45}.bar .m{background:var(--down)}
+.vcard .nums{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted)}.vcard .nums b{color:var(--ink)}
+.note{padding:22px;line-height:1.6;font-size:15px}
+.note h2{margin:0 0 8px;font-size:20px}.note p{margin:0 0 8px}
+.early{padding:18px 22px;border-style:dashed;font-size:15px;line-height:1.5}
+.tw{padding:8px 18px;overflow:auto}
+.tw table{width:100%;border-collapse:collapse;font-size:14px;min-width:620px}
+.tw th{font:600 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;padding:14px 10px;border-bottom:1px solid var(--line)}
+.tw td{padding:12px 10px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.tw tr:last-child td{border-bottom:0}
+.tw td a{color:var(--ink);font-weight:600;text-decoration:none}.tw td a:hover{color:var(--accent)}
+.tw .num{text-align:right;font-family:var(--mono)}.tw th.num{text-align:right}
+.pillv{font:700 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:99px;border:1px solid currentColor}
+.pillv.cop,.res.hit{color:var(--up)}.pillv.sell,.res.miss{color:var(--down)}.res.flat,.res.pending{color:var(--muted)}
+.res{font-weight:700}
+.msg{padding:40px 10px;text-align:center;color:var(--muted)}
+</style></head><body>
+<div class="wrap">
+  <nav>
+    <div class="nav-left"><button id="theme" class="theme" type="button"></button><a class="mark" href="./">Hype<span>wise</span></a></div>
+    <div class="links"><a href="./" data-i18n="nav.home">Home</a><a href="board.html" data-i18n="nav.prices">Prices</a><select id="lang" class="langsel" aria-label="Language"></select></div>
+  </nav>
+  <main class="rec">
+    <header class="rise">
+      <h1 class="grad-text" data-i18n="tr.h1">Signal record</h1>
+      <p class="lead" data-i18n="tr.sub"></p>
+      <div class="since" id="since"></div>
+    </header>
+    <section class="tiles" id="tiles"></section>
+    <p class="glass early" id="early" hidden></p>
+    <section class="byv" id="byv"></section>
+    <section class="glass note"><h2 data-i18n="tr.howh">How we score it</h2><p data-i18n="tr.how"></p><p class="fine" data-i18n="tr.limits"></p></section>
+    <section class="glass tw" id="tw" hidden></section>
+    <p class="fine" data-i18n="sg.disc"></p>
+  </main>
+  <footer><p data-i18n="foot1"></p><p data-i18n="foot2"></p></footer>
+</div>
+<script src="i18n.js?v=21"></script>
+<script src="strings.js?v=21"></script>
+<script src="app.js?v=21"></script>
+<script src="favs.js?v=21"></script>
+<script src="ui.js?v=21"></script>
+<script>
+HW.mount(); UI.initTheme(); UI.backdrop(); UI.banner(); UI.footer();
+var D = window.HWD, $ = function (id) { return document.getElementById(id); }, rows = [], shown = 40, BAND = 2, MIN = 30;
+
+function result(r, p) { // p = price after 7 days
+  if (p == null) return r.checked_7d_at ? "none" : "pending";
+  var ch = (p - r.price_at_signal) / r.price_at_signal * 100, dir = r.signal === "cop" ? ch : -ch;
+  return dir > BAND ? "hit" : dir < -BAND ? "miss" : "flat";
+}
+function dfmt(s) { return new Date(s + "T12:00:00").toLocaleDateString(HW.locale(), { month: "short", day: "numeric", year: "numeric" }); }
+function name(r) { var p = r.products || {}; return D.parseTitle(p.title || "", p.brand).name || p.sku || "?"; }
+function pc(r, p) { if (p == null) return "–"; var ch = (p - r.price_at_signal) / r.price_at_signal * 100; return D.money(p) + ' <small style="color:var(--' + (ch > 0.05 ? "up" : ch < -0.05 ? "down" : "muted") + ')">' + D.pct(ch, HW.locale()) + "</small>"; }
+
+function draw() {
+  if (!rows.length) { $("tiles").innerHTML = '<div class="msg" style="grid-column:1/-1">' + D.esc(HW.t("tr.empty")) + "</div>"; return; }
+  var first = rows[rows.length - 1].signal_date;
+  $("since").textContent = HW.f("tr.since", { d: dfmt(first) });
+  var done = rows.filter(function (r) { var k = result(r, r.price_7d); return k === "hit" || k === "flat" || k === "miss"; });
+  var hits = done.filter(function (r) { return result(r, r.price_7d) === "hit"; }).length, enough = done.length >= MIN;
+  var firstCheck = new Date(Date.parse(first) + 10 * 864e5).toISOString().slice(0, 10);
+  $("tiles").innerHTML = [
+    ["tr.s.logged", String(rows.length), HW.f("tr.s.logged2", { c: rows.filter(function (r) { return r.signal === "cop"; }).length, s: rows.filter(function (r) { return r.signal === "sell"; }).length })],
+    ["tr.s.checked", String(done.length), HW.t("tr.s.checked2")],
+    ["tr.s.hit", enough ? Math.round(hits / done.length * 100) + "%" : "–", enough ? HW.f("tr.s.hit2", { h: hits, n: done.length }) : HW.t("tr.s.hit3")]
+  ].map(function (t) { return '<div class="glass tile rise"><small>' + D.esc(HW.t(t[0])) + "</small><b>" + t[1] + "</b><span>" + D.esc(t[2]) + "</span></div>"; }).join("");
+  var ea = $("early"); ea.hidden = enough; if (!enough) ea.textContent = HW.f("tr.early", { m: MIN, d: dfmt(firstCheck) });
+  $("byv").innerHTML = ["cop", "sell"].map(function (v) {
+    var all = rows.filter(function (r) { return r.signal === v; }), d = all.filter(function (r) { return done.indexOf(r) > -1; });
+    var h = d.filter(function (r) { return result(r, r.price_7d) === "hit"; }).length, f = d.filter(function (r) { return result(r, r.price_7d) === "flat"; }).length, m = d.length - h - f, t = d.length || 1;
+    return '<div class="glass vcard ' + v + '"><h2>' + D.esc(HW.t(v + ".name")) + '</h2><div class="bar" aria-hidden="true"><i class="h" style="width:' + h / t * 100 + '%"></i><i class="f" style="width:' + f / t * 100 + '%"></i><i class="m" style="width:' + m / t * 100 + '%"></i></div>' +
+      '<div class="nums"><span><b>' + h + "</b> " + D.esc(HW.t("tr.hit")) + "</span><span><b>" + f + "</b> " + D.esc(HW.t("tr.flat")) + "</span><span><b>" + m + "</b> " + D.esc(HW.t("tr.miss")) + "</span><span><b>" + (all.length - d.length) + "</b> " + D.esc(HW.t("tr.pending")) + "</span></div></div>";
+  }).join("");
+  var list = rows.slice(0, shown);
+  $("tw").hidden = false;
+  $("tw").innerHTML = "<table><thead><tr><th>" + [HW.t("tr.date"), HW.t("tr.shoe"), HW.t("tr.sig"), HW.t("tr.p0")].map(D.esc).join("</th><th>") + '</th><th class="num">' + D.esc(HW.t("tr.p7")) + '</th><th class="num">' + D.esc(HW.t("tr.p30")) + '</th><th class="num">' + D.esc(HW.t("tr.res")) + "</th></tr></thead><tbody>" +
+    list.map(function (r) {
+      var k = result(r, r.price_7d);
+      return "<tr><td>" + D.esc(dfmt(r.signal_date)) + '</td><td><a href="shoe.html?sku=' + encodeURIComponent((r.products || {}).sku || "") + '">' + D.esc(name(r)) + '</a></td><td><span class="pillv ' + r.signal + '">' + D.esc(HW.t(r.signal + ".name")) + "</span></td><td>" + D.money(r.price_at_signal) + '</td><td class="num">' + pc(r, r.price_7d) + '</td><td class="num">' + pc(r, r.price_30d) + '</td><td class="num"><span class="res ' + k + '">' + D.esc(HW.t("tr." + (k === "none" ? "nodata" : k))) + "</span></td></tr>";
+    }).join("") + "</tbody></table>" + (rows.length > shown ? '<div style="text-align:center;padding:14px"><button type="button" class="btn ghost" id="more">' + D.esc(HW.t("tr.more")) + "</button></div>" : "");
+  var mb = $("more"); if (mb) mb.addEventListener("click", function () { shown += 60; draw(); });
+}
+document.addEventListener("hw-lang", draw);
+(async function () {
+  try { rows = await D.api("signal_log?select=id,signal,signal_date,price_at_signal,price_7d,price_30d,checked_7d_at,products(title,brand,sku)&order=signal_date.desc,id.desc&limit=2000"); }
+  catch (e) { console.warn(e); rows = []; }
+  draw();
+})();
+</script></body></html>
