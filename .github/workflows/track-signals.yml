@@ -1,0 +1,20 @@
+name: Track signals
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Prova senza scrivere (1 = si)"
+        default: "1"
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Log and check signals
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: node scripts/track_signals.js
