@@ -253,3 +253,7 @@ html,body{overflow-x:clip;max-width:100%}
 /* the top bar (and its theme menu) must stay above anything that follows */
 nav{position:relative;z-index:50}
 .tmenu ul{z-index:60}
+
+.fyoung{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:20px 24px;margin-bottom:28px;border:1px solid var(--accent2);border-radius:20px;background:color-mix(in srgb,var(--accent2) 8%,transparent)}
+.fyoung b{font-family:var(--display);font-size:18px}.fyoung p{margin:4px 0 0;color:var(--muted);font-size:14px;max-width:56ch}
+.fyb{display:flex;gap:10px;flex-wrap:wrap}

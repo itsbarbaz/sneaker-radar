@@ -65,7 +65,7 @@
     var p = document.getElementById("bn-text"); if (!p) return;
     function set() {
       var txt = HW.t("bn." + (bi + 1));
-      if (bi === 3) p.innerHTML = '<a href="https://x.com/gethypewise" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">' + HWD.esc(txt) + " →</a>"; else p.textContent = txt;
+      if (bi === 3) p.innerHTML = '<a href="mailto:hypewise.team@gmail.com" style="color:inherit;text-decoration:underline">' + HWD.esc(txt) + " →</a>"; else p.textContent = txt;
       p.classList.remove("out");
     }
     if (now || reduce) return set();
@@ -104,7 +104,8 @@
       return '<nav aria-label="' + t(title) + '"><h4>' + L(title) + "</h4><ul>" + links + "</ul></nav>";
     }
     function li(href, key) { return '<li><a href="' + href + '">' + L(key) + "</a></li>"; }
-    f.innerHTML = '<div class="fgrid"><div class="fabout"><a class="mark" href="./">Hype<span>wise</span></a><p>' + L("ft.tag") + '</p><div class="soc" aria-label="' + t("ft.follow") + '">' + soc + "</div></div>" +
+    var young = document.getElementById("crece") ? "" : '<div class="fyoung"><div><b>' + L("fh.h") + "</b><p>" + L("fh.p") + '</p></div><div class="fyb"><a class="btn" href="mailto:hypewise.team@gmail.com">' + L("cm.mailbtn") + '</a><a class="btn ghost" href="https://x.com/gethypewise" target="_blank" rel="noopener">X ↗</a></div></div>';
+    f.innerHTML = young + '<div class="fgrid"><div class="fabout"><a class="mark" href="./">Hype<span>wise</span></a><p>' + L("ft.tag") + '</p><div class="soc" aria-label="' + t("ft.follow") + '">' + soc + "</div></div>" +
       col("ft.brands", brands) +
       col("ft.product", li("board.html", "ft.prices") + li("./#come", "ft.how") + li("./#segnale", "ft.signal") + li("method.html", "ft.method") + li("movers.html", "ft.movers") + li("compare.html", "nav.compare") + li("track.html", "ft.track")) +
       col("ft.company", li("legal.html#about", "ft.about") + li("legal.html#contact", "ft.contact")) +

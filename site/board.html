@@ -10,7 +10,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="claude:viewport-fit-sides" content="cover">
 <script>try{var t=localStorage.getItem("hw-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<link rel="stylesheet" href="style.css?v=21">
+<link rel="stylesheet" href="style.css?v=22">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: floating pill nav, big gradient title, price ticker, three glass figures, filter pills, then one block per brand with a grid of glass sneaker cards. */
@@ -117,6 +117,14 @@ h1{font-weight:800;font-size:clamp(38px,7vw,68px);line-height:1;margin:0}
 .sp.cop{--c:var(--up);background:#0b8a4c}.sp.sell{--c:var(--down);background:#d1365c}.sp.wait{--c:var(--wait);background:#a76a00}
 @media (max-width:860px){#sigf{width:100%;height:44px}}
 @media (max-width:560px){.scard .cover .sp{font-size:9px;padding:3px 7px}}
+
+.cbar{display:flex;align-items:center;gap:16px;padding:16px 20px;margin:0 0 16px;border-radius:20px;border-color:var(--accent2)}
+.cbar .cbi{font-size:26px;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:var(--grad);color:#fff;flex:none}
+.cbar div{flex:1;min-width:0}.cbar b{font-family:var(--display);font-size:17px}.cbar p{margin:2px 0 0;font-size:14px;color:var(--muted)}
+.cmpb{position:absolute;z-index:3;left:64px;top:20px;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:color-mix(in srgb,var(--solid) 82%,transparent);backdrop-filter:blur(8px);color:var(--ink);font:700 16px var(--display);cursor:pointer;display:grid;place-items:center;padding:0}
+.cmpb[aria-pressed="true"]{background:var(--grad);color:#fff;border-color:transparent}
+.ctray{position:fixed;z-index:40;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center;padding:12px 16px;border-radius:20px;max-width:calc(100vw - 24px);box-shadow:0 14px 40px -10px rgba(0,0,0,.5);font-size:14px;font-weight:600}
+@media (max-width:620px){.cbar{flex-wrap:wrap}.cbar .btn{width:100%;text-align:center}}
 </style>
 </head><body data-title="b.title">
 <div class="wrap">
@@ -136,6 +144,8 @@ h1{font-weight:800;font-size:clamp(38px,7vw,68px);line-height:1;margin:0}
     <h1 class="grad-text" data-i18n="b.h1">Sneaker prices</h1>
     <p class="sub" data-i18n="b.sub"></p>
   </header>
+
+  <aside class="cbar glass rise" style="--i:1"><span class="cbi" aria-hidden="true">⇄</span><div><b data-i18n="cb.h">Compare two sneakers</b><p data-i18n="cb.p"></p></div><a class="btn" href="compare.html" data-i18n="cb.btn">Open compare</a></aside>
 
   <div class="finder glass">
     <label class="sbox" for="q">
@@ -180,12 +190,12 @@ h1{font-weight:800;font-size:clamp(38px,7vw,68px);line-height:1;margin:0}
   <footer><p data-i18n="b.foot"></p><p data-i18n="l.brandsnote"></p></footer>
 </div>
 
-<script src="i18n.js?v=21"></script>
-<script src="strings.js?v=21"></script>
-<script src="app.js?v=21"></script>
-<script src="signal.js?v=21"></script>
-<script src="favs.js?v=21"></script>
-<script src="ui.js?v=21"></script>
+<script src="i18n.js?v=22"></script>
+<script src="strings.js?v=22"></script>
+<script src="app.js?v=22"></script>
+<script src="signal.js?v=22"></script>
+<script src="favs.js?v=22"></script>
+<script src="ui.js?v=22"></script>
 <script>
 HW.mount(); UI.initTheme(); UI.backdrop(); UI.banner(); UI.footer(); UI.sync();
 var D = window.HWD, ALL = "__all__", PAGE = 8, state = { items: [], brand: ALL, demo: false, ready: false, shown: {} };
@@ -195,6 +205,26 @@ var firstRender = true;
 
 function limitFor(b, searching) { return state.shown[b] || (state.brand !== ALL || searching ? 24 : PAGE); }
 
+var PICK = [];
+function cmpBtn(sku) { var on = PICK.indexOf(sku) > -1; return '<button type="button" class="cmpb" data-cmp="' + D.esc(sku) + '" aria-pressed="' + on + '" title="' + D.esc(HW.t(on ? "cb.rem" : "cb.add")) + '" aria-label="' + D.esc(HW.t(on ? "cb.rem" : "cb.add")) + '">⇄</button>'; }
+function nameOf(sku) { var x = state.items.filter(function (i) { return i.sku === sku; })[0]; return x ? D.parseTitle(x.title, x.brand).name : sku; }
+function tray() {
+  var t = document.getElementById("ctray");
+  if (!PICK.length) { if (t) t.remove(); return; }
+  if (!t) { t = document.createElement("div"); t.id = "ctray"; t.className = "ctray glass"; document.body.appendChild(t); }
+  var two = PICK.length === 2;
+  t.innerHTML = '<span>' + D.esc(two ? HW.f("cb.vs", { a: nameOf(PICK[0]), b: nameOf(PICK[1]) }) : HW.f("cb.one", { a: nameOf(PICK[0]) })) + '</span>' +
+    (two ? '<a class="btn" href="compare.html?a=' + encodeURIComponent(PICK[0]) + '&b=' + encodeURIComponent(PICK[1]) + '">' + D.esc(HW.t("cb.btn")) + ' →</a>' : "") +
+    '<button type="button" class="btn ghost" data-cclear="1">' + D.esc(HW.t("f.clear")) + "</button>";
+}
+document.addEventListener("click", function (e) {
+  var c = e.target.closest && e.target.closest("[data-cclear]"); if (c) { PICK = []; tray(); render(); return; }
+  var b = e.target.closest && e.target.closest("[data-cmp]"); if (!b) return;
+  e.preventDefault(); e.stopPropagation();
+  var k = b.dataset.cmp, i = PICK.indexOf(k);
+  if (i > -1) PICK.splice(i, 1); else { PICK.push(k); if (PICK.length > 2) PICK.shift(); }
+  tray(); render();
+}, true);
 function render() {
   var q = $("q").value.trim().toLowerCase(), sort = $("sort").value, loc = HW.locale(), searching = !!q;
   var rows = state.items.filter(function (x) { return !q || (x.title + " " + x.sku).toLowerCase().indexOf(q) > -1; })
@@ -218,7 +248,7 @@ function render() {
       (rest > 0 ? '<button type="button" class="chip more" data-more="' + D.esc(b) + '">' + D.esc(HW.f(state.brand === ALL && !searching && !state.shown[b] ? "b.showall" : "b.showmore", { n: list.length })) + "</button>" : "") +
       '</header><div class="grid">' + vis.map(function (x) {
         var none = x.chg === null, cls = none ? "flat" : x.chg > 0.05 ? "up" : x.chg < -0.05 ? "down" : "flat", i = firstRender ? Math.min(delay++, 16) : 0;
-        return '<a class="scard glass' + (firstRender ? " rise" : "") + '" style="--i:' + i + '" href="shoe.html?sku=' + encodeURIComponent(x.sku) + '"><span class="open">' + D.esc(HW.t("f.open")) + ' →</span>' + HWF.heart(x.sku) + D.cover(x, "s", D.vbadge(x, vt, vtip) + (x.sig.verdict !== "none" ? '<span class="sp ' + x.sig.verdict + '">' + D.esc(HW.t(x.sig.verdict === "cop" ? "cop.name" : x.sig.verdict === "sell" ? "sell.name" : "wait.name")) + "</span>" : "")) +
+        return '<a class="scard glass' + (firstRender ? " rise" : "") + '" style="--i:' + i + '" href="shoe.html?sku=' + encodeURIComponent(x.sku) + '"><span class="open">' + D.esc(HW.t("f.open")) + ' →</span>' + HWF.heart(x.sku) + cmpBtn(x.sku) + D.cover(x, "s", D.vbadge(x, vt, vtip) + (x.sig.verdict !== "none" ? '<span class="sp ' + x.sig.verdict + '">' + D.esc(HW.t(x.sig.verdict === "cop" ? "cop.name" : x.sig.verdict === "sell" ? "sell.name" : "wait.name")) + "</span>" : "")) +
           '<div class="body"><b>' + D.esc(x.title) + '</b><span class="sku">' + D.esc(x.sku) + "</span>" +
           '<div class="pr"><span class="price">' + D.money(x.price) + '</span><span class="chg ' + cls + '">' + (none ? D.esc(HW.t("b.collecting")) : D.pct(x.chg, loc)) + "</span></div>" +
           D.spark(x.prices, x.times) + "</div></a>";
